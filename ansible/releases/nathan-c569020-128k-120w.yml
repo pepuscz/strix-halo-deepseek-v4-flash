@@ -106,6 +106,12 @@ deepseek_service:
   auto_start: true
   conflicts:
     - m5-deepseek.service
+  retire_units:
+    - m5-deepseek.service
+    - m5-deepseek-smoke.service
+    - m5-ds4-imatrix-download.service
+    - m5-model-download.service
+    - m5-performance.service
 
 deepseek_policy:
   cpu_governor: performance

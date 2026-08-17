@@ -17,8 +17,9 @@ For an update:
 
 Rollback is the same deterministic path: check out the previous release tag and
 run `install`. Release-specific artifacts are immutable and retained. Ansible
-stops/disables the explicitly conflicting legacy unit before enabling the
-selected unit.
+stops and disables the release manifest's explicit legacy server, smoke,
+download, and host-policy units before enabling the selected unit. It does not
+delete their unit files, artifacts, results, or rollback evidence.
 
 ## Day-to-day controls
 

@@ -10,6 +10,7 @@
       - deepseek_service.memory_swap_max | int == 0
       - deepseek_service.minimum_effective_non_cma_kib | int >= 4194304
       - deepseek_target.shards | length == 4
+      - deepseek_service.conflicts | difference(deepseek_service.retire_units) | length == 0
     fail_msg: The selected release manifest is incomplete or violates its safety envelope.
 
 - name: Read board identity

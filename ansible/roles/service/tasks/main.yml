@@ -25,12 +25,12 @@
     group: root
     mode: "0644"
 
-- name: Stop and disable explicitly conflicting legacy services
+- name: Stop and disable explicitly retired legacy services
   ansible.builtin.systemd_service:
     name: "{{ item }}"
     state: stopped
     enabled: false
-  loop: "{{ deepseek_service.conflicts }}"
+  loop: "{{ deepseek_service.retire_units }}"
   failed_when: false
 
 - name: Reload unit files before service activation
