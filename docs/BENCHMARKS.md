@@ -66,6 +66,15 @@ the correct algorithms but wrote a long explanation first, consumed exactly
 the API response was not executable. The MATH figure corrects one known bad
 gold answer (`math_08`, correct value `20/3`) in the frozen harness.
 
+The coding subset was then repeated under the exact selected Nathan release at
+120/120/120 W, CPU boost off, GPU DPM `auto`, and the pinned Ubuntu Vulkan
+loader. It again scored 7/10 with the same three failed task identities, and
+each failure again stopped at exactly 512 tokens. All ten requests completed
+without API or guard errors. This confirmation closes the selected-policy
+question: Nathan's frozen score is 27/30, not 30/30. It also confirms that both
+measurements used the same pinned loader rather than an unidentified host
+loader; it is not a performance A/B between loader versions.
+
 Lucebox additionally completed HumanEval+ at 131/164 with zero request errors,
 identical to its earlier six-expert 8K baseline. Nathan has not run that full
 164-task suite, so no equivalent Nathan HumanEval+ claim is made.

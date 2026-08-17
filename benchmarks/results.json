@@ -49,6 +49,20 @@
       "end_to_end_output_tokens_per_second": 33.03251798434654
     },
     "corrected_quality_30": {"coding": 7, "gsm8k": 10, "math": 10, "total": 27},
+    "coding_512_confirmation": {
+      "power_watts": {"stapm": 120, "fast": 120, "slow": 120},
+      "temperature": 0,
+      "requested_output_tokens": 512,
+      "completed": 10,
+      "passed": 7,
+      "failed_task_ids": ["he_01", "he_02", "he_07"],
+      "failed_completion_tokens": [512, 512, 512],
+      "mean_output_tokens_per_second": 26.02,
+      "minimum_effective_non_cma_kib": 14051700,
+      "maximum_gpu_temperature_millic": 76000,
+      "maximum_cpu_temperature_millic": 75125,
+      "vulkan_loader_sha256": "def4af45e9e5784cf65eaaaa289530a5c73546b01015da4c0920ef0a144fe189"
+    },
     "tool_contract_passed": true
   },
   "competitor": {

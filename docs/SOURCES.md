@@ -10,5 +10,15 @@
 | Vulkan loader | Ubuntu `libvulkan1` 1.4.341.0-1 | Exact benchmark loader, extracted under the immutable release rather than replacing system libraries. |
 | Inspiration/control | [LocalLLaMA Strix Halo report](https://www.reddit.com/r/LocalLLaMA/comments/1vlmh0b/deepseek_v4_flash_0731_at_27_ts_decode_on_strix/) | Starting configuration and external performance reference; our measurements are independent. |
 
+The Vulkan loader is a real stack component, but it is not the RADV driver that
+executes the GPU kernels. The official [Khronos loader application
+interface](https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderApplicationInterface.md)
+describes its ICD/layer discovery and dispatch trampolines into the selected
+driver. Loader versions can therefore affect compatibility, extension
+discovery, CPU-side dispatch overhead, and bugs, but large compute-throughput
+changes are more likely to come from the RADV build, kernels, model/draft, KV
+policy, or power policy. We did not claim a loader A/B; we remove that confound
+by pinning and hashing the exact Ubuntu loader used in the winning benchmark.
+
 Every downloadable artifact's URL, revision, byte size, and SHA-256 is in
 [`ansible/releases/nathan-c569020-128k-120w.yml`](../ansible/releases/nathan-c569020-128k-120w.yml).
