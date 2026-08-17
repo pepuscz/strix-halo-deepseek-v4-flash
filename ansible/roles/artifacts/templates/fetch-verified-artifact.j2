@@ -39,8 +39,14 @@ if [ -n "$seed" ]; then
     [ "$seed_size" = "$expected_size" ] || fail "seed size=$seed_size expected=$expected_size"
     seed_sha=$(sha256sum "$seed" | awk '{print $1}')
     [ "$seed_sha" = "$expected_sha256" ] || fail "seed sha256=$seed_sha expected=$expected_sha256"
-    ln "$seed" "$destination" 2>/dev/null || cp --reflink=auto "$seed" "$destination"
-    verify_and_mark "$destination"
+    if ln "$seed" "$destination" 2>/dev/null; then
+        # The seed was just hashed and a hard link is the same inode, so record
+        # that verified identity without reading a 100+ GB model a second time.
+        printf '%s %s\n' "$(identity "$destination")" "$expected_sha256" > "$marker"
+    else
+        cp --reflink=auto "$seed" "$destination"
+        verify_and_mark "$destination"
+    fi
     printf 'adopted verified seed %s\n' "$destination"
     exit 0
 fi

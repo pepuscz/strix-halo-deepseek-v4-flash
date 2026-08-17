@@ -34,7 +34,9 @@
 - name: Install the tested GRUB command-line drop-in
   ansible.builtin.template:
     src: 99-deepseek-v4-strix-halo.cfg.j2
-    dest: /etc/default/grub.d/99-deepseek-v4-strix-halo.cfg
+    # This deliberately adopts the filename used by the qualified incumbent.
+    # Keeping one managed drop-in avoids duplicated kernel arguments on upgrade.
+    dest: /etc/default/grub.d/99-m5-performance.cfg
     owner: root
     group: root
     mode: "0644"

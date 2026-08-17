@@ -17,6 +17,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: requirements.lock
       - name: Install frozen controller requirements
         run: pip install --require-hashes -r requirements.lock
       - name: Lint Ansible
