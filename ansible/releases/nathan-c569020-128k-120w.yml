@@ -1,0 +1,146 @@
+---
+deepseek_release_id: nathan-c569020-128k-120w-v1
+deepseek_release_schema: 1
+
+deepseek_platform:
+  os_id: ubuntu
+  os_version: "26.04"
+  kernel: 7.0.0-29-generic
+  architecture: x86_64
+  gpu_pci_id: "1002:1586"
+  board_name: AXB35-02
+  minimum_memory_kib: 125000000
+  strict_kernel: true
+  secure_boot: disabled
+  kernel_arguments:
+    - amd_pstate=active
+    - amd_iommu=off
+    - amdgpu.gttsize=126976
+    - ttm.pages_limit=32505856
+    - ttm.page_pool_size=32505856
+
+deepseek_paths:
+  root: /opt/m5
+  source: /opt/m5/src
+  bin: /opt/m5/bin
+  downloads: /opt/m5/downloads/nathan-c569020-128k-120w-v1
+  release: /opt/m5/releases/nathan-c569020-128k-120w-v1
+  models: /opt/m5/models/nathan-c569020-128k-120w-v1
+  state: /var/lib/deepseek-v4-flash
+
+deepseek_runtime:
+  repository: https://github.com/Nathanw1014/strix-halo-llamacpp
+  release_tag: dev-20260817-c569020
+  source_commit: c56902063081d1a20e05171f2428686a6166b9fb
+  archive_name: strix-halo-llamacpp-vulkan-portable.tar.gz
+  archive_url: https://github.com/Nathanw1014/strix-halo-llamacpp/releases/download/dev-20260817-c569020/strix-halo-llamacpp-vulkan-portable.tar.gz
+  archive_size: 34041419
+  archive_sha256: 1802eb127cb93f7bbe274b752240a7b82348e046ebe162c22ab37f70140a3838
+  manifest_sha256: 135196bbc4f8581bc7721298cba8407ea8e86cf31d5970e6e5a6835293df18d9
+  launcher_sha256: 203684bb16b00b50e1744cafad5457289675fbe2619258651d22a201ec74dc54
+  server_sha256: d0814dcc7b46a6bc484bfd1fc5134480fce707f57dad05744f4b5158c501d20e
+  build_info: b10563-c5690206
+
+deepseek_target:
+  repository: unsloth/DeepSeek-V4-Flash-0731-GGUF
+  revision: fbbb5b93fb787c21338159b0af3318bb3f4d9768
+  quantization: UD-IQ3_XXS
+  total_size: 104207848032
+  shards:
+    - name: DeepSeek-V4-Flash-0731-UD-IQ3_XXS-00001-of-00004.gguf
+      size: 5257696
+      sha256: dec1cee704800267d9d836d5a61aefc33705be939bbb3058fa9006d98191576d
+    - name: DeepSeek-V4-Flash-0731-UD-IQ3_XXS-00002-of-00004.gguf
+      size: 49910532416
+      sha256: 3064d3c4c1d6363e9f9ad88e90a3e2c5fb2d6f7ae16ca72135c3ce6a5c984da5
+    - name: DeepSeek-V4-Flash-0731-UD-IQ3_XXS-00003-of-00004.gguf
+      size: 49257859456
+      sha256: 2e9b2732eca7da8324f731653624a4f5c9846258926fd9f468cc703afb51a019
+    - name: DeepSeek-V4-Flash-0731-UD-IQ3_XXS-00004-of-00004.gguf
+      size: 5034198464
+      sha256: 4ca79d8e5107dd1b9bb57b176a7c09948837425dee49f0f1dfd6547a3769fea7
+
+deepseek_draft:
+  repository: alessandrobologna/DeepSeek-V4-Flash-DSpark-Drafter-GGUF
+  revision: 824190cb58c1469a603d9686107dd85ef11a5d51
+  name: DeepSeek-V4-Flash-DSpark-Drafter-Q2_K-Q8_0-dflash.gguf
+  size: 6976490112
+  sha256: 96f442f7972a6d3e9b05912f511479f4c2f1334870128cc3bb317f8d812faf58
+
+deepseek_ryzenadj:
+  repository: https://github.com/FlyGoat/RyzenAdj.git
+  commit: 5775fc3e6dbb25c7030ee2d100a1bdd6e8bf2d0a
+  version: 5775fc3
+  tested_binary_sha256: 2755abdb70fbe9a20245590fcf6af6e3d424d924cc54f30d172d5b6af5bbb1e2
+  enforce_tested_binary_sha256: true
+
+deepseek_fan:
+  manage: true
+  repository: https://github.com/cmetz/ec-su_axb35-linux.git
+  commit: 7a9f372edcaa99e562dece70204c4f609692a778
+  dkms_version: 0.1.0_git7a9f372
+  sysfs: /sys/class/ec_su_axb35
+  minimum_max_rpm: 2000
+
+deepseek_service:
+  name: deepseek-v4-flash.service
+  user: deepseek
+  group: deepseek
+  host: 127.0.0.1
+  port: 18109
+  alias: deepseek-v4-flash-0731
+  context: 131072
+  parallel_slots: 1
+  batch: 2048
+  microbatch: 1024
+  cache_type_k: q8_0
+  cache_type_v: q8_0
+  draft_max: 64
+  memory_high: 118G
+  memory_max: 120G
+  memory_swap_max: 0
+  minimum_effective_non_cma_kib: 4194304
+  thermal_limit_millic: 95000
+  health_retries: 720
+  health_delay_seconds: 5
+  auto_start: true
+  conflicts:
+    - m5-deepseek.service
+
+deepseek_policy:
+  cpu_governor: performance
+  cpu_min_khz: 2000000
+  cpu_boost: 0
+  gpu_dpm: auto
+  stapm_mw: 120000
+  fast_mw: 120000
+  slow_mw: 120000
+  expected_watts: "120.000"
+
+deepseek_vulkan_environment:
+  GGML_VK_MMID_ROWLISTS: "1"
+  GGML_VK_MMID_SMALLN: "1"
+  GGML_VK_MMID_BM64: "1"
+  GGML_VK_MMID_WAVE32: "1"
+  GGML_VK_MMID_F16B: "1"
+  GGML_VK_FA_WAVE32: "1"
+
+deepseek_vulkan_loader:
+  package: libvulkan1
+  version: 1.4.341.0-1
+  architecture: amd64
+  url: https://archive.ubuntu.com/ubuntu/pool/main/v/vulkan-loader/libvulkan1_1.4.341.0-1_amd64.deb
+  size: 157194
+  sha256: b4aca7a519d6318347f15a0e485c636603005e2553dae1a986272ac8c96176b0
+  library_sha256: def4af45e9e5784cf65eaaaa289530a5c73546b01015da4c0920ef0a144fe189
+
+# Optional machine-local migration inputs. Never commit private paths or use
+# these on a clean install. A valid seed is hard-linked only after size/hash
+# verification, avoiding a second 111 GB download on an already-tested host.
+deepseek_artifact_seed_paths: {}
+deepseek_runtime_archive_seed_path: ""
+deepseek_vulkan_loader_seed_path: ""
+
+deepseek_allow_reboot: false
+deepseek_verify_full_model_hashes: false
+deepseek_verify_api_smoke: true

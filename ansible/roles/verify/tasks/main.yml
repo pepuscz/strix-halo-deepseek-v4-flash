@@ -1,0 +1,191 @@
+---
+- name: Wait for the model server health endpoint
+  ansible.builtin.uri:
+    url: "http://{{ deepseek_service.host }}:{{ deepseek_service.port }}/health"
+    return_content: true
+    status_code: 200
+  register: verify_health
+  until: verify_health.status == 200
+  retries: "{{ deepseek_service.health_retries }}"
+  delay: "{{ deepseek_service.health_delay_seconds }}"
+
+- name: Read live server properties
+  ansible.builtin.uri:
+    url: "http://{{ deepseek_service.host }}:{{ deepseek_service.port }}/props"
+    return_content: true
+    status_code: 200
+  register: verify_props
+
+- name: Assert live API identity and allocation
+  ansible.builtin.assert:
+    that:
+      - verify_props.json.default_generation_settings.n_ctx | int == deepseek_service.context | int
+      - verify_props.json.total_slots | int == deepseek_service.parallel_slots | int
+      - verify_props.json.model_alias == deepseek_service.alias
+      - verify_props.json.model_ftype == 'IQ3_XXS - 3.0625 bpw'
+      - verify_props.json.build_info == deepseek_runtime.build_info
+    fail_msg: The live API is not the pinned 128K Nathan release.
+
+- name: Verify runtime binaries again
+  ansible.builtin.stat:
+    path: "{{ item.path }}"
+    checksum_algorithm: sha256
+    get_checksum: true
+  loop:
+    - {path: "{{ deepseek_paths.release }}/vulkan/llama-server", sha256: "{{ deepseek_runtime.launcher_sha256 }}"}
+    - {path: "{{ deepseek_paths.release }}/vulkan/bin/llama-server", sha256: "{{ deepseek_runtime.server_sha256 }}"}
+    - {path: "{{ deepseek_paths.release }}/loader/usr/lib/x86_64-linux-gnu/libvulkan.so.1", sha256: "{{ deepseek_vulkan_loader.library_sha256 }}"}
+  register: verify_live_runtime_hashes
+
+- name: Assert live runtime hashes
+  ansible.builtin.assert:
+    that:
+      - item.stat.checksum == item.item.sha256
+  loop: "{{ verify_live_runtime_hashes.results }}"
+  loop_control:
+    label: "{{ item.item.path }}"
+
+- name: Read service runtime contract
+  ansible.builtin.command:
+    argv:
+      - systemctl
+      - show
+      - "{{ deepseek_service.name }}"
+      - --property=ActiveState,SubState,MainPID,ControlGroup,MemoryCurrent,MemoryPeak,MemoryHigh,MemoryMax,MemorySwapMax,ExecMainStartTimestamp
+  register: verify_systemd_contract
+  changed_when: false
+
+- name: Read service cgroup path
+  ansible.builtin.command:
+    argv: [systemctl, show, "{{ deepseek_service.name }}", --property=ControlGroup, --value]
+  register: verify_control_group
+  changed_when: false
+
+- name: Read cgroup memory events and pressure
+  ansible.builtin.slurp:
+    src: "/sys/fs/cgroup{{ verify_control_group.stdout | trim }}/{{ item }}"
+  loop:
+    - memory.events
+    - memory.pressure
+    - memory.current
+    - memory.peak
+  register: verify_cgroup_memory
+
+- name: Read system memory PSI
+  ansible.builtin.slurp:
+    src: /proc/pressure/memory
+  register: verify_system_memory_psi
+
+- name: Calculate effective ordinary-page availability
+  ansible.builtin.shell: |
+    set -o pipefail
+    awk '
+      /^MemAvailable:/ {available=$2}
+      /^CmaFree:/ {cma=$2}
+      END {printf "%d %d %d\n", available, cma, available-cma}
+    ' /proc/meminfo
+  args:
+    executable: /bin/bash
+  register: verify_effective_memory
+  changed_when: false
+
+- name: Verify the selected host power and clock policy
+  ansible.builtin.command:
+    argv: [/usr/local/sbin/deepseek-host-policy, verify]
+  register: verify_policy
+  changed_when: false
+
+- name: Read live fan state
+  ansible.builtin.command:
+    argv: [/usr/local/sbin/deepseek-axb35-fan, status]
+  register: verify_live_fans
+  changed_when: false
+  when: deepseek_fan.manage | bool
+
+- name: Read maximum current CPU or GPU temperature
+  ansible.builtin.shell: |
+    set -o pipefail
+    for sensor in /sys/class/hwmon/hwmon*/temp*_input; do
+      [ -r "$sensor" ] && cat "$sensor"
+    done | sort -nr | head -1
+  args:
+    executable: /bin/bash
+  register: verify_max_temperature
+  changed_when: false
+
+- name: Read service kernel interval start
+  ansible.builtin.command:
+    argv: [systemctl, show, "{{ deepseek_service.name }}", --property=ExecMainStartTimestamp, --value]
+  register: verify_service_started
+  changed_when: false
+
+- name: Inspect kernel messages from this service interval
+  ansible.builtin.command:
+    argv: [journalctl, --dmesg, --since, "{{ verify_service_started.stdout | trim }}", --no-pager]
+  register: verify_kernel_interval
+  changed_when: false
+
+- name: Extract fatal kernel signatures
+  ansible.builtin.set_fact:
+    verify_kernel_failures: >-
+      {{ verify_kernel_interval.stdout |
+         regex_findall('(?im)(oom-kill|out of memory|amdgpu.*(?:reset|timeout|fault)|hardware error|kernel panic)') }}
+
+- name: Send a bounded non-thinking API smoke request
+  ansible.builtin.uri:
+    url: "http://{{ deepseek_service.host }}:{{ deepseek_service.port }}/v1/chat/completions"
+    method: POST
+    body_format: json
+    body:
+      model: "{{ deepseek_service.alias }}"
+      messages:
+        - role: user
+          content: Reply with exactly OK.
+      temperature: 0
+      max_tokens: 16
+      chat_template_kwargs:
+        thinking: false
+    return_content: true
+    status_code: 200
+    timeout: 300
+  register: verify_api_smoke
+  when: deepseek_verify_api_smoke | bool
+
+- name: Assert safety, allocator, cooling, and API gates
+  ansible.builtin.assert:
+    that:
+      - "'ActiveState=active' in verify_systemd_contract.stdout"
+      - "'SubState=running' in verify_systemd_contract.stdout"
+      - "'oom 0' in (verify_cgroup_memory.results[0].content | b64decode)"
+      - "'oom_kill 0' in (verify_cgroup_memory.results[0].content | b64decode)"
+      - verify_effective_memory.stdout.split()[2] | int >= deepseek_service.minimum_effective_non_cma_kib | int
+      - verify_max_temperature.stdout | int < deepseek_service.thermal_limit_millic | int
+      - >-
+        not deepseek_fan.manage | bool or
+        (verify_live_fans.stdout.count('mode=fixed') == 3 and
+         verify_live_fans.stdout.count('level=5') == 3)
+      - >-
+        not deepseek_verify_api_smoke | bool or
+        (verify_api_smoke.json.choices | length == 1 and
+         verify_api_smoke.json.choices[0].message.content | length > 0)
+      - verify_kernel_failures | length == 0
+    fail_msg: The selected service is live but failed at least one production safety gate.
+
+- name: Report verified production state
+  ansible.builtin.debug:
+    msg:
+      release: "{{ deepseek_release_id }}"
+      health: "{{ verify_health.json | default(verify_health.content) }}"
+      properties:
+        build: "{{ verify_props.json.build_info }}"
+        context: "{{ verify_props.json.default_generation_settings.n_ctx }}"
+        quantization: "{{ verify_props.json.model_ftype }}"
+      memory_kib:
+        mem_available: "{{ verify_effective_memory.stdout.split()[0] }}"
+        cma_free: "{{ verify_effective_memory.stdout.split()[1] }}"
+        effective_non_cma: "{{ verify_effective_memory.stdout.split()[2] }}"
+      cgroup_events: "{{ (verify_cgroup_memory.results[0].content | b64decode).splitlines() }}"
+      system_memory_psi: "{{ (verify_system_memory_psi.content | b64decode).splitlines() }}"
+      max_temperature_millic: "{{ verify_max_temperature.stdout }}"
+      fans: "{{ verify_live_fans.stdout_lines | default(['external cooling backend']) }}"
+      power: "{{ verify_policy.stdout_lines }}"

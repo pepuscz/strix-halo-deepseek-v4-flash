@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly STATE=/run/deepseek-v4-flash-policy
+readonly LOCK=/run/lock/deepseek-v4-flash-policy.lock
+readonly RYZENADJ={{ (deepseek_paths.bin + '/ryzenadj-' + deepseek_ryzenadj.version) | quote }}
+readonly CPU_GOVERNOR={{ deepseek_policy.cpu_governor | quote }}
+readonly CPU_MIN={{ deepseek_policy.cpu_min_khz }}
+readonly CPU_BOOST={{ deepseek_policy.cpu_boost }}
+readonly GPU_DPM={{ deepseek_policy.gpu_dpm | quote }}
+readonly STAPM={{ deepseek_policy.stapm_mw }}
+readonly FAST={{ deepseek_policy.fast_mw }}
+readonly SLOW={{ deepseek_policy.slow_mw }}
+readonly EXPECTED_W={{ deepseek_policy.expected_watts | quote }}
+
+fail() { printf 'ERROR: %s\n' "$1" >&2; exit 1; }
+read_limit() {
+    local source=$1 row=$2
+    awk -F '|' -v row="$row" '$2 ~ row {gsub(/[[:space:]]/, "", $3); print $3; exit}' "$source"
+}
+save_paths() {
+    local destination=$1; shift
+    : > "$destination"
+    local path
+    for path in "$@"; do
+        [ -r "$path" ] || continue
+        printf '%s|%s\n' "$path" "$(cat "$path")" >> "$destination"
+    done
+}
+restore_paths() {
+    local source=$1 path value
+    [ -f "$source" ] || return 0
+    while IFS='|' read -r path value; do
+        [ -w "$path" ] || continue
+        printf '%s\n' "$value" > "$path"
+    done < "$source"
+}
+capture() {
+    mkdir -m 0700 "$STATE"
+    save_paths "$STATE/cpu" \
+        /sys/devices/system/cpu/cpufreq/boost \
+        /sys/devices/system/cpu/cpufreq/policy*/scaling_governor \
+        /sys/devices/system/cpu/cpufreq/policy*/scaling_min_freq \
+        /sys/devices/system/cpu/cpufreq/policy*/scaling_max_freq \
+        /sys/devices/system/cpu/cpufreq/policy*/energy_performance_preference
+    save_paths "$STATE/gpu" \
+        /sys/class/drm/card*/device/power/control \
+        /sys/class/drm/card*/device/power_dpm_force_performance_level
+    "$RYZENADJ" --info > "$STATE/power"
+}
+restore_state() {
+    [ -d "$STATE" ] || return 0
+    restore_paths "$STATE/gpu"
+    restore_paths "$STATE/cpu"
+    if [ -s "$STATE/power" ]; then
+        old_stapm=$(read_limit "$STATE/power" 'STAPM LIMIT')
+        old_fast=$(read_limit "$STATE/power" 'PPT LIMIT FAST')
+        old_slow=$(read_limit "$STATE/power" 'PPT LIMIT SLOW')
+        if [ -n "$old_stapm" ] && [ -n "$old_fast" ] && [ -n "$old_slow" ]; then
+            "$RYZENADJ" \
+                --stapm-limit="$(awk -v v="$old_stapm" 'BEGIN {printf "%.0f", v*1000}')" \
+                --fast-limit="$(awk -v v="$old_fast" 'BEGIN {printf "%.0f", v*1000}')" \
+                --slow-limit="$(awk -v v="$old_slow" 'BEGIN {printf "%.0f", v*1000}')"
+        fi
+    fi
+    rm -rf -- "$STATE"
+}
+verify() {
+    local path info found_gpu=0
+    for path in /sys/devices/system/cpu/cpufreq/policy*/scaling_governor; do
+        [ "$(cat "$path")" = "$CPU_GOVERNOR" ] || fail "$path does not match $CPU_GOVERNOR"
+    done
+    for path in /sys/devices/system/cpu/cpufreq/policy*/scaling_min_freq; do
+        [ "$(cat "$path")" = "$CPU_MIN" ] || fail "$path does not match $CPU_MIN"
+    done
+    if [ -r /sys/devices/system/cpu/cpufreq/boost ]; then
+        [ "$(cat /sys/devices/system/cpu/cpufreq/boost)" = "$CPU_BOOST" ] || fail 'CPU boost mismatch.'
+    fi
+    for path in /sys/class/drm/card*/device/power_dpm_force_performance_level; do
+        [ -r "$path" ] || continue
+        [ "$(cat "$path")" = "$GPU_DPM" ] || fail "$path does not match $GPU_DPM"
+        found_gpu=1
+    done
+    [ "$found_gpu" -eq 1 ] || fail 'No writable GPU performance control found.'
+    info=$(mktemp /run/deepseek-power.XXXXXX)
+    trap 'rm -f -- "$info"' RETURN
+    "$RYZENADJ" --info > "$info"
+    [ "$(read_limit "$info" 'STAPM LIMIT')" = "$EXPECTED_W" ] || fail 'STAPM readback mismatch.'
+    [ "$(read_limit "$info" 'PPT LIMIT FAST')" = "$EXPECTED_W" ] || fail 'fast PPT readback mismatch.'
+    [ "$(read_limit "$info" 'PPT LIMIT SLOW')" = "$EXPECTED_W" ] || fail 'slow PPT readback mismatch.'
+    rm -f -- "$info"
+    trap - RETURN
+}
+apply() {
+    [ ! -e "$STATE" ] || fail "stale policy state exists: $STATE"
+    capture
+    trap 'restore_state' ERR
+    local path
+    for path in /sys/class/drm/card*/device/power/control; do
+        [ -w "$path" ] && printf 'on\n' > "$path"
+    done
+    for path in /sys/devices/system/cpu/cpufreq/policy*/scaling_governor; do printf '%s\n' "$CPU_GOVERNOR" > "$path"; done
+    for path in /sys/devices/system/cpu/cpufreq/policy*/scaling_min_freq; do printf '%s\n' "$CPU_MIN" > "$path"; done
+    for path in /sys/devices/system/cpu/cpufreq/policy*/scaling_max_freq; do cat "${path%/*}/cpuinfo_max_freq" > "$path"; done
+    for path in /sys/devices/system/cpu/cpufreq/policy*/energy_performance_preference; do
+        [ -w "$path" ] && printf 'performance\n' > "$path"
+    done
+    [ ! -w /sys/devices/system/cpu/cpufreq/boost ] || printf '%s\n' "$CPU_BOOST" > /sys/devices/system/cpu/cpufreq/boost
+    for path in /sys/class/drm/card*/device/power_dpm_force_performance_level; do
+        [ -w "$path" ] && printf '%s\n' "$GPU_DPM" > "$path"
+    done
+    "$RYZENADJ" --stapm-limit="$STAPM" --fast-limit="$FAST" --slow-limit="$SLOW"
+    sleep 2
+    verify
+    trap - ERR
+}
+
+[ "${EUID}" -eq 0 ] || fail 'Run as root.'
+exec 9> "$LOCK"
+flock 9
+case "${1:-status}" in
+    apply) apply ;;
+    restore) restore_state ;;
+    verify|status) verify ;;
+    *) fail 'Usage: deepseek-host-policy {apply|restore|verify|status}' ;;
+esac

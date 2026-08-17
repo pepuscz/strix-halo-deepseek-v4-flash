@@ -1,0 +1,5 @@
+---
+- name: Regenerate GRUB
+  ansible.builtin.command:
+    argv: [update-grub]
+  changed_when: true

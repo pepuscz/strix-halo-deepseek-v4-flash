@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly SYSFS={{ deepseek_fan.sysfs | quote }}
+readonly EXPECTED_BOARD={{ deepseek_platform.board_name | quote }}
+readonly MIN_MAX_RPM={{ deepseek_fan.minimum_max_rpm }}
+
+fail() { printf 'ERROR: %s\n' "$1" >&2; exit 1; }
+restore_auto() {
+    local fan
+    for fan in fan1 fan2 fan3; do
+        [ -w "$SYSFS/$fan/mode" ] || continue
+        printf 'auto\n' > "$SYSFS/$fan/mode" || true
+    done
+}
+fail_max() {
+    restore_auto
+    printf 'ERROR: %s; restored firmware-auto.\n' "$1" >&2
+    exit 1
+}
+show_state() {
+    local fan
+    printf 'power_mode=%s ec_temp_c=%s\n' \
+        "$(cat "$SYSFS/apu/power_mode")" "$(cat "$SYSFS/temp1/temp")"
+    for fan in fan1 fan2 fan3; do
+        printf '%s mode=%s level=%s rpm=%s\n' "$fan" \
+            "$(cat "$SYSFS/$fan/mode")" "$(cat "$SYSFS/$fan/level")" \
+            "$(cat "$SYSFS/$fan/rpm")"
+    done
+}
+
+[ "${EUID}" -eq 0 ] || fail 'Run as root.'
+[ "$(cat /sys/devices/virtual/dmi/id/board_name)" = "$EXPECTED_BOARD" ] || fail 'Unexpected board.'
+case "${1:-status}" in max|auto|status) ;; *) fail 'Usage: deepseek-axb35-fan {max|auto|status}' ;; esac
+modprobe ec_su_axb35
+for fan in fan1 fan2 fan3; do
+    for leaf in mode level rpm; do
+        [ -e "$SYSFS/$fan/$leaf" ] || fail "Missing $SYSFS/$fan/$leaf"
+    done
+done
+
+if [ "${1:-status}" = status ]; then show_state; exit 0; fi
+if [ "$1" = auto ]; then
+    restore_auto
+    sleep 2
+    for fan in fan1 fan2 fan3; do
+        [ "$(cat "$SYSFS/$fan/mode")" = auto ] || fail "$fan did not return to auto."
+    done
+    show_state
+    exit 0
+fi
+
+trap 'restore_auto' ERR
+for fan in fan1 fan2 fan3; do
+    printf '5\n' > "$SYSFS/$fan/level"
+    printf 'fixed\n' > "$SYSFS/$fan/mode"
+    printf '5\n' > "$SYSFS/$fan/level"
+done
+sleep 5
+for fan in fan1 fan2 fan3; do
+    mode=$(cat "$SYSFS/$fan/mode")
+    level=$(cat "$SYSFS/$fan/level")
+    rpm=$(cat "$SYSFS/$fan/rpm")
+    [ "$mode" = fixed ] || fail_max "$fan mode=$mode"
+    [ "$level" = 5 ] || fail_max "$fan level=$level"
+    case "$rpm" in ''|*[!0-9]*) fail_max "$fan returned invalid RPM: $rpm" ;; esac
+    [ "$rpm" -ge "$MIN_MAX_RPM" ] || fail_max "$fan RPM $rpm is below $MIN_MAX_RPM"
+done
+trap - ERR
+show_state

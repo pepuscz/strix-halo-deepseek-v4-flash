@@ -1,0 +1,14 @@
+release_id: {{ deepseek_release_id }}
+managed_by: https://github.com/pepuscz/strix-halo-deepseek-v4-flash
+service: {{ deepseek_service.name }}
+runtime_server_sha256: {{ deepseek_runtime.server_sha256 }}
+target_repository: {{ deepseek_target.repository }}
+target_revision: {{ deepseek_target.revision }}
+target_quantization: {{ deepseek_target.quantization }}
+draft_repository: {{ deepseek_draft.repository }}
+draft_revision: {{ deepseek_draft.revision }}
+context: {{ deepseek_service.context }}
+power_watts: {{ deepseek_policy.expected_watts }}
+memory_high: {{ deepseek_service.memory_high }}
+memory_max: {{ deepseek_service.memory_max }}
+memory_swap_max: {{ deepseek_service.memory_swap_max }}

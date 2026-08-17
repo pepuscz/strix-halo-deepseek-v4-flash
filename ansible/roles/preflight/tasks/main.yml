@@ -1,0 +1,85 @@
+---
+- name: Validate release manifest schema
+  ansible.builtin.assert:
+    that:
+      - deepseek_release_schema | int == 1
+      - deepseek_release_id | length > 0
+      - deepseek_service.context | int == 131072
+      - deepseek_service.memory_high == '118G'
+      - deepseek_service.memory_max == '120G'
+      - deepseek_service.memory_swap_max | int == 0
+      - deepseek_service.minimum_effective_non_cma_kib | int >= 4194304
+      - deepseek_target.shards | length == 4
+    fail_msg: The selected release manifest is incomplete or violates its safety envelope.
+
+- name: Read board identity
+  ansible.builtin.slurp:
+    src: /sys/devices/virtual/dmi/id/board_name
+  register: preflight_board_name_raw
+
+- name: Find AMD GPU PCI devices
+  ansible.builtin.shell: |
+    set -o pipefail
+    for device in /sys/class/drm/card*/device; do
+      [ -r "$device/vendor" ] || continue
+      [ -r "$device/device" ] || continue
+      printf '%s:%s\n' "$(sed 's/^0x//' "$device/vendor")" "$(sed 's/^0x//' "$device/device")"
+    done | sort -u
+  args:
+    executable: /bin/bash
+  register: preflight_gpu_pci_ids
+  changed_when: false
+
+- name: Resolve root filesystem free space
+  ansible.builtin.set_fact:
+    preflight_root_mount: "{{ (ansible_facts.mounts | selectattr('mount', 'equalto', '/') | list | first) }}"
+
+- name: Validate immutable host requirements
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.distribution | lower == deepseek_platform.os_id
+      - ansible_facts.distribution_version == deepseek_platform.os_version
+      - ansible_facts.architecture == deepseek_platform.architecture
+      - ansible_facts.memtotal_mb | int * 1024 >= deepseek_platform.minimum_memory_kib | int
+      - (preflight_board_name_raw.content | b64decode | trim) == deepseek_platform.board_name
+      - deepseek_platform.gpu_pci_id in preflight_gpu_pci_ids.stdout_lines
+      - ansible_facts.swaptotal_mb | int == 0
+      - preflight_root_mount.size_available | int >= 120000000000
+      - not deepseek_platform.strict_kernel | bool or ansible_facts.kernel == deepseek_platform.kernel
+    fail_msg: >-
+      Host identity, kernel, RAM, GPU, swap, or free-space requirements do not match
+      the frozen release. Do not weaken the manifest to force an unqualified host.
+
+- name: Read Secure Boot state when mokutil is installed
+  ansible.builtin.command:
+    argv: [mokutil, --sb-state]
+  register: preflight_secure_boot
+  changed_when: false
+  failed_when: false
+
+- name: Require disabled Secure Boot when state is observable
+  ansible.builtin.assert:
+    that:
+      - "'SecureBoot disabled' in preflight_secure_boot.stdout"
+    fail_msg: Secure Boot must be disabled before installing the tested AXB35 DKMS module.
+  when:
+    - deepseek_platform.secure_boot == 'disabled'
+    - preflight_secure_boot.rc == 0
+
+- name: Explain deferred Secure Boot validation
+  ansible.builtin.debug:
+    msg: mokutil is not installed yet; the platform role will install it and validate Secure Boot.
+  when:
+    - deepseek_platform.secure_boot == 'disabled'
+    - preflight_secure_boot.rc != 0
+
+- name: Report validated target
+  ansible.builtin.debug:
+    msg:
+      release: "{{ deepseek_release_id }}"
+      host: "{{ inventory_hostname }}"
+      board: "{{ preflight_board_name_raw.content | b64decode | trim }}"
+      gpu: "{{ preflight_gpu_pci_ids.stdout_lines }}"
+      kernel: "{{ ansible_facts.kernel }}"
+      memory_mb: "{{ ansible_facts.memtotal_mb }}"
+      free_bytes: "{{ preflight_root_mount.size_available }}"

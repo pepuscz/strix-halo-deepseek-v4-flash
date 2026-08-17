@@ -1,0 +1,48 @@
+[Unit]
+Description=DeepSeek V4 Flash 0731 selected 128K production release
+Wants=network-online.target
+{% if deepseek_fan.manage | bool %}
+After=network-online.target deepseek-axb35-max-fan.service
+Requires=deepseek-axb35-max-fan.service
+{% else %}
+After=network-online.target
+{% endif %}
+{% for conflict in deepseek_service.conflicts %}Conflicts={{ conflict }}
+{% endfor %}ConditionPathExists={{ deepseek_paths.release }}/vulkan/llama-server
+ConditionPathExists={{ deepseek_paths.models }}/{{ deepseek_target.shards[0].name }}
+ConditionPathExists={{ deepseek_paths.models }}/{{ deepseek_draft.name }}
+
+[Service]
+Type=simple
+User={{ deepseek_service.user }}
+Group={{ deepseek_service.group }}
+SupplementaryGroups=video render
+WorkingDirectory={{ deepseek_paths.release }}/vulkan
+ExecStartPre=+/usr/local/sbin/deepseek-host-policy apply
+ExecStart={{ deepseek_paths.release }}/vulkan/llama-server \
+  -m {{ deepseek_paths.models }}/{{ deepseek_target.shards[0].name }} \
+  -md {{ deepseek_paths.models }}/{{ deepseek_draft.name }} \
+  -a {{ deepseek_service.alias }} \
+  -ngl 999 -ngld 999 -fa on \
+  -ctk {{ deepseek_service.cache_type_k }} -ctv {{ deepseek_service.cache_type_v }} \
+  -c {{ deepseek_service.context }} -np {{ deepseek_service.parallel_slots }} \
+  -b {{ deepseek_service.batch }} -ub {{ deepseek_service.microbatch }} \
+  -fit off --spec-type draft-dspark --spec-draft-n-max {{ deepseek_service.draft_max }} \
+  --jinja --host {{ deepseek_service.host }} --port {{ deepseek_service.port }}
+ExecStopPost=+/usr/local/sbin/deepseek-host-policy restore
+{% for key, value in deepseek_vulkan_environment.items() %}Environment={{ key }}={{ value }}
+{% endfor %}Environment=LD_LIBRARY_PATH={{ deepseek_paths.release }}/loader/usr/lib/x86_64-linux-gnu
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=infinity
+TimeoutStopSec=300
+LimitMEMLOCK=infinity
+LimitNOFILE=1048576
+Nice=-10
+OOMScoreAdjust=500
+MemoryHigh={{ deepseek_service.memory_high }}
+MemoryMax={{ deepseek_service.memory_max }}
+MemorySwapMax={{ deepseek_service.memory_swap_max }}
+
+[Install]
+WantedBy=multi-user.target

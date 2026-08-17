@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+export ANSIBLE_CONFIG="$repo_root/ansible.cfg"
+ansible_playbook=${ANSIBLE_PLAYBOOK:-"$repo_root/.venv/bin/ansible-playbook"}
+ansible_lint=${ANSIBLE_LINT:-"$repo_root/.venv/bin/ansible-lint"}
+inventory=${DEEPSEEK_INVENTORY:-"$repo_root/ansible/inventory/hosts.yml"}
+release=${DEEPSEEK_RELEASE:-"$repo_root/ansible/releases/nathan-c569020-128k-120w.yml"}
+
+fail() { printf 'ERROR: %s\n' "$1" >&2; exit 1; }
+need_inventory() { [[ -f "$inventory" ]] || fail "Create $inventory from hosts.example.yml"; }
+run_playbook() {
+    need_inventory
+    [[ -x "$ansible_playbook" ]] || fail "Missing $ansible_playbook; install requirements.lock first."
+    "$ansible_playbook" -i "$inventory" -e "@$release" "$@"
+}
+
+command=${1:-}
+shift || true
+case "$command" in
+    validate)
+        python3 "$repo_root/scripts/validate_release.py" "$release"
+        run_playbook --syntax-check "$repo_root/ansible/playbooks/install.yml"
+        run_playbook --check "$repo_root/ansible/playbooks/preflight.yml" "$@"
+        ;;
+    install|update)
+        allow_reboot=false
+        if [[ "${1:-}" == --allow-reboot ]]; then
+            allow_reboot=true
+            shift
+        fi
+        run_playbook "$repo_root/ansible/playbooks/install.yml" \
+            -e "deepseek_allow_reboot=$allow_reboot" "$@"
+        ;;
+    verify|status)
+        run_playbook "$repo_root/ansible/playbooks/verify.yml" "$@"
+        ;;
+    start)
+        run_playbook "$repo_root/ansible/playbooks/start.yml" "$@"
+        ;;
+    stop)
+        run_playbook "$repo_root/ansible/playbooks/stop.yml" "$@"
+        ;;
+    lint)
+        [[ -x "$ansible_lint" ]] || fail "Missing $ansible_lint."
+        "$ansible_lint" "$repo_root/ansible"
+        ;;
+    *)
+        printf 'Usage: %s {validate|install [--allow-reboot]|update [--allow-reboot]|verify|status|start|stop|lint}\n' "$0" >&2
+        exit 2
+        ;;
+esac

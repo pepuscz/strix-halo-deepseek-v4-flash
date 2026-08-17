@@ -1,0 +1,60 @@
+---
+- name: Render every shipped template without touching a target host
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../ansible/releases/nathan-c569020-128k-120w.yml
+  tasks:
+    - name: Render scripts and units into a disposable directory
+      ansible.builtin.template:
+        src: "../{{ item.src }}"
+        dest: "/tmp/{{ item.dest }}"
+        mode: "{{ item.mode }}"
+      loop:
+        - src: ansible/roles/artifacts/templates/fetch-verified-artifact.j2
+          dest: fetch-verified-artifact
+          mode: "0755"
+        - src: ansible/roles/fan/templates/deepseek-axb35-fan.j2
+          dest: deepseek-axb35-fan
+          mode: "0755"
+        - src: ansible/roles/fan/templates/deepseek-axb35-max-fan.service.j2
+          dest: deepseek-axb35-max-fan.service
+          mode: "0644"
+        - src: ansible/roles/platform/templates/99-deepseek-v4-strix-halo.cfg.j2
+          dest: 99-deepseek-v4-strix-halo.cfg
+          mode: "0644"
+        - src: ansible/roles/service/templates/deepseek-host-policy.j2
+          dest: deepseek-host-policy
+          mode: "0755"
+        - src: ansible/roles/service/templates/deepseek-v4-flash.service.j2
+          dest: deepseek-v4-flash.service
+          mode: "0644"
+      loop_control:
+        label: "{{ item.dest }}"
+
+    - name: Syntax-check rendered shell programs
+      ansible.builtin.command:
+        argv: [bash, -n, "/tmp/{{ item }}"]
+      loop:
+        - fetch-verified-artifact
+        - deepseek-axb35-fan
+        - deepseek-host-policy
+      changed_when: false
+
+    - name: Read rendered production unit
+      ansible.builtin.slurp:
+        src: /tmp/deepseek-v4-flash.service
+      register: deepseek_rendered_unit
+
+    - name: Assert rendered winner contract
+      ansible.builtin.assert:
+        that:
+          - "'-c 131072' in (deepseek_rendered_unit.content | b64decode)"
+          - "'-ctk q8_0 -ctv q8_0' in (deepseek_rendered_unit.content | b64decode)"
+          - "'--spec-type draft-dspark' in (deepseek_rendered_unit.content | b64decode)"
+          - "'MemoryHigh=118G' in (deepseek_rendered_unit.content | b64decode)"
+          - "'MemoryMax=120G' in (deepseek_rendered_unit.content | b64decode)"
+          - "'MemorySwapMax=0' in (deepseek_rendered_unit.content | b64decode)"
+          - "'GGML_VK_FA_WAVE32=1' in (deepseek_rendered_unit.content | b64decode)"
+          - "'serviceRequires' not in (deepseek_rendered_unit.content | b64decode)"

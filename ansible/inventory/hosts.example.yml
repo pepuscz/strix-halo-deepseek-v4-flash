@@ -1,0 +1,9 @@
+---
+all:
+  children:
+    deepseek_hosts:
+      hosts:
+        strix-halo:
+          ansible_host: strix-halo.example.net
+          ansible_user: ubuntu
+          ansible_become: true

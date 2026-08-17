@@ -1,0 +1,13 @@
+.venv/
+.ansible/
+ansible/inventory/hosts.yml
+*.retry
+*.log
+*.env
+*.key
+*.pem
+*.token
+*.gguf
+*.bin
+__pycache__/
+.DS_Store

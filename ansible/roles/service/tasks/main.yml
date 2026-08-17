@@ -1,0 +1,47 @@
+---
+- name: Install reversible host policy controller
+  ansible.builtin.template:
+    src: deepseek-host-policy.j2
+    dest: /usr/local/sbin/deepseek-host-policy
+    owner: root
+    group: root
+    mode: "0755"
+  notify: Restart selected production
+
+- name: Install selected production service
+  ansible.builtin.template:
+    src: deepseek-v4-flash.service.j2
+    dest: "/etc/systemd/system/{{ deepseek_service.name }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart selected production
+
+- name: Record Ansible-owned production release
+  ansible.builtin.template:
+    src: release.yml.j2
+    dest: /etc/deepseek-v4-flash-release.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Stop and disable explicitly conflicting legacy services
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop: "{{ deepseek_service.conflicts }}"
+  failed_when: false
+
+- name: Reload unit files before service activation
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Apply pending production changes
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable and start selected production
+  ansible.builtin.systemd_service:
+    name: "{{ deepseek_service.name }}"
+    enabled: "{{ deepseek_service.auto_start }}"
+    state: started

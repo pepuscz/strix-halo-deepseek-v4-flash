@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+url=${1:?url}
+destination=${2:?destination}
+expected_size=${3:?size}
+expected_sha256=${4:?sha256}
+seed=${5:-}
+marker="${destination}.verified"
+
+fail() { printf 'ERROR: %s\n' "$1" >&2; exit 1; }
+identity() { stat -c '%d:%i:%s:%Y' "$1"; }
+verify_and_mark() {
+    local file=$1 actual_size actual_sha
+    actual_size=$(stat -c %s "$file")
+    [ "$actual_size" = "$expected_size" ] || fail "$file size=$actual_size expected=$expected_size"
+    actual_sha=$(sha256sum "$file" | awk '{print $1}')
+    [ "$actual_sha" = "$expected_sha256" ] || fail "$file sha256=$actual_sha expected=$expected_sha256"
+    printf '%s %s\n' "$(identity "$file")" "$expected_sha256" > "$marker"
+}
+
+install -d -m 0755 "$(dirname "$destination")"
+if [ -f "$destination" ] && [ -f "$marker" ]; then
+    read -r marked_identity marked_sha < "$marker"
+    if [ "$(identity "$destination")" = "$marked_identity" ] && [ "$marked_sha" = "$expected_sha256" ]; then
+        printf 'verified marker %s\n' "$destination"
+        exit 0
+    fi
+fi
+if [ -e "$destination" ]; then
+    verify_and_mark "$destination"
+    printf 'verified existing %s\n' "$destination"
+    exit 0
+fi
+
+if [ -n "$seed" ]; then
+    [ -f "$seed" ] || fail "seed does not exist: $seed"
+    seed_size=$(stat -c %s "$seed")
+    [ "$seed_size" = "$expected_size" ] || fail "seed size=$seed_size expected=$expected_size"
+    seed_sha=$(sha256sum "$seed" | awk '{print $1}')
+    [ "$seed_sha" = "$expected_sha256" ] || fail "seed sha256=$seed_sha expected=$expected_sha256"
+    ln "$seed" "$destination" 2>/dev/null || cp --reflink=auto "$seed" "$destination"
+    verify_and_mark "$destination"
+    printf 'adopted verified seed %s\n' "$destination"
+    exit 0
+fi
+
+partial="${destination}.part"
+curl --fail --location --continue-at - --retry 12 --retry-all-errors \
+    --connect-timeout 30 --speed-limit 262144 --speed-time 300 \
+    --output "$partial" "$url"
+[ "$(stat -c %s "$partial")" = "$expected_size" ] || fail "partial download has wrong size: $partial"
+[ "$(sha256sum "$partial" | awk '{print $1}')" = "$expected_sha256" ] || fail "partial download has wrong SHA-256: $partial"
+chmod 0644 "$partial"
+mv "$partial" "$destination"
+verify_and_mark "$destination"
+printf 'downloaded and verified %s\n' "$destination"

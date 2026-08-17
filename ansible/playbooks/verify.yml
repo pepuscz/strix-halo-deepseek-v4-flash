@@ -1,0 +1,8 @@
+---
+- name: Verify the live pinned production release
+  hosts: deepseek_hosts
+  become: true
+  gather_facts: true
+  roles:
+    - preflight
+    - verify

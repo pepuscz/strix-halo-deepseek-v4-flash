@@ -1,0 +1,14 @@
+---
+- name: Start and verify DeepSeek V4 Flash
+  hosts: deepseek_hosts
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Start production
+      ansible.builtin.systemd_service:
+        name: "{{ deepseek_service.name }}"
+        state: started
+        enabled: "{{ deepseek_service.auto_start }}"
+    - name: Verify production
+      ansible.builtin.include_role:
+        name: verify

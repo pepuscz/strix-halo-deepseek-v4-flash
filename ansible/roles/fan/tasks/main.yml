@@ -1,0 +1,106 @@
+---
+- name: Install the optional BOSGAME AXB35 cooling backend
+  when: deepseek_fan.manage | bool
+  block:
+    - name: Define pinned fan-driver paths
+      ansible.builtin.set_fact:
+        fan_source: "{{ deepseek_paths.source }}/ec-su_axb35-linux-{{ deepseek_fan.commit }}"
+        fan_dkms_source: "/usr/src/ec-su-axb35-{{ deepseek_fan.dkms_version }}"
+
+    - name: Check installed fan driver for the running kernel
+      ansible.builtin.command:
+        argv: [dkms, status, -m, ec-su-axb35, -v, "{{ deepseek_fan.dkms_version }}", -k, "{{ ansible_facts.kernel }}"]
+      register: fan_dkms_status
+      changed_when: false
+      failed_when: false
+
+    - name: Fetch exact AXB35 driver source commit
+      ansible.builtin.git:
+        repo: "{{ deepseek_fan.repository }}"
+        dest: "{{ fan_source }}"
+        version: "{{ deepseek_fan.commit }}"
+        single_branch: true
+        force: false
+      when: "'installed' not in fan_dkms_status.stdout"
+
+    - name: Copy exact source tree into the DKMS namespace
+      ansible.builtin.copy:
+        src: "{{ fan_source }}/"
+        dest: "{{ fan_dkms_source }}/"
+        remote_src: true
+        owner: root
+        group: root
+        mode: preserve
+      when: "'installed' not in fan_dkms_status.stdout"
+
+    - name: Install pinned DKMS metadata
+      ansible.builtin.template:
+        src: dkms.conf.j2
+        dest: "{{ fan_dkms_source }}/dkms.conf"
+        owner: root
+        group: root
+        mode: "0644"
+      register: fan_dkms_config
+
+    - name: Register fan driver with DKMS
+      ansible.builtin.command:
+        argv: [dkms, add, -m, ec-su-axb35, -v, "{{ deepseek_fan.dkms_version }}"]
+      changed_when: true
+      when: fan_dkms_status.rc != 0 or fan_dkms_status.stdout | trim == ''
+
+    - name: Build fan driver for the qualified kernel
+      ansible.builtin.command:
+        argv: [dkms, build, -m, ec-su-axb35, -v, "{{ deepseek_fan.dkms_version }}", -k, "{{ ansible_facts.kernel }}"]
+      changed_when: true
+      when:
+        - "'installed' not in fan_dkms_status.stdout"
+        - "'built' not in fan_dkms_status.stdout"
+
+    - name: Install fan driver for the qualified kernel
+      ansible.builtin.command:
+        argv: [dkms, install, -m, ec-su-axb35, -v, "{{ deepseek_fan.dkms_version }}", -k, "{{ ansible_facts.kernel }}"]
+      changed_when: true
+      when: "'installed' not in fan_dkms_status.stdout"
+
+    - name: Load the AXB35 fan driver
+      ansible.builtin.command:
+        argv: [modprobe, ec_su_axb35]
+      changed_when: false
+
+    - name: Install guarded fan controller
+      ansible.builtin.template:
+        src: deepseek-axb35-fan.j2
+        dest: /usr/local/sbin/deepseek-axb35-fan
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Install model-scoped maximum-fan service
+      ansible.builtin.template:
+        src: deepseek-axb35-max-fan.service.j2
+        dest: /etc/systemd/system/deepseek-axb35-max-fan.service
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload systemd
+
+    - name: Verify the driver exported every expected interface
+      ansible.builtin.command:
+        argv: [/usr/local/sbin/deepseek-axb35-fan, status]
+      register: fan_initial_state
+      changed_when: false
+
+    - name: Record fan-driver provenance
+      ansible.builtin.copy:
+        dest: /etc/deepseek-axb35-driver-release
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          repository={{ deepseek_fan.repository }}
+          commit={{ deepseek_fan.commit }}
+          dkms_version={{ deepseek_fan.dkms_version }}
+          kernel={{ ansible_facts.kernel }}
+
+    - name: Apply fan-systemd changes
+      ansible.builtin.meta: flush_handlers

@@ -1,0 +1,37 @@
+name: Ansible
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install frozen controller requirements
+        run: pip install --require-hashes -r requirements.lock
+      - name: Lint Ansible
+        run: ansible-lint ansible
+      - name: Validate release pins and public-data boundary
+        run: python scripts/validate_release.py ansible/releases/nathan-c569020-128k-120w.yml
+      - name: Render and inspect the frozen service contract
+        run: ansible-playbook -i localhost, -c local tests/render.yml
+      - name: Syntax-check every playbook
+        shell: bash
+        run: |
+          set -euo pipefail
+          for playbook in ansible/playbooks/*.yml; do
+            ansible-playbook --syntax-check \
+              -i ansible/inventory/hosts.example.yml \
+              -e @ansible/releases/nathan-c569020-128k-120w.yml \
+              "$playbook"
+          done

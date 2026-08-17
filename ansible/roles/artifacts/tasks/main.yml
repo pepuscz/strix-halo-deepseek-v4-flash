@@ -1,0 +1,201 @@
+---
+- name: Create immutable release directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: "{{ deepseek_service.group }}"
+    mode: "0755"
+  loop:
+    - "{{ deepseek_paths.downloads }}"
+    - "{{ deepseek_paths.release }}"
+    - "{{ deepseek_paths.models }}"
+
+- name: Install resumable verified artifact fetcher
+  ansible.builtin.template:
+    src: fetch-verified-artifact.j2
+    dest: "{{ deepseek_paths.bin }}/fetch-verified-artifact"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Fetch or adopt the pinned runtime archive
+  ansible.builtin.command:
+    argv:
+      - "{{ deepseek_paths.bin }}/fetch-verified-artifact"
+      - "{{ deepseek_runtime.archive_url }}"
+      - "{{ deepseek_paths.downloads }}/{{ deepseek_runtime.archive_name }}"
+      - "{{ deepseek_runtime.archive_size }}"
+      - "{{ deepseek_runtime.archive_sha256 }}"
+      - "{{ deepseek_runtime_archive_seed_path }}"
+  register: artifacts_runtime_fetch
+  changed_when: "'downloaded' in artifacts_runtime_fetch.stdout or 'adopted' in artifacts_runtime_fetch.stdout"
+  async: 86400
+  poll: 30
+
+- name: Fetch or adopt the pinned Vulkan loader package
+  ansible.builtin.command:
+    argv:
+      - "{{ deepseek_paths.bin }}/fetch-verified-artifact"
+      - "{{ deepseek_vulkan_loader.url }}"
+      - "{{ deepseek_paths.downloads }}/libvulkan1_{{ deepseek_vulkan_loader.version }}_{{ deepseek_vulkan_loader.architecture }}.deb"
+      - "{{ deepseek_vulkan_loader.size }}"
+      - "{{ deepseek_vulkan_loader.sha256 }}"
+      - "{{ deepseek_vulkan_loader_seed_path }}"
+  register: artifacts_loader_fetch
+  changed_when: "'downloaded' in artifacts_loader_fetch.stdout or 'adopted' in artifacts_loader_fetch.stdout"
+
+- name: Define pinned model artifact list
+  ansible.builtin.set_fact:
+    artifacts_model_artifacts: >-
+      {{
+        deepseek_target.shards | map('combine', {
+          'kind': 'target',
+          'repository': deepseek_target.repository,
+          'revision': deepseek_target.revision,
+          'subdirectory': deepseek_target.quantization
+        }) | list
+        + [deepseek_draft | combine({'kind': 'draft', 'subdirectory': ''})]
+      }}
+
+- name: Fetch or adopt every pinned model artifact
+  ansible.builtin.command:
+    argv:
+      - "{{ deepseek_paths.bin }}/fetch-verified-artifact"
+      - "{{ artifacts_url }}"
+      - "{{ deepseek_paths.models }}/{{ item.name }}"
+      - "{{ item.size }}"
+      - "{{ item.sha256 }}"
+      - "{{ deepseek_artifact_seed_paths[item.name] | default('') }}"
+  loop: "{{ artifacts_model_artifacts }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: artifacts_model_fetch
+  changed_when: "'downloaded' in artifacts_model_fetch.stdout or 'adopted' in artifacts_model_fetch.stdout"
+  async: 86400
+  poll: 30
+  vars:
+    artifacts_relative_path: >-
+      {{ (item.subdirectory + '/') if item.subdirectory | length > 0 else '' }}{{ item.name }}
+    artifacts_url: >-
+      https://huggingface.co/{{ item.repository }}/resolve/{{ item.revision }}/{{ artifacts_relative_path }}?download=true
+
+- name: Inspect extracted runtime launcher
+  ansible.builtin.stat:
+    path: "{{ deepseek_paths.release }}/vulkan/_run"
+    checksum_algorithm: sha256
+    get_checksum: true
+  register: artifacts_runtime_launcher_before
+
+- name: Refuse to overwrite an unrecognized release directory
+  ansible.builtin.fail:
+    msg: >-
+      {{ deepseek_paths.release }} exists with an unrecognized runtime. Releases
+      are immutable; select a new release_id instead of overwriting it.
+  when:
+    - artifacts_runtime_launcher_before.stat.exists
+    - artifacts_runtime_launcher_before.stat.checksum != deepseek_runtime.launcher_sha256
+
+- name: Extract the verified portable runtime once
+  ansible.builtin.unarchive:
+    src: "{{ deepseek_paths.downloads }}/{{ deepseek_runtime.archive_name }}"
+    dest: "{{ deepseek_paths.release }}"
+    remote_src: true
+    owner: root
+    group: "{{ deepseek_service.group }}"
+    creates: "{{ deepseek_paths.release }}/vulkan/_run"
+  when: not artifacts_runtime_launcher_before.stat.exists
+
+- name: Extract the pinned Vulkan loader under the immutable release
+  ansible.builtin.command:
+    argv:
+      - dpkg-deb
+      - -x
+      - "{{ deepseek_paths.downloads }}/libvulkan1_{{ deepseek_vulkan_loader.version }}_{{ deepseek_vulkan_loader.architecture }}.deb"
+      - "{{ deepseek_paths.release }}/loader"
+  args:
+    creates: "{{ deepseek_paths.release }}/loader/usr/lib/x86_64-linux-gnu/libvulkan.so.1"
+
+- name: Read pinned runtime executable identities
+  ansible.builtin.stat:
+    path: "{{ item.path }}"
+    checksum_algorithm: sha256
+    get_checksum: true
+  loop:
+    - name: launcher
+      path: "{{ deepseek_paths.release }}/vulkan/_run"
+      sha256: "{{ deepseek_runtime.launcher_sha256 }}"
+    - name: runtime-manifest
+      path: "{{ deepseek_paths.release }}/MANIFEST.txt"
+      sha256: "{{ deepseek_runtime.manifest_sha256 }}"
+    - name: server-wrapper
+      path: "{{ deepseek_paths.release }}/vulkan/llama-server"
+      sha256: "{{ deepseek_runtime.launcher_sha256 }}"
+    - name: server
+      path: "{{ deepseek_paths.release }}/vulkan/bin/llama-server"
+      sha256: "{{ deepseek_runtime.server_sha256 }}"
+    - name: vulkan-loader
+      path: "{{ deepseek_paths.release }}/loader/usr/lib/x86_64-linux-gnu/libvulkan.so.1"
+      sha256: "{{ deepseek_vulkan_loader.library_sha256 }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: artifacts_runtime_identities
+
+- name: Assert portable runtime identity
+  ansible.builtin.assert:
+    that:
+      - item.stat.exists
+      - item.stat.checksum == item.item.sha256
+    fail_msg: "Portable runtime identity failed for {{ item.item.name }}."
+  loop: "{{ artifacts_runtime_identities.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+
+- name: Read model artifact sizes
+  ansible.builtin.stat:
+    path: "{{ deepseek_paths.models }}/{{ item.name }}"
+    get_checksum: false
+  loop: "{{ artifacts_model_artifacts }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: artifacts_model_sizes
+
+- name: Assert model artifact sizes
+  ansible.builtin.assert:
+    that:
+      - item.stat.exists
+      - item.stat.size | int == item.item.size | int
+    fail_msg: "Model artifact size failed for {{ item.item.name }}."
+  loop: "{{ artifacts_model_sizes.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+
+- name: Verify complete model hashes when explicitly requested
+  ansible.builtin.stat:
+    path: "{{ deepseek_paths.models }}/{{ item.name }}"
+    checksum_algorithm: sha256
+    get_checksum: true
+  loop: "{{ artifacts_model_artifacts }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: artifacts_model_hashes
+  when: deepseek_verify_full_model_hashes | bool
+
+- name: Assert requested complete model hashes
+  ansible.builtin.assert:
+    that:
+      - item.stat.checksum == item.item.sha256
+  loop: "{{ artifacts_model_hashes.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item.name | default('skipped') }}"
+  when:
+    - deepseek_verify_full_model_hashes | bool
+    - not item.skipped | default(false)
+
+- name: Record release artifact provenance
+  ansible.builtin.template:
+    src: artifacts.yml.j2
+    dest: "{{ deepseek_paths.release }}/ARTIFACTS.yml"
+    owner: root
+    group: "{{ deepseek_service.group }}"
+    mode: "0444"

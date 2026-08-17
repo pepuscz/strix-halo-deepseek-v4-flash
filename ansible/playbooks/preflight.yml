@@ -1,0 +1,7 @@
+---
+- name: Validate the target before any mutation
+  hosts: deepseek_hosts
+  become: true
+  gather_facts: true
+  roles:
+    - preflight
