@@ -28,8 +28,8 @@
         "BOSGAME_ECHO": "tundra violin"
       }
     },
-    "short": {
-      "definition": "deterministic integer-generation instruction padded with repeated space-x units",
+    "generation_2k": {
+      "definition": "generated-token throughput after a deterministic approximately 2,000-token prompt",
       "instruction": "This is a deterministic throughput test. After reading the padding, output consecutive positive integers from 1 through 100000, one per line, with no commentary. Do not stop before reaching 100000; the endpoint will stop generation.\n\nPadding:\n",
       "padding_unit": " x",
       "prompt_sha256": "3ed38be9c93333e209a66ada0b10efbde517b06f9a6b6d727b0e216b0c890463",
@@ -83,10 +83,10 @@
         "maximum_cpu_temperature_millic": 80250,
         "oom_events": 0
       },
-      "short": {
+      "generation_2k": {
         "actual_input_tokens": 2040,
         "runs": 6,
-        "decode_tokens_per_second_median": 35.01059052036951,
+        "generated_tokens_per_second_median": 35.01059052036951,
         "acceptance_rate_median": 0.8049792531120332
       },
       "quality_30": {
@@ -121,11 +121,11 @@
         "prefill_tokens_per_second": 131.18515887486888,
         "decode_tokens_per_second": 16.4
       },
-      "short": {
+      "generation_2k": {
         "actual_input_tokens": 2048,
         "runs": 3,
         "prefill_tokens_per_second_median": 250.99269572037844,
-        "decode_tokens_per_second_median": 29.1,
+        "generated_tokens_per_second_median": 29.1,
         "acceptance_rate_median": 1.0
       },
       "quality_30": {"coding": 10, "gsm8k": 10, "math": 10, "total": 30},

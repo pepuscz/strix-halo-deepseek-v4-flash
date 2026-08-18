@@ -30,7 +30,7 @@ the alternative when the higher observed Quality-30 score is preferred.
 
 ## Benchmark summary
 
-| System | Short decode | 128K prefill | 128K decode | Retrieval | Quality-30 |
+| System | 2K-prompt generation | 128K prefill | 128K decode | Retrieval | Quality-30 |
 |---|---:|---:|---:|---:|---:|
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 35.01 tok/s | 130.63 tok/s | 22.43 tok/s | 5/5 | 26–27/30 |
 | **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 5/5 | 30/30 |
