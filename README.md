@@ -30,10 +30,10 @@ the alternative when the higher observed quality score is preferred.
 
 ## Benchmark summary
 
-| System | 2K-prompt generation | 128K-context input | 128K-context generation | 128K-context retrieval | Quality |
-|---|---:|---:|---:|---:|---:|
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 35.01 tok/s | 130.63 tok/s | 22.43 tok/s | 5/5 | 26–27/30 |
-| **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 5/5 | 30/30 |
+| System | 2K-prompt generation | 128K-context input | 128K-context generation | Quality |
+|---|---:|---:|---:|---:|
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 35.01 tok/s | 130.63 tok/s | 22.43 tok/s | 26–27/30 |
+| **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 30/30 |
 
 See [BENCHMARKS.md](docs/BENCHMARKS.md) for the workload definitions,
 measurement rules, and reproducibility data.

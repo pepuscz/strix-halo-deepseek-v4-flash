@@ -17,10 +17,10 @@ runtime and the patched **Lucebox ROCm ROCmFPX** runtime defined in
 
 ## Results
 
-| System | 2K-prompt generation | 128K-context input | 128K-context generation | 128K-context retrieval | Agent-cache wall time | Quality |
+| System | 2K-prompt generation | 128K-context input | 128K-context generation | 128K-context key retrieval | Agent-cache wall time | Quality |
 |---|---:|---:|---:|---:|---:|---:|
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 35.01 tok/s | 130.63 tok/s | 22.43 tok/s | 5/5 | 38.283 s | 26–27/30 |
-| **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 5/5 | 50.313 s | 30/30 |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 35.01 tok/s | 130.63 tok/s | 22.43 tok/s | 5/5 keys found | 38.283 s | 26–27/30 |
+| **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 5/5 keys found | 50.313 s | 30/30 |
 
 The Strix Halo llama.cpp system is the default because it leads the matched
 generation and agent-cache measurements. The Lucebox system records the higher
