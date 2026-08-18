@@ -1,0 +1,57 @@
+diff --git a/server/src/deepseek4/deepseek4_graph.cpp b/server/src/deepseek4/deepseek4_graph.cpp
+--- a/server/src/deepseek4/deepseek4_graph.cpp
++++ b/server/src/deepseek4/deepseek4_graph.cpp
+@@ -60,4 +60,28 @@ static bool ds4_env_flag(const char * name) {
+     return value && value[0] && std::strcmp(value, "0") != 0;
+ }
+ 
++static int ds4_explicit_f16_f32_k_short_max_attn() {
++    static const int max_attn = [] {
++        constexpr int default_max_attn = 4096;
++        const char * value = std::getenv(
++            "DFLASH_DS4_FUSED_VERIFY_EXPLICIT_F16_F32_K_SHORT_MAX_ATTN");
++        if (!value || !*value) return default_max_attn;
++
++        char * end = nullptr;
++        const long parsed = std::strtol(value, &end, 10);
++        if (end == value || *end != '\0' || parsed < 1 ||
++            parsed > default_max_attn) {
++            std::fprintf(stderr,
++                "[deepseek4] invalid explicit short-cache F32 K max attention "
++                "rows=%s; using %d\n", value, default_max_attn);
++            return default_max_attn;
++        }
++        std::fprintf(stderr,
++            "[deepseek4] explicit short-cache F32 K max attention rows=%ld\n",
++            parsed);
++        return (int) parsed;
++    }();
++    return max_attn;
++}
++
+ static int ds4_effective_expert_count(const DeepSeek4Weights & w) {
+@@ -2294,4 +2318,24 @@ static ggml_tensor * build_attention(
+         ggml_tensor * q_flat = ggml_reshape_2d(ctx, q, head_dim,
+                                                n_head * n_tokens);
+         ggml_tensor * scores = ggml_mul_mat(ctx, kv_attn, q_flat);
++        const bool explicit_f16_f32_k_short =
++            ds4_env_flag(
++                "DFLASH_DS4_FUSED_VERIFY_EXPLICIT_F16_F32_K_SHORT") &&
++            n_attn <= ds4_explicit_f16_f32_k_short_max_attn();
++        if (fused_explicit_f16_kv &&
++            (ds4_env_flag("DFLASH_DS4_FUSED_VERIFY_EXPLICIT_F16_F32_K") ||
++             explicit_f16_f32_k_short)) {
++            // Keep Q and accumulation in F32 while retaining the persistent
++            // cache in F16. This isolates the key-side accuracy cost of the
++            // default HIP F16 GEMM path without changing cache topology.
++            ggml_mul_mat_set_prec(scores, GGML_PREC_F32);
++            static bool f32_k_short_logged = false;
++            if (explicit_f16_f32_k_short && !f32_k_short_logged) {
++                std::fprintf(stderr,
++                    "[deepseek4] fused explicit short-cache F32 K active: "
++                    "n_attn=%d threshold=%d\n", n_attn,
++                    ds4_explicit_f16_f32_k_short_max_attn());
++                f32_k_short_logged = true;
++            }
++        }
+         scores = ggml_scale(ctx, scores, kq_scale);

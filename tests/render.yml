@@ -1,60 +1,89 @@
 ---
-- name: Render every shipped template without touching a target host
+- name: Render one qualified system without touching a target host
   hosts: localhost
   connection: local
   gather_facts: false
-  vars_files:
-    - ../ansible/releases/nathan-c569020-128k-120w.yml
+  vars:
+    render_root: "/tmp/deepseek-{{ deepseek_system.id }}"
   tasks:
-    - name: Render scripts and units into a disposable directory
+    - name: Create disposable render directory
+      ansible.builtin.file:
+        path: "{{ render_root }}"
+        state: directory
+        mode: "0755"
+
+    - name: Render common scripts, units, and records
       ansible.builtin.template:
         src: "../{{ item.src }}"
-        dest: "/tmp/{{ item.dest }}"
+        dest: "{{ render_root }}/{{ item.dest }}"
         mode: "{{ item.mode }}"
       loop:
-        - src: ansible/roles/artifacts/templates/fetch-verified-artifact.j2
-          dest: fetch-verified-artifact
-          mode: "0755"
-        - src: ansible/roles/fan/templates/deepseek-axb35-fan.j2
-          dest: deepseek-axb35-fan
-          mode: "0755"
-        - src: ansible/roles/fan/templates/deepseek-axb35-max-fan.service.j2
-          dest: deepseek-axb35-max-fan.service
-          mode: "0644"
-        - src: ansible/roles/platform/templates/99-deepseek-v4-strix-halo.cfg.j2
-          dest: 99-deepseek-v4-strix-halo.cfg
-          mode: "0644"
-        - src: ansible/roles/service/templates/deepseek-host-policy.j2
-          dest: deepseek-host-policy
-          mode: "0755"
-        - src: ansible/roles/service/templates/deepseek-v4-flash.service.j2
-          dest: deepseek-v4-flash.service
-          mode: "0644"
+        - {src: ansible/roles/artifacts/templates/fetch-verified-artifact.j2, dest: fetch-verified-artifact, mode: "0755"}
+        - {src: ansible/roles/artifacts/templates/artifacts.yml.j2, dest: ARTIFACTS.yml, mode: "0644"}
+        - {src: ansible/roles/fan/templates/deepseek-axb35-fan.j2, dest: deepseek-axb35-fan, mode: "0755"}
+        - {src: ansible/roles/fan/templates/deepseek-axb35-max-fan.service.j2, dest: deepseek-axb35-max-fan.service, mode: "0644"}
+        - {src: ansible/roles/platform/templates/99-deepseek-v4-strix-halo.cfg.j2, dest: 99-deepseek-v4-strix-halo.cfg, mode: "0644"}
+        - {src: ansible/roles/service/templates/deepseek-host-policy.j2, dest: deepseek-host-policy, mode: "0755"}
+        - {src: ansible/roles/service/templates/deepseek-v4-flash.service.j2, dest: deepseek-v4-flash.service, mode: "0644"}
+        - {src: ansible/roles/service/templates/release.yml.j2, dest: release.yml, mode: "0644"}
       loop_control:
         label: "{{ item.dest }}"
 
+    - name: Render the ROCm build program
+      ansible.builtin.template:
+        src: ../ansible/roles/rocm_runtime/templates/build-qualified-rocm.j2
+        dest: "{{ render_root }}/build-qualified-rocm"
+        mode: "0755"
+      when: deepseek_system.engine == 'rocm'
+
     - name: Syntax-check rendered shell programs
       ansible.builtin.command:
-        argv: [bash, -n, "/tmp/{{ item }}"]
-      loop:
-        - fetch-verified-artifact
-        - deepseek-axb35-fan
-        - deepseek-host-policy
+        argv: [bash, -n, "{{ render_root }}/{{ item }}"]
+      loop: >-
+        {{
+          ['fetch-verified-artifact', 'deepseek-axb35-fan', 'deepseek-host-policy']
+          + (['build-qualified-rocm'] if deepseek_system.engine == 'rocm' else [])
+        }}
       changed_when: false
 
     - name: Read rendered production unit
       ansible.builtin.slurp:
-        src: /tmp/deepseek-v4-flash.service
-      register: deepseek_rendered_unit
+        src: "{{ render_root }}/deepseek-v4-flash.service"
+      register: rendered_unit
 
-    - name: Assert rendered winner contract
+    - name: Define rendered production unit text
+      ansible.builtin.set_fact:
+        rendered_unit_text: "{{ rendered_unit.content | b64decode }}"
+
+    - name: Assert shared 128K safety contract
       ansible.builtin.assert:
         that:
-          - "'-c 131072' in (deepseek_rendered_unit.content | b64decode)"
-          - "'-ctk q8_0 -ctv q8_0' in (deepseek_rendered_unit.content | b64decode)"
-          - "'--spec-type draft-dspark' in (deepseek_rendered_unit.content | b64decode)"
-          - "'MemoryHigh=118G' in (deepseek_rendered_unit.content | b64decode)"
-          - "'MemoryMax=120G' in (deepseek_rendered_unit.content | b64decode)"
-          - "'MemorySwapMax=0' in (deepseek_rendered_unit.content | b64decode)"
-          - "'GGML_VK_FA_WAVE32=1' in (deepseek_rendered_unit.content | b64decode)"
-          - "'serviceRequires' not in (deepseek_rendered_unit.content | b64decode)"
+          - "'MemoryHigh=118G' in rendered_unit_text"
+          - "'MemoryMax=120G' in rendered_unit_text"
+          - "'MemorySwapMax=0' in rendered_unit_text"
+          - "'deepseek-host-policy apply' in rendered_unit_text"
+          - "'deepseek-host-policy restore' in rendered_unit_text"
+          - "'serviceRequires' not in rendered_unit_text"
+
+    - name: Assert Vulkan IQ3_XXS service contract
+      ansible.builtin.assert:
+        that:
+          - "'-c 131072' in rendered_unit_text"
+          - "'-ctk q8_0 -ctv q8_0' in rendered_unit_text"
+          - "'--spec-type draft-dspark' in rendered_unit_text"
+          - "'--spec-draft-n-max 4' in rendered_unit_text"
+          - "'GGML_VK_FA_WAVE32=1' in rendered_unit_text"
+      when: deepseek_system.engine == 'vulkan'
+
+    - name: Assert ROCm ROCmFPX service contract
+      ansible.builtin.assert:
+        that:
+          - "'--max-ctx 131072' in rendered_unit_text"
+          - "'--cache-type-k q4_0' in rendered_unit_text"
+          - "'--cache-type-v q4_0' in rendered_unit_text"
+          - "'--prefix-cache-slots 1' in rendered_unit_text"
+          - "'--ds4-expert-top-k 6' in rendered_unit_text"
+          - "'--ds4-prefill sparse --chunk 3072' in rendered_unit_text"
+          - "'DFLASH_DS4_SPEC_Q=4' in rendered_unit_text"
+          - "'DFLASH_DS4_ADAPTIVE_PREFILL_CHUNKS=1' in rendered_unit_text"
+      when: deepseek_system.engine == 'rocm'

@@ -23,16 +23,36 @@ jobs:
       - name: Lint Ansible
         run: ansible-lint ansible
       - name: Validate release pins and public-data boundary
-        run: python scripts/validate_release.py ansible/releases/nathan-c569020-128k-120w.yml
-      - name: Render and inspect the frozen service contract
-        run: ansible-playbook -i localhost, -c local tests/render.yml
+        shell: bash
+        run: |
+          set -euo pipefail
+          for release in ansible/releases/*.yml; do
+            python scripts/validate_release.py "$release"
+          done
+      - name: Assert the two-system release set
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'DEEPSEEK_SYSTEM:-vulkan-iq3xxs' bin/deepseekctl
+          test -f ansible/releases/vulkan-iq3xxs-128k.yml
+          test -f ansible/releases/rocm-rocmfpx-128k.yml
+          test "$(find ansible/releases -maxdepth 1 -type f -name '*.yml' | wc -l)" -eq 2
+      - name: Render and inspect both service contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for release in ansible/releases/*.yml; do
+            ansible-playbook -i localhost, -c local -e "@$release" tests/render.yml
+          done
       - name: Syntax-check every playbook
         shell: bash
         run: |
           set -euo pipefail
-          for playbook in ansible/playbooks/*.yml; do
-            ansible-playbook --syntax-check \
-              -i ansible/inventory/hosts.example.yml \
-              -e @ansible/releases/nathan-c569020-128k-120w.yml \
-              "$playbook"
+          for release in ansible/releases/*.yml; do
+            for playbook in ansible/playbooks/*.yml; do
+              ansible-playbook --syntax-check \
+                -i ansible/inventory/hosts.example.yml \
+                -e "@$release" \
+                "$playbook"
+            done
           done

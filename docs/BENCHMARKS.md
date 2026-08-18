@@ -1,108 +1,64 @@
 # Benchmarks
 
-These results compare the selected Nathan/Vulkan release with the closest
-qualified Lucebox release on one physical BOSGAME M5. They are local inference
-measurements, not vendor claims and not an official model leaderboard.
+**Vulkan IQ3_XXS** is the Vulkan/`strix-halo-llamacpp` system with an Unsloth
+UD-IQ3_XXS target; **ROCm ROCmFPX** is the ROCm/Lucebox system with a ROCmFPX
+MIX target. Measurements used one BOSGAME M5 and the exact configuration in
+each release manifest.
 
-## Winner-versus-winner result
+## Results
 
-| Frozen workload | Nathan selected | Lucebox selected | Nathan delta |
-|---|---:|---:|---:|
-| Short decode, requested 2,048 in / 510 out | 26.67 tok/s | 28.20 tok/s | -5.4% |
-| Real-128K prefill, 122,879 input tokens | 128.70 tok/s | 11.34 tok/s | 11.35x |
-| Real-128K decode, up to 256 output tokens | 19.41 tok/s | 10.40 tok/s | +86.6% |
-| Corrected frozen quality set | 27/30 | 30/30 | -3 tasks |
-| Tool-call contract | pass | pass | tie |
-
-The real-128K request used the same prompt SHA-256, the same 122,879-token
-input, five needles at approximately 2/20/50/80/98 percent depth, and required
-all five values byte-exact. Both stacks passed 5/5.
-
-The short test used the same source prompt SHA-256 and output budget. The two
-servers counted it as 2,040 and 2,048 input tokens respectively, so it is a
-matched source-prompt control rather than an assertion of identical internal
-tokenization. Each short result is the median of three measured runs after one
-warmup.
-
-## Hardware policies
-
-This table compares each software stack at its selected, tested operating
-point:
-
-| Setting | Nathan | Lucebox |
-|---|---|---|
-| STAPM / fast / slow | 120 / 120 / 120 W | 100 / 100 / 100 W |
-| CPU governor/minimum | performance / 2.0 GHz | performance / 2.0 GHz |
-| CPU boost | off | on |
-| GPU DPM | auto | high |
-| Context allocation | 131,072 | 131,072 |
-| Target format | Unsloth UD-IQ3_XXS, 104.21 GB | ROCmFPX, 98.29 GB |
-| Draft | DSpark Q2_K/Q8_0 | DSpark ROCmFPX |
-| KV | q8_0 / q8_0 | Q4_0 / Q4_0 |
-
-This is deliberately **not** labeled a pure software-only A/B. A reciprocal
-Lucebox boost-off/GPU-auto control was interrupted by accidental AC loss and is
-excluded. However, a completed Nathan control in the same room at 100/100/100 W
-still produced 125.45 prefill and 18.92 decode tok/s with 5/5 retrieval. The
-large long-context advantage therefore is not explained by Nathan's extra 20 W.
-
-## Quality result
-
-The frozen 30-task gate used ten small coding tasks, ten GSM8K-style tasks, and
-ten MATH-style tasks with temperature zero and a 512-token output cap. Both
-stacks used the same target model family but different quantization/runtime
-representations.
-
-| Category | Nathan | Lucebox |
+| Workload | Vulkan IQ3_XXS | ROCm ROCmFPX |
 |---|---:|---:|
-| Coding | 7/10 | 10/10 |
+| Short decode, 2,048 input / 510 output requested | 35.01 tok/s | 29.10 tok/s |
+| Real-128K prefill, 122,879 input tokens | 130.63 tok/s | 131.19 tok/s |
+| Real-128K decode, up to 256 output tokens | 22.43 tok/s | 16.40 tok/s |
+| Real-128K byte-exact retrieval | 5/5 | 5/5 |
+| Six-request cached tool conversation, aggregate prefill | 35.604 s | 47.377 s |
+| Six-request cached tool conversation, wall time | 38.283 s | 50.313 s |
+| Fixed 30-task quality gate | 26–27/30 observed | 30/30 |
+| Tool-call contract | pass | pass |
+
+Vulkan IQ3_XXS is the default for its higher decode throughput and lower cached
+conversation latency; ROCm ROCmFPX has the higher observed 30-task score.
+
+The exact qualified operating points are 120 W with CPU boost off and GPU DPM
+auto for Vulkan IQ3_XXS, and 120 W with CPU boost on and GPU DPM high for ROCm
+ROCmFPX.
+
+## Benchmark datasets
+
+| Dataset | Reproducible definition | Scoring |
+|---|---|---|
+| Short throughput | The instruction requests consecutive integers and is padded with repeated ` x` until the source tokenizer reaches 2,048 tokens. Prompt SHA-256: `3ed38be9c93333e209a66ada0b10efbde517b06f9a6b6d727b0e216b0c890463`. Temperature 0, top-k 1, top-p 1, one warmup, 510 forced output tokens. | Median server-reported decode rate: six Vulkan runs and three ROCm runs. |
+| 128K retrieval | Deterministic five-key retrieval prompt with records at 2%, 20%, 50%, 80%, and 98% depth. Target length 122,880; observed length 122,879. Prompt SHA-256: `f5d337a32fbf5e29f150974500a8d49cff172c2d03c125a243f6c990e1dbd7a3`. Output cap 256. | All five values must match byte-for-byte; prefill and decode rates come from the same request. |
+| Quality-30 | All ten cases from each of Lucebox's pinned `bench_he.jsonl`, `bench_gsm.jsonl`, and `bench_math.jsonl` fixtures at [commit `90f85fa`](https://github.com/Luce-Org/lucebox/tree/90f85fa401c6a3c61d9e4d0e2da7fc48a5e8915e/harness). Temperature 0; output cap 512. | Coding tests execute generated Python; GSM and MATH use the pinned answer extractors. The known incorrect `math_08` reference is corrected to `20/3`. |
+| Cached tool conversation | Six requests in one growing conversation with the same ten-tool schema, starting near 8,192 tokens. The first request is cold and the following five must report prefix hits. | Aggregate server-reported prefill time and client wall time. |
+
+The quality fixture SHA-256 values are:
+
+- `bench_he.jsonl`: `7886d54c7f1c7520f8410a01ebdcf044f99e2ded0144ad0cc509c746052c0533`
+- `bench_gsm.jsonl`: `3531e758101b3580f23323c3e62b17bfd7435301e69c09d4834f08b95abb91af`
+- `bench_math.jsonl`: `3fec033244bc8a6a55ce9ab651e3334ef12836cd82bad2defb7bdadb93e602fb`
+- `client_test_runner.py`: `a4db6be2a77623a6e3976af80edfb1c80cb0e25161ac01b64102aa08a6c14c0e`
+
+The source prompt is identical across systems, although their API tokenizers
+reported 2,040 and 2,048 tokens for the short workload. No additional context
+length was measured with both exact qualified releases, so no other context
+sizes are reported.
+
+## Quality results
+
+The fixed gate contains ten small coding tasks, ten GSM8K-style tasks, and ten
+MATH-style tasks at temperature zero with a 512-token output cap.
+
+| Category | Vulkan IQ3_XXS | ROCm ROCmFPX |
+|---|---:|---:|
+| Coding | 6–7/10 observed | 10/10 |
 | GSM8K | 10/10 | 10/10 |
 | MATH, corrected scorer | 10/10 | 10/10 |
-| Total | 27/30 | 30/30 |
+| Total | 26–27/30 observed | 30/30 |
 
-Nathan's three coding failures (`he_01`, `he_02`, and `he_07`) reasoned toward
-the correct algorithms but wrote a long explanation first, consumed exactly
-512 output tokens, and truncated the final code. They remain failures because
-the API response was not executable. The MATH figure corrects one known bad
-gold answer (`math_08`, correct value `20/3`) in the frozen harness.
-
-The coding subset was then repeated under the exact selected Nathan release at
-120/120/120 W, CPU boost off, GPU DPM `auto`, and the pinned Ubuntu Vulkan
-loader. It again scored 7/10 with the same three failed task identities, and
-each failure again stopped at exactly 512 tokens. All ten requests completed
-without API or guard errors. This confirmation closes the selected-policy
-question: Nathan's frozen score is 27/30, not 30/30. It also confirms that both
-measurements used the same pinned loader rather than an unidentified host
-loader; it is not a performance A/B between loader versions.
-
-Lucebox additionally completed HumanEval+ at 131/164 with zero request errors,
-identical to its earlier six-expert 8K baseline. Nathan has not run that full
-164-task suite, so no equivalent Nathan HumanEval+ claim is made.
-
-## Reddit-reproduction control
-
-The source article reported about 27 output tok/s on Strix Halo. Our quick
-implementation check used a 2,209-token input and a 4,096-token output budget:
-
-| Metric | Result |
-|---|---:|
-| Prefill | 261.11 tok/s |
-| Decode | 35.46 tok/s |
-| Speculative acceptance | 95.60% |
-| End-to-end output | 33.03 tok/s |
-
-It validates that the Nathan Vulkan + DSpark path is active and in the expected
-performance range. It is not claimed as an exact reproduction of the author's
-prompt, OS image, thermals, or measurement method.
-
-## Safety evidence
-
-During the selected 120 W real-128K run, minimum effective ordinary-page
-headroom (`MemAvailable - CmaFree`) was 13,787,464 KiB, above the immutable
-4 GiB floor. Peak sampled GPU and CPU temperatures were 81.0 C and 80.5 C.
-Cgroup OOM events were zero; all three fans remained fixed at level 5 and
-returned to firmware-auto after the model stopped.
+The Vulkan range records two runs; every observed coding failure reached the
+512-token cap with truncated code.
 
 The machine-readable aggregate is [results.json](../benchmarks/results.json).
-It intentionally contains no host address, username, SSH key, local home path,
-or private repository reference.

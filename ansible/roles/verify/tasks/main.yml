@@ -16,34 +16,8 @@
     status_code: 200
   register: verify_props
 
-- name: Assert live API identity and allocation
-  ansible.builtin.assert:
-    that:
-      - verify_props.json.default_generation_settings.n_ctx | int == deepseek_service.context | int
-      - verify_props.json.total_slots | int == deepseek_service.parallel_slots | int
-      - verify_props.json.model_alias == deepseek_service.alias
-      - verify_props.json.model_ftype == 'IQ3_XXS - 3.0625 bpw'
-      - verify_props.json.build_info == deepseek_runtime.build_info
-    fail_msg: The live API is not the pinned 128K Nathan release.
-
-- name: Verify runtime binaries again
-  ansible.builtin.stat:
-    path: "{{ item.path }}"
-    checksum_algorithm: sha256
-    get_checksum: true
-  loop:
-    - {path: "{{ deepseek_paths.release }}/vulkan/llama-server", sha256: "{{ deepseek_runtime.launcher_sha256 }}"}
-    - {path: "{{ deepseek_paths.release }}/vulkan/bin/llama-server", sha256: "{{ deepseek_runtime.server_sha256 }}"}
-    - {path: "{{ deepseek_paths.release }}/loader/usr/lib/x86_64-linux-gnu/libvulkan.so.1", sha256: "{{ deepseek_vulkan_loader.library_sha256 }}"}
-  register: verify_live_runtime_hashes
-
-- name: Assert live runtime hashes
-  ansible.builtin.assert:
-    that:
-      - item.stat.checksum == item.item.sha256
-  loop: "{{ verify_live_runtime_hashes.results }}"
-  loop_control:
-    label: "{{ item.item.path }}"
+- name: Verify engine-specific API and runtime identity
+  ansible.builtin.include_tasks: "{{ deepseek_system.engine }}.yml"
 
 - name: Read service runtime contract
   ansible.builtin.command:
@@ -179,7 +153,7 @@
       properties:
         build: "{{ verify_props.json.build_info }}"
         context: "{{ verify_props.json.default_generation_settings.n_ctx }}"
-        quantization: "{{ verify_props.json.model_ftype }}"
+        quantization: "{{ deepseek_target.quantization }}"
       memory_kib:
         mem_available: "{{ verify_effective_memory.stdout.split()[0] }}"
         cma_free: "{{ verify_effective_memory.stdout.split()[1] }}"

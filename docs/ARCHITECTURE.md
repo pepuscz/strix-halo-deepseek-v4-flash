@@ -1,28 +1,41 @@
 # Architecture
 
-The release has five independently pinned layers.
+## System definitions
 
-1. **DeepSeek V4 Flash 0731 target** — the full Unsloth `UD-IQ3_XXS` GGUF,
-   split into four shards. This is the model that verifies and emits the final
-   tokens.
-2. **DSpark draft** — Alessandro Bologna's smaller Q2_K/Q8_0 dflash model. It
-   proposes token blocks; the target model verifies them, so speculation changes
-   speed rather than silently accepting draft-only output.
-3. **Nathan's llama.cpp fork** — the `c569020` Vulkan build adds the Strix Halo
-   kernels and DSpark integration used by the winning run.
-4. **Vulkan userspace** — Nathan's portable release provides Mesa RADV and its
-   libraries. The exact Ubuntu Vulkan loader used by the benchmark is extracted
-   into the release directory. Host ROCm is not used or modified.
-5. **Host envelope** — large GTT boot parameters, 120 W RyzenAdj limits,
-   boost-off CPU policy, GPU DPM auto, cgroup memory limits, and model-scoped
-   AXB35 maximum cooling.
+| Layer | Vulkan IQ3_XXS | ROCm ROCmFPX |
+|---|---|---|
+| Runtime | `strix-halo-llamacpp` v0.6.4, commit `baf6360be95b00fa98659cb86afc364f4ff45513` | Lucebox commit `90f85fa401c6a3c61d9e4d0e2da7fc48a5e8915e` plus 11 hash-pinned patches |
+| GPU backend | Portable Mesa RADV/Vulkan bundle | Ubuntu ROCm 7.1, HIP `gfx1151`, rocWMMA `rocm-7.1.1` |
+| Target | Unsloth UD-IQ3_XXS, four GGUF files, 104.21 GB | ROCmFPX MIX, one GGUF file, 98.29 GB |
+| Draft | DSpark Q2_K/Q8_0, 6.98 GB | DSpark Q4RMFP4 dense-F16, 10.65 GB |
+| KV cache | q8_0 K/V | q4_0 K/V |
+| Speculation | DSpark maximum draft length 4 | DSpark Q=4 with fused verification |
+| Prefix reuse | One active llama.cpp slot | One explicit prefix-cache slot |
+| Host policy | CPU boost off, GPU DPM auto | CPU boost on, GPU DPM high |
 
-The API binds only to `127.0.0.1:18109`. One server slot owns a 131,072-token
-allocation. Short requests use only their actual prompt length and therefore
-remain much faster than a filled 128K request; the allocation is capacity, not
-mandatory padding.
+The target model verifies final output in both systems. Draft models affect
+proposal generation and throughput; they do not replace target verification.
 
-Artifacts live under a release ID in `/opt/m5`. Updating the manifest creates a
-new immutable release directory instead of overwriting the running release.
-Systemd owns start/stop, cgroup limits, policy application/restoration, and the
-fan dependency. Ansible owns all persistent configuration.
+## Shared host layer
+
+Both manifests require one 131,072-token server slot and the same host
+boundary: large GTT kernel parameters, 120/120/120 W STAPM/fast/slow limits,
+2.0 GHz minimum CPU frequency, cgroup memory limits, swap disabled, and maximum
+AXB35 cooling while the service is active.
+
+Ansible owns the GRUB drop-in, runtime artifacts, model artifacts, build
+inputs, host-policy controller, cooling driver, systemd unit, and release
+record. Downloaded artifacts and records use immutable release paths under
+`/opt/m5`; the ROCm build manifest also pins the absolute source, build, and
+header paths because those strings are present in the qualified ELF. The
+active API is loopback-only at `127.0.0.1:18109`.
+
+## Runtime integrity
+
+Vulkan IQ3_XXS verifies the portable archive, launcher, server, manifest,
+Vulkan loader, and models against the manifest identities.
+
+ROCm ROCmFPX verifies the source commit, submodule commit, rocWMMA commit,
+individual patch hashes, combined binary diff hash, compiled server size and
+SHA-256, linked libraries, and eight targeted API/reasoning/tool-call unit
+tests. Activation stops if any identity differs from the qualified release.

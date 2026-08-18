@@ -1,6 +1,10 @@
 release_id: {{ deepseek_release_id }}
+system: {{ deepseek_system.name }}
+engine: {{ deepseek_system.engine }}
 managed_by: https://github.com/pepuscz/strix-halo-deepseek-v4-flash
 service: {{ deepseek_service.name }}
+runtime_repository: {{ deepseek_runtime.repository }}
+runtime_source_commit: {{ deepseek_runtime.source_commit }}
 runtime_server_sha256: {{ deepseek_runtime.server_sha256 }}
 target_repository: {{ deepseek_target.repository }}
 target_revision: {{ deepseek_target.revision }}

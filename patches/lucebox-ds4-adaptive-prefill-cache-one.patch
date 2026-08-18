@@ -1,0 +1,81 @@
+diff --git a/server/src/deepseek4/deepseek4_backend.cpp b/server/src/deepseek4/deepseek4_backend.cpp
+--- a/server/src/deepseek4/deepseek4_backend.cpp
++++ b/server/src/deepseek4/deepseek4_backend.cpp
+@@ -1781,6 +1781,13 @@ int DeepSeek4Backend::do_prefill(const std::vector<int32_t> & tokens,
+         }
+     }
+     const bool timing = env_flag_enabled("DFLASH_DS4_TIMING");
++    const bool adaptive_prefill_chunks =
++        env_flag_enabled("DFLASH_DS4_ADAPTIVE_PREFILL_CHUNKS");
++    if (adaptive_prefill_chunks) {
++        std::fprintf(stderr,
++                     "[deepseek4] adaptive prefill chunks: "
++                     "4096 through 60K, 2048 through 80K, then 512\n");
++    }
+     const auto phase_t0 = Clock::now();
+     DeepSeek4StepTelemetry tel_acc;
+     int steps = 0;
+@@ -1790,6 +1797,21 @@ int DeepSeek4Backend::do_prefill(const std::vector<int32_t> & tokens,
+         if (io.is_cancelled()) return pos;
+ 
+         int n_tok = std::min(chunk, n_total - i);
++        if (adaptive_prefill_chunks) {
++            // Large early chunks amortize graph setup while the persistent
++            // compressed cache is small. Step down before its growth and the
++            // temporary batch arena would overlap the 4 GiB safety margin.
++            constexpr int chunk_4096_end = 60 * 1024;
++            constexpr int chunk_2048_end = 80 * 1024;
++            const int stage_cap = pos < chunk_4096_end ? 4096
++                                : pos < chunk_2048_end ? 2048
++                                : 512;
++            const int stage_end = pos < chunk_4096_end ? chunk_4096_end
++                                : pos < chunk_2048_end ? chunk_2048_end
++                                : kv_offset + n_total;
++            n_tok = std::min(n_tok, stage_cap);
++            n_tok = std::min(n_tok, std::max(1, stage_end - pos));
++        }
+         // A snapshot must represent an exact token boundary. Split a batched
+         // prefill chunk when the requested boundary falls inside it.
+         if (save_snapshot && !snapshot_saved &&
+diff --git a/server/src/deepseek4/deepseek4_graph.cpp b/server/src/deepseek4/deepseek4_graph.cpp
+--- a/server/src/deepseek4/deepseek4_graph.cpp
++++ b/server/src/deepseek4/deepseek4_graph.cpp
+@@ -84,4 +84,28 @@ static int ds4_explicit_f16_f32_k_short_max_attn() {
+     return max_attn;
+ }
+ 
++static size_t ds4_decode_attn_cache_slots() {
++    static const size_t slots = [] {
++        constexpr long default_slots = 20;
++        const char * value = std::getenv("DFLASH_DS4_DECODE_ATTN_CACHE_SLOTS");
++        if (!value || !*value) return (size_t) default_slots;
++
++        char * end = nullptr;
++        const long parsed = std::strtol(value, &end, 10);
++        if (end == value || *end != '\0' || parsed < 1 || parsed > default_slots) {
++            std::fprintf(stderr,
++                         "[deepseek4] invalid DFLASH_DS4_DECODE_ATTN_CACHE_SLOTS=%s; "
++                         "using %ld\n",
++                         value, default_slots);
++            return (size_t) default_slots;
++        }
++        std::fprintf(stderr,
++                     "[deepseek4] decode attention graph cache slots=%ld "
++                     "(default=%ld)\n",
++                     parsed, default_slots);
++        return (size_t) parsed;
++    }();
++    return slots;
++}
++
+ static int ds4_effective_expert_count(const DeepSeek4Weights & w) {
+@@ -7377,7 +7480,8 @@ bool deepseek4_step_layer_range(
+                                candidate.index_flush == index_flush;
+                     });
+                 if (it == per_layer.end()) {
+-                    if (per_layer.size() >= 20) {
++                    const size_t cache_slots = ds4_decode_attn_cache_slots();
++                    while (per_layer.size() >= cache_slots) {
+                         per_layer.front().free();
+                         per_layer.erase(per_layer.begin());
+                     }

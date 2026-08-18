@@ -1,25 +1,26 @@
 release_id: {{ deepseek_release_id }}
+system: {{ deepseek_system.name }}
+engine: {{ deepseek_system.engine }}
 runtime:
   repository: {{ deepseek_runtime.repository }}
-  release_tag: {{ deepseek_runtime.release_tag }}
   source_commit: {{ deepseek_runtime.source_commit }}
+{% if deepseek_system.engine == 'vulkan' %}
+  release_tag: {{ deepseek_runtime.release_tag }}
   archive_sha256: {{ deepseek_runtime.archive_sha256 }}
   launcher_sha256: {{ deepseek_runtime.launcher_sha256 }}
+{% else %}
+  source_diff_sha256: {{ deepseek_runtime.source_diff_sha256 }}
+{% endif %}
   server_sha256: {{ deepseek_runtime.server_sha256 }}
-vulkan_loader:
-  package: {{ deepseek_vulkan_loader.package }}
-  version: {{ deepseek_vulkan_loader.version }}
-  package_sha256: {{ deepseek_vulkan_loader.sha256 }}
-  library_sha256: {{ deepseek_vulkan_loader.library_sha256 }}
 target:
   repository: {{ deepseek_target.repository }}
   revision: {{ deepseek_target.revision }}
   quantization: {{ deepseek_target.quantization }}
-  shards:
-{% for shard in deepseek_target.shards %}
-    - name: {{ shard.name }}
-      size: {{ shard.size }}
-      sha256: {{ shard.sha256 }}
+  files:
+{% for file in deepseek_target.files %}
+    - name: {{ file.name }}
+      size: {{ file.size }}
+      sha256: {{ file.sha256 }}
 {% endfor %}
 draft:
   repository: {{ deepseek_draft.repository }}

@@ -1,5 +1,5 @@
 [Unit]
-Description=DeepSeek V4 Flash 0731 selected 128K production release
+Description=DeepSeek V4 Flash 0731 — {{ deepseek_system.name }} 128K
 Wants=network-online.target
 {% if deepseek_fan.manage | bool %}
 After=network-online.target deepseek-axb35-max-fan.service
@@ -8,8 +8,11 @@ Requires=deepseek-axb35-max-fan.service
 After=network-online.target
 {% endif %}
 {% for conflict in deepseek_service.conflicts %}Conflicts={{ conflict }}
-{% endfor %}ConditionPathExists={{ deepseek_paths.release }}/vulkan/llama-server
-ConditionPathExists={{ deepseek_paths.models }}/{{ deepseek_target.shards[0].name }}
+{% endfor %}{% if deepseek_system.engine == 'vulkan' %}
+ConditionPathExists={{ deepseek_paths.release }}/vulkan/llama-server
+{% else %}
+ConditionPathExists={{ deepseek_rocm.qualified_build_path }}/dflash_server
+{% endif %}ConditionPathExists={{ deepseek_paths.models }}/{{ deepseek_target.files[0].name }}
 ConditionPathExists={{ deepseek_paths.models }}/{{ deepseek_draft.name }}
 
 [Service]
@@ -17,10 +20,14 @@ Type=simple
 User={{ deepseek_service.user }}
 Group={{ deepseek_service.group }}
 SupplementaryGroups=video render
+{% if deepseek_system.engine == 'vulkan' %}
 WorkingDirectory={{ deepseek_paths.release }}/vulkan
-ExecStartPre=+/usr/local/sbin/deepseek-host-policy apply
+{% else %}
+WorkingDirectory={{ deepseek_rocm.qualified_source_path }}/server
+{% endif %}ExecStartPre=+/usr/local/sbin/deepseek-host-policy apply
+{% if deepseek_system.engine == 'vulkan' %}
 ExecStart={{ deepseek_paths.release }}/vulkan/llama-server \
-  -m {{ deepseek_paths.models }}/{{ deepseek_target.shards[0].name }} \
+  -m {{ deepseek_paths.models }}/{{ deepseek_target.files[0].name }} \
   -md {{ deepseek_paths.models }}/{{ deepseek_draft.name }} \
   -a {{ deepseek_service.alias }} \
   -ngl 999 -ngld 999 -fa on \
@@ -29,9 +36,23 @@ ExecStart={{ deepseek_paths.release }}/vulkan/llama-server \
   -b {{ deepseek_service.batch }} -ub {{ deepseek_service.microbatch }} \
   -fit off --spec-type draft-dspark --spec-draft-n-max {{ deepseek_service.draft_max }} \
   --jinja --host {{ deepseek_service.host }} --port {{ deepseek_service.port }}
-ExecStopPost=+/usr/local/sbin/deepseek-host-policy restore
-{% for key, value in deepseek_vulkan_environment.items() %}Environment={{ key }}={{ value }}
-{% endfor %}Environment=LD_LIBRARY_PATH={{ deepseek_paths.release }}/loader/usr/lib/x86_64-linux-gnu
+{% for key, value in deepseek_vulkan_environment.items() %}Environment="{{ key }}={{ value }}"
+{% endfor %}Environment="LD_LIBRARY_PATH={{ deepseek_paths.release }}/loader/usr/lib/x86_64-linux-gnu"
+{% else %}
+ExecStart={{ deepseek_rocm.qualified_build_path }}/dflash_server \
+  {{ deepseek_paths.models }}/{{ deepseek_target.files[0].name }} \
+  --host {{ deepseek_service.host }} --port {{ deepseek_service.port }} \
+  --target-device hip:0 --max-ctx {{ deepseek_service.context }} \
+  --default-max-tokens {{ deepseek_service.default_max_tokens }} \
+  --prefix-cache-slots {{ deepseek_service.prefix_cache_slots }} \
+  --prefill-cache-slots {{ deepseek_service.prefill_cache_slots }} \
+  --disk-prefix-cache {{ deepseek_service.disk_prefix_cache }} \
+  --cache-type-k {{ deepseek_service.cache_type_k }} \
+  --cache-type-v {{ deepseek_service.cache_type_v }} \
+  --ds4-fused-decode --ds4-expert-top-k {{ deepseek_service.expert_top_k }} \
+  --ds4-prefill {{ deepseek_service.prefill }} --chunk {{ deepseek_service.chunk }}
+{% for key, value in deepseek_rocm_environment.items() %}Environment="{{ key }}={{ value }}"
+{% endfor %}{% endif %}ExecStopPost=+/usr/local/sbin/deepseek-host-policy restore
 Restart=on-failure
 RestartSec=10
 TimeoutStartSec=infinity

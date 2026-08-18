@@ -1,24 +1,38 @@
 # Sources and provenance
 
-| Component | Frozen source | Role / licensing note |
-|---|---|---|
-| Nathan runtime | [Nathanw1014/strix-halo-llamacpp](https://github.com/Nathanw1014/strix-halo-llamacpp), release `dev-20260817-c569020`, commit `c56902063081d1a20e05171f2428686a6166b9fb` | Strix Halo Vulkan server and DSpark path. No machine-detected repository license at freeze time; downloaded directly, not redistributed. |
-| Target GGUF | [unsloth/DeepSeek-V4-Flash-0731-GGUF](https://huggingface.co/unsloth/DeepSeek-V4-Flash-0731-GGUF), revision `fbbb5b93fb787c21338159b0af3318bb3f4d9768` | Four-shard `UD-IQ3_XXS` target; model card reports MIT. |
-| Draft GGUF | [alessandrobologna/DeepSeek-V4-Flash-DSpark-Drafter-GGUF](https://huggingface.co/alessandrobologna/DeepSeek-V4-Flash-DSpark-Drafter-GGUF), revision `824190cb58c1469a603d9686107dd85ef11a5d51` | Q2_K/Q8_0 speculative draft. |
-| RyzenAdj | [FlyGoat/RyzenAdj](https://github.com/FlyGoat/RyzenAdj), commit `5775fc3e6dbb25c7030ee2d100a1bdd6e8bf2d0a` | Applies and reads package power limits; LGPL-3.0. |
-| AXB35 driver | [cmetz/ec-su_axb35-linux](https://github.com/cmetz/ec-su_axb35-linux), commit `7a9f372edcaa99e562dece70204c4f609692a778` | Exposes all three BOSGAME/Sixunited fans; GPL-2.0. |
-| Vulkan loader | Ubuntu `libvulkan1` 1.4.341.0-1 | Exact benchmark loader, extracted under the immutable release rather than replacing system libraries. |
-| Inspiration/control | [LocalLLaMA Strix Halo report](https://www.reddit.com/r/LocalLLaMA/comments/1vlmh0b/deepseek_v4_flash_0731_at_27_ts_decode_on_strix/) | Starting configuration and external performance reference; our measurements are independent. |
+## Vulkan IQ3_XXS
 
-The Vulkan loader is a real stack component, but it is not the RADV driver that
-executes the GPU kernels. The official [Khronos loader application
-interface](https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderApplicationInterface.md)
-describes its ICD/layer discovery and dispatch trampolines into the selected
-driver. Loader versions can therefore affect compatibility, extension
-discovery, CPU-side dispatch overhead, and bugs, but large compute-throughput
-changes are more likely to come from the RADV build, kernels, model/draft, KV
-policy, or power policy. We did not claim a loader A/B; we remove that confound
-by pinning and hashing the exact Ubuntu loader used in the winning benchmark.
+| Component | Pinned source |
+|---|---|
+| Runtime | [`Nathanw1014/strix-halo-llamacpp`](https://github.com/Nathanw1014/strix-halo-llamacpp), release `v0.6.4`, commit `baf6360be95b00fa98659cb86afc364f4ff45513` |
+| Target | [`unsloth/DeepSeek-V4-Flash-0731-GGUF`](https://huggingface.co/unsloth/DeepSeek-V4-Flash-0731-GGUF), revision `fbbb5b93fb787c21338159b0af3318bb3f4d9768`, UD-IQ3_XXS |
+| Draft | [`alessandrobologna/DeepSeek-V4-Flash-DSpark-Drafter-GGUF`](https://huggingface.co/alessandrobologna/DeepSeek-V4-Flash-DSpark-Drafter-GGUF), revision `824190cb58c1469a603d9686107dd85ef11a5d51` |
+| Vulkan loader | Ubuntu `libvulkan1` `1.4.341.0-1`, extracted inside the immutable release |
 
-Every downloadable artifact's URL, revision, byte size, and SHA-256 is in
-[`ansible/releases/nathan-c569020-128k-120w.yml`](../ansible/releases/nathan-c569020-128k-120w.yml).
+The exact runtime archive, executable, manifest, loader, and model identities
+are in [`vulkan-iq3xxs-128k.yml`](../ansible/releases/vulkan-iq3xxs-128k.yml).
+
+## ROCm ROCmFPX
+
+| Component | Pinned source |
+|---|---|
+| Runtime | [`Luce-Org/lucebox`](https://github.com/Luce-Org/lucebox), commit `90f85fa401c6a3c61d9e4d0e2da7fc48a5e8915e` |
+| Block-Sparse-Attention submodule | commit `49d6c39e4dc0303442cda3bb758b3925d4399c49` |
+| rocWMMA headers | [`ROCm/rocWMMA`](https://github.com/ROCm/rocWMMA), tag `rocm-7.1.1`, commit `1ab208f49945c38626b79e3f0c284d65ac44a781` |
+| Target | [`Lucebox/DeepSeek-V4-Flash-0731-ROCmFP3`](https://huggingface.co/Lucebox/DeepSeek-V4-Flash-0731-ROCmFP3), revision `39745d3f6f4b92ff1d764ada79a73616bc8903a5`, ROCmFPX MIX |
+| Draft | [`Lucebox/DeepSeek-V4-Flash-0731-DSpark-GGUF`](https://huggingface.co/Lucebox/DeepSeek-V4-Flash-0731-DSpark-GGUF), revision `8e8bbf5bdb384b6e867d01ad3215be70b1d920c5` |
+
+The 11 patches are published under `patches/`. Their individual SHA-256 values,
+the combined source-diff SHA-256, pinned Ubuntu ROCm package versions, absolute
+build paths, compiler flags, output binary identity, and model identities are in
+[`rocm-rocmfpx-128k.yml`](../ansible/releases/rocm-rocmfpx-128k.yml).
+
+## Shared host components
+
+| Component | Pinned source |
+|---|---|
+| RyzenAdj | [`FlyGoat/RyzenAdj`](https://github.com/FlyGoat/RyzenAdj), commit `5775fc3e6dbb25c7030ee2d100a1bdd6e8bf2d0a` |
+| AXB35 driver | [`cmetz/ec-su_axb35-linux`](https://github.com/cmetz/ec-su_axb35-linux), commit `7a9f372edcaa99e562dece70204c4f609692a778` |
+
+This repository downloads models and runtime archives from their publishers;
+it does not redistribute them.

@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export LC_ALL=C
+export GIT_LFS_SKIP_SMUDGE=1
+
+readonly RELEASE={{ deepseek_paths.release | quote }}
+readonly SOURCE={{ deepseek_rocm.qualified_source_path | quote }}
+readonly BUILD={{ deepseek_rocm.qualified_build_path | quote }}
+readonly SERVER="$BUILD/dflash_server"
+readonly ROCWMMA={{ deepseek_rocm.qualified_rocwmma_path | quote }}
+readonly ROCWMMA_INCLUDE="$ROCWMMA/library/include"
+readonly PATCH_ROOT="$RELEASE/patches"
+readonly SOURCE_COMMIT={{ deepseek_runtime.source_commit | quote }}
+readonly SUBMODULE_COMMIT={{ deepseek_runtime.submodule_commit | quote }}
+readonly ROCWMMA_COMMIT={{ deepseek_rocm.rocwmma_commit | quote }}
+readonly SOURCE_DIFF_SHA={{ deepseek_runtime.source_diff_sha256 | quote }}
+readonly SERVER_SHA={{ deepseek_runtime.server_sha256 | quote }}
+readonly SERVER_SIZE={{ deepseek_runtime.server_size }}
+readonly EMPTY_DIFF_SHA=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+fail() { printf 'ERROR: %s\n' "$1" >&2; exit 1; }
+sha256() { sha256sum "$1" | cut -d' ' -f1; }
+
+clone_pinned() {
+    local repository=$1 url=$2 commit=$3
+    [ ! -e "$repository" ] || fail "Refusing non-Git path: $repository"
+    git clone --filter=blob:none --no-checkout "$url" "$repository"
+    git -C "$repository" fetch --depth=1 origin "$commit"
+    git -C "$repository" checkout --detach "$commit"
+}
+
+if [ ! -d "$SOURCE/.git" ]; then
+    clone_pinned "$SOURCE" {{ deepseek_runtime.repository | quote }} "$SOURCE_COMMIT"
+    git -C "$SOURCE" submodule update --init --recursive
+fi
+[ "$(git -C "$SOURCE" rev-parse HEAD)" = "$SOURCE_COMMIT" ] || fail 'Source commit mismatch.'
+[ "$(git -C "$SOURCE/server/deps/Block-Sparse-Attention" rev-parse HEAD)" = "$SUBMODULE_COMMIT" ] || fail 'Submodule commit mismatch.'
+[ -z "$(git -C "$SOURCE/server/deps/Block-Sparse-Attention" status --short)" ] || fail 'Submodule worktree is modified.'
+
+if [ ! -d "$ROCWMMA/.git" ]; then
+    clone_pinned "$ROCWMMA" {{ deepseek_rocm.rocwmma_repository | quote }} "$ROCWMMA_COMMIT"
+fi
+[ "$(git -C "$ROCWMMA" rev-parse HEAD)" = "$ROCWMMA_COMMIT" ] || fail 'rocWMMA commit mismatch.'
+[ -z "$(git -C "$ROCWMMA" status --short)" ] || fail 'rocWMMA worktree is modified.'
+[ -f "$ROCWMMA_INCLUDE/rocwmma/rocwmma.hpp" ] || fail 'Pinned rocWMMA headers are incomplete.'
+
+{% for patch in deepseek_rocm.patches %}
+readonly PATCH_{{ loop.index }}={{ patch.name | quote }}
+[ "$(sha256 "$PATCH_ROOT/$PATCH_{{ loop.index }}")" = {{ patch.sha256 | quote }} ] || fail 'Patch hash mismatch: {{ patch.name }}'
+{% endfor %}
+
+current_diff_sha=$(git -C "$SOURCE" diff --binary | sha256sum | cut -d' ' -f1)
+if [ "$current_diff_sha" = "$EMPTY_DIFF_SHA" ]; then
+{% for patch in deepseek_rocm.patches %}
+    if ! patch -d "$SOURCE" -p1 --forward --batch --fuzz=3 \
+        -i "$PATCH_ROOT/$PATCH_{{ loop.index }}"; then
+{% if patch.name == 'lucebox-ds4-adaptive-prefill-cache-one.patch' %}
+        readonly EXPECTED_REJECT="$SOURCE/server/src/deepseek4/deepseek4_graph.cpp.rej"
+        [ -f "$EXPECTED_REJECT" ] || fail 'Adaptive patch failed without its expected duplicate-hunk reject.'
+        rm -f -- "$EXPECTED_REJECT"
+{% else %}
+        fail 'Patch application failed: {{ patch.name }}'
+{% endif %}
+    fi
+{% endfor %}
+elif [ "$current_diff_sha" != "$SOURCE_DIFF_SHA" ]; then
+    fail 'Source worktree has an unrecognized diff.'
+fi
+
+git -C "$SOURCE" diff --check
+[ "$(git -C "$SOURCE" diff --binary | sha256sum | cut -d' ' -f1)" = "$SOURCE_DIFF_SHA" ] || fail 'Patched source identity mismatch.'
+
+built=0
+if [ ! -x "$SERVER" ] || [ "$(sha256 "$SERVER")" != "$SERVER_SHA" ]; then
+    cmake --fresh -G Ninja -S "$SOURCE/server" -B "$BUILD" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DDFLASH27B_GPU_BACKEND=hip \
+        -DDFLASH27B_HIP_ARCHITECTURES=gfx1151 \
+        -DDFLASH27B_HIP_SM80_EQUIV=ON \
+        -DDFLASH27B_ROCWMMA_INCLUDE_DIR="$ROCWMMA_INCLUDE" \
+        -DCMAKE_HIP_FLAGS="-I$ROCWMMA_INCLUDE" \
+        -DGGML_NATIVE=ON
+    cmake --build "$BUILD" --target test_server_unit dflash_server -j "$(nproc)"
+    built=1
+fi
+
+[ -x "$SERVER" ] || fail 'ROCm server was not built.'
+[ "$(stat -c %s "$SERVER")" = "$SERVER_SIZE" ] || fail 'ROCm server size mismatch.'
+[ "$(sha256 "$SERVER")" = "$SERVER_SHA" ] || fail 'ROCm server hash mismatch.'
+if ldd "$SERVER" | grep -q 'not found'; then fail 'ROCm server has an unresolved shared library.'; fi
+
+{% for test_name in deepseek_rocm.unit_tests %}
+"$BUILD/test_server_unit" --exact {{ test_name | quote }}
+{% endfor %}
+
+printf 'ROCM_RUNTIME_BUILT=%s\n' "$built"
+printf 'source_commit=%s\nsource_diff_sha256=%s\nserver_sha256=%s\n' \
+    "$SOURCE_COMMIT" "$SOURCE_DIFF_SHA" "$SERVER_SHA"

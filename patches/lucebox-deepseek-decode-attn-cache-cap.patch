@@ -1,0 +1,46 @@
+diff --git a/server/src/deepseek4/deepseek4_graph.cpp b/server/src/deepseek4/deepseek4_graph.cpp
+--- a/server/src/deepseek4/deepseek4_graph.cpp
++++ b/server/src/deepseek4/deepseek4_graph.cpp
+@@ -60,6 +60,30 @@ static bool ds4_env_flag(const char * name) {
+     return value && value[0] && std::strcmp(value, "0") != 0;
+ }
+ 
++static size_t ds4_decode_attn_cache_slots() {
++    static const size_t slots = [] {
++        constexpr long default_slots = 20;
++        const char * value = std::getenv("DFLASH_DS4_DECODE_ATTN_CACHE_SLOTS");
++        if (!value || !*value) return (size_t) default_slots;
++
++        char * end = nullptr;
++        const long parsed = std::strtol(value, &end, 10);
++        if (end == value || *end != '\0' || parsed < 1 || parsed > default_slots) {
++            std::fprintf(stderr,
++                         "[deepseek4] invalid DFLASH_DS4_DECODE_ATTN_CACHE_SLOTS=%s; "
++                         "using %ld\n",
++                         value, default_slots);
++            return (size_t) default_slots;
++        }
++        std::fprintf(stderr,
++                     "[deepseek4] decode attention graph cache slots=%ld "
++                     "(default=%ld)\n",
++                     parsed, default_slots);
++        return (size_t) parsed;
++    }();
++    return slots;
++}
++
+ static int ds4_effective_expert_count(const DeepSeek4Weights & w) {
+     int requested = w.routed_expert_top_k;
+     if (const char * value = std::getenv("DFLASH_DS4_TOPK")) {
+@@ -7377,9 +7401,10 @@ bool deepseek4_forward_layer_range(
+                                candidate.index_flush == index_flush;
+                     });
+                 if (it == per_layer.end()) {
+-                    if (per_layer.size() >= 20) {
++                    const size_t cache_slots = ds4_decode_attn_cache_slots();
++                    while (per_layer.size() >= cache_slots) {
+                         per_layer.front().free();
+                         per_layer.erase(per_layer.begin());
+                     }
+                     per_layer.emplace_back();
+                     auto & candidate = per_layer.back();

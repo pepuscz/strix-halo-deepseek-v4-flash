@@ -1,0 +1,71 @@
+diff --git a/server/src/server/tool_parser.cpp b/server/src/server/tool_parser.cpp
+index b3597f7..bb09bd9 100644
+--- a/server/src/server/tool_parser.cpp
++++ b/server/src/server/tool_parser.cpp
+@@ -559,6 +559,12 @@ static bool parse_json_tool_call(const json & obj, std::string & out_name, json
+                 return false;
+             }
+         }
++    } else if (obj.contains("function") && obj["function"].is_string()) {
++        name = obj["function"].get<std::string>();
++        if (!obj.contains("parameters") || !obj["parameters"].is_object()) {
++            return false;
++        }
++        args = obj["parameters"];
+     } else if ((obj.contains("function") && obj["function"].is_object()) ||
+                (obj.contains("function_call") &&
+                 obj["function_call"].is_object())) {
+diff --git a/server/test/test_server_unit.cpp b/server/test/test_server_unit.cpp
+index c864691..b808f9c 100644
+--- a/server/test/test_server_unit.cpp
++++ b/server/test/test_server_unit.cpp
+@@ -720,6 +720,21 @@ TEST_CASE(ServerUnitFixture, test_parse_legacy_openai_function_call_wrapper) {
+     TEST_ASSERT(result.cleaned_text.empty());
+ }
+ 
++TEST_CASE(ServerUnitFixture, test_parse_deepseek_function_parameters) {
++    std::string text =
++        "{\"function\":\"get_weather\",\"parameters\":{"
++        "\"location\":\"Prague, Czech Republic\",\"unit\":\"celsius\"}}";
++    auto result = parse_tool_calls(text, weather_tools());
++    TEST_ASSERT(result.tool_calls.size() == 1);
++    if (!result.tool_calls.empty()) {
++        TEST_ASSERT(result.tool_calls[0].name == "get_weather");
++        auto args = json::parse(result.tool_calls[0].arguments);
++        TEST_ASSERT(args["location"] == "Prague, Czech Republic");
++        TEST_ASSERT(args["unit"] == "celsius");
++    }
++    TEST_ASSERT(result.cleaned_text.empty());
++}
++
+ TEST_CASE(ServerUnitFixture, test_parse_single_tool_bare_json_args) {
+     std::string text =
+         "{\n"
+@@ -1376,6 +1391,27 @@ TEST_CASE(ServerUnitFixture, test_emitter_legacy_openai_function_call_wrapper) {
+     TEST_ASSERT(wire.find("tool_calls") != std::string::npos);
+ }
+ 
++TEST_CASE(ServerUnitFixture, test_emitter_deepseek_function_parameters) {
++    auto em = make_emitter(ApiFormat::OPENAI_CHAT, weather_tools());
++    em.emit_start();
++    em.emit_token("{\"function\":\"get_weather\",");
++    em.emit_token("\"parameters\":{\"location\":\"Prague, Czech Republic\",");
++    em.emit_token("\"unit\":\"celsius\"}}");
++    const auto finish = em.emit_finish(24);
++
++    TEST_ASSERT(em.tool_calls().size() == 1);
++    if (!em.tool_calls().empty()) {
++        TEST_ASSERT(em.tool_calls()[0].name == "get_weather");
++        auto args = json::parse(em.tool_calls()[0].arguments);
++        TEST_ASSERT(args["location"] == "Prague, Czech Republic");
++        TEST_ASSERT(args["unit"] == "celsius");
++    }
++    TEST_ASSERT(em.accumulated_text().empty());
++    const std::string wire = concat(finish);
++    TEST_ASSERT(wire.find("get_weather") != std::string::npos);
++    TEST_ASSERT(wire.find("tool_calls") != std::string::npos);
++}
++
+ TEST_CASE(ServerUnitFixture, test_emitter_bare_json_args_do_not_trigger_after_content) {
+     auto em = make_emitter(ApiFormat::ANTHROPIC, shell_tools());
+     em.emit_start();

@@ -9,6 +9,8 @@
     - platform
     - ryzenadj
     - fan
+    - role: rocm_runtime
+      when: deepseek_system.engine == 'rocm'
     - artifacts
     - service
     - verify

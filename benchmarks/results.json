@@ -1,6 +1,7 @@
 {
-  "schema": 1,
-  "published_at": "2026-08-17",
+  "schema": 3,
+  "published_at": "2026-08-18",
+  "default_system": "vulkan-iq3xxs",
   "hardware": {
     "system": "BOSGAME M5 / Sixunited AXB35-02",
     "processor": "AMD Ryzen AI Max+ 395",
@@ -9,96 +10,133 @@
     "operating_system": "Ubuntu 26.04 LTS",
     "kernel": "7.0.0-29-generic"
   },
-  "selected": {
-    "name": "Nathan Vulkan c569020 + Unsloth UD-IQ3_XXS + DSpark Q2_K/Q8_0",
-    "power_watts": {"stapm": 120, "fast": 120, "slow": 120},
-    "cpu": {"governor": "performance", "minimum_khz": 2000000, "boost": false},
-    "gpu_dpm": "auto",
-    "context_allocation": 131072,
-    "kv": {"k": "q8_0", "v": "q8_0"},
+  "workloads": {
     "deep_retrieval": {
+      "definition": "deterministic five-key byte-exact retrieval",
+      "filler": " Archive record: routine telemetry was nominal and contains no retrieval key.",
       "prompt_sha256": "f5d337a32fbf5e29f150974500a8d49cff172c2d03c125a243f6c990e1dbd7a3",
+      "target_input_tokens": 122880,
       "actual_input_tokens": 122879,
       "requested_output_tokens": 256,
-      "needle_passes": 5,
       "needle_total": 5,
-      "prefill_tokens_per_second": 128.70334652026528,
-      "decode_tokens_per_second": 19.410880850591308,
-      "minimum_effective_non_cma_kib": 13787464,
-      "maximum_gpu_temperature_millic": 81000,
-      "maximum_cpu_temperature_millic": 80500,
-      "oom_events": 0
+      "needle_depth_fractions": [0.02, 0.20, 0.50, 0.80, 0.98],
+      "expected": {
+        "BOSGAME_ALPHA": "violet canoe",
+        "BOSGAME_BRAVO": "maple lantern",
+        "BOSGAME_CHARLIE": "quiet harbor",
+        "BOSGAME_DELTA": "saffron comet",
+        "BOSGAME_ECHO": "tundra violin"
+      }
     },
     "short": {
+      "definition": "deterministic integer-generation instruction padded with repeated space-x units",
+      "instruction": "This is a deterministic throughput test. After reading the padding, output consecutive positive integers from 1 through 100000, one per line, with no commentary. Do not stop before reaching 100000; the endpoint will stop generation.\n\nPadding:\n",
+      "padding_unit": " x",
       "prompt_sha256": "3ed38be9c93333e209a66ada0b10efbde517b06f9a6b6d727b0e216b0c890463",
       "requested_input_tokens": 2048,
-      "actual_input_tokens": 2040,
       "requested_output_tokens": 510,
-      "runs": 3,
-      "decode_tokens_per_second_median": 26.673597959181535,
-      "acceptance_rate_median": 0.6144
-    },
-    "article_control": {
-      "prompt_sha256": "7546b40a78fffe881632469d1a3695699d8846918c08b580505d823d8cf2eb46",
-      "actual_input_tokens": 2209,
-      "requested_output_tokens": 4096,
-      "runs": 1,
-      "prefill_tokens_per_second": 261.11351854071467,
-      "decode_tokens_per_second": 35.45579392825893,
-      "acceptance_rate": 0.955957086391869,
-      "end_to_end_output_tokens_per_second": 33.03251798434654
-    },
-    "corrected_quality_30": {"coding": 7, "gsm8k": 10, "math": 10, "total": 27},
-    "coding_512_confirmation": {
-      "power_watts": {"stapm": 120, "fast": 120, "slow": 120},
       "temperature": 0,
-      "requested_output_tokens": 512,
-      "completed": 10,
-      "passed": 7,
-      "failed_task_ids": ["he_01", "he_02", "he_07"],
-      "failed_completion_tokens": [512, 512, 512],
-      "mean_output_tokens_per_second": 26.02,
-      "minimum_effective_non_cma_kib": 14051700,
-      "maximum_gpu_temperature_millic": 76000,
-      "maximum_cpu_temperature_millic": 75125,
-      "vulkan_loader_sha256": "def4af45e9e5784cf65eaaaa289530a5c73546b01015da4c0920ef0a144fe189"
+      "top_k": 1,
+      "top_p": 1,
+      "ignore_eos": true,
+      "warmups": 1
     },
-    "tool_contract_passed": true
+    "quality_30": {
+      "source_repository": "https://github.com/Luce-Org/lucebox",
+      "source_commit": "90f85fa401c6a3c61d9e4d0e2da7fc48a5e8915e",
+      "runner_sha256": "a4db6be2a77623a6e3976af80edfb1c80cb0e25161ac01b64102aa08a6c14c0e",
+      "fixture_sha256": {
+        "bench_he.jsonl": "7886d54c7f1c7520f8410a01ebdcf044f99e2ded0144ad0cc509c746052c0533",
+        "bench_gsm.jsonl": "3531e758101b3580f23323c3e62b17bfd7435301e69c09d4834f08b95abb91af",
+        "bench_math.jsonl": "3fec033244bc8a6a55ce9ab651e3334ef12836cd82bad2defb7bdadb93e602fb"
+      },
+      "coding_tasks": 10,
+      "gsm8k_tasks": 10,
+      "math_tasks": 10,
+      "temperature": 0,
+      "output_token_cap": 512
+    },
+    "hermes_cache_8k": {
+      "requests": 6,
+      "expected_cache_hits": 5,
+      "tool_count": 10
+    }
   },
-  "competitor": {
-    "name": "Lucebox ROCm 7.1 ROCmFPX exact-attention cache-one",
-    "power_watts": {"stapm": 100, "fast": 100, "slow": 100},
-    "cpu": {"governor": "performance", "minimum_khz": 2000000, "boost": true},
-    "gpu_dpm": "high",
-    "context_allocation": 131072,
-    "deep_retrieval": {
-      "prompt_sha256": "f5d337a32fbf5e29f150974500a8d49cff172c2d03c125a243f6c990e1dbd7a3",
-      "actual_input_tokens": 122879,
-      "requested_output_tokens": 256,
-      "needle_passes": 5,
-      "needle_total": 5,
-      "prefill_tokens_per_second": 11.34422937214017,
-      "decode_tokens_per_second": 10.4
+  "systems": {
+    "vulkan-iq3xxs": {
+      "name": "Vulkan IQ3_XXS",
+      "manifest": "ansible/releases/vulkan-iq3xxs-128k.yml",
+      "power_watts": {"stapm": 120, "fast": 120, "slow": 120},
+      "cpu": {"governor": "performance", "minimum_khz": 2000000, "boost": false},
+      "gpu_dpm": "auto",
+      "context_allocation": 131072,
+      "target": {"quantization": "UD-IQ3_XXS", "bytes": 104207848032},
+      "draft": {"quantization": "Q2_K/Q8_0", "bytes": 6976490112, "maximum_draft_tokens": 4},
+      "kv": {"k": "q8_0", "v": "q8_0"},
+      "deep_retrieval": {
+        "needle_passes": 5,
+        "prefill_tokens_per_second": 130.62949065118758,
+        "decode_tokens_per_second": 22.434843054904917,
+        "draft_acceptance_rate": 0.6650943396226415,
+        "minimum_effective_non_cma_kib": 8734584,
+        "maximum_gpu_temperature_millic": 81000,
+        "maximum_cpu_temperature_millic": 80250,
+        "oom_events": 0
+      },
+      "short": {
+        "actual_input_tokens": 2040,
+        "runs": 6,
+        "decode_tokens_per_second_median": 35.01059052036951,
+        "acceptance_rate_median": 0.8049792531120332
+      },
+      "quality_30": {
+        "coding_observed_minimum": 6,
+        "coding_observed_maximum": 7,
+        "gsm8k": 10,
+        "math": 10,
+        "total_observed_minimum": 26,
+        "total_observed_maximum": 27,
+        "all_observed_failures_reached_output_cap": true
+      },
+      "hermes_cache_8k": {
+        "cache_hits": 5,
+        "cached_prefix_tokens": 42960,
+        "prefill_milliseconds": 35603.559,
+        "wall_seconds": 38.28332853602478
+      },
+      "tool_contract_passed": true
     },
-    "short": {
-      "prompt_sha256": "3ed38be9c93333e209a66ada0b10efbde517b06f9a6b6d727b0e216b0c890463",
-      "requested_input_tokens": 2048,
-      "actual_input_tokens": 2048,
-      "requested_output_tokens": 510,
-      "runs": 3,
-      "decode_tokens_per_second_median": 28.2,
-      "acceptance_rate_median": 1.0
-    },
-    "corrected_quality_30": {"coding": 10, "gsm8k": 10, "math": 10, "total": 30},
-    "humaneval_plus": {"passed": 131, "total": 164, "request_errors": 0},
-    "tool_contract_passed": true
-  },
-  "controls": {
-    "nathan_100w_same_room_deep_retrieval": {
-      "prefill_tokens_per_second": 125.44645988143368,
-      "decode_tokens_per_second": 18.923496216357936,
-      "needle_passes": 5,
-      "needle_total": 5
+    "rocm-rocmfpx": {
+      "name": "ROCm ROCmFPX",
+      "manifest": "ansible/releases/rocm-rocmfpx-128k.yml",
+      "power_watts": {"stapm": 120, "fast": 120, "slow": 120},
+      "cpu": {"governor": "performance", "minimum_khz": 2000000, "boost": true},
+      "gpu_dpm": "high",
+      "context_allocation": 131072,
+      "target": {"quantization": "ROCmFPX MIX", "bytes": 98294917184},
+      "draft": {"quantization": "Q4RMFP4 dense-F16", "bytes": 10648656160, "speculation_q": 4},
+      "kv": {"k": "q4_0", "v": "q4_0"},
+      "deep_retrieval": {
+        "needle_passes": 5,
+        "prefill_tokens_per_second": 131.18515887486888,
+        "decode_tokens_per_second": 16.4
+      },
+      "short": {
+        "actual_input_tokens": 2048,
+        "runs": 3,
+        "prefill_tokens_per_second_median": 250.99269572037844,
+        "decode_tokens_per_second_median": 29.1,
+        "acceptance_rate_median": 1.0
+      },
+      "quality_30": {"coding": 10, "gsm8k": 10, "math": 10, "total": 30},
+      "humaneval_plus": {"passed": 131, "total": 164, "request_errors": 0},
+      "hermes_cache_8k": {
+        "cache_hits": 5,
+        "cached_prefix_tokens": 40825,
+        "prefill_milliseconds": 47376.5,
+        "wall_seconds": 50.31293214299512
+      },
+      "tool_contract_passed": true
     }
   }
 }

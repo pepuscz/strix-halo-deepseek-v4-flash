@@ -1,0 +1,123 @@
+diff --git a/server/src/server/chat_template.cpp b/server/src/server/chat_template.cpp
+--- a/server/src/server/chat_template.cpp
++++ b/server/src/server/chat_template.cpp
+@@ -366,9 +366,13 @@ std::string render_chat_template(
+ 
+         result = "<｜begin▁of▁sentence｜>";
+-        if (enable_thinking && reasoning_effort == "max") {
++        if (enable_thinking && reasoning_effort == "high") {
+             result += "Reasoning Effort: Absolute maximum with no shortcuts permitted.\n";
+             result += "You MUST be very thorough in your thinking and comprehensively decompose the problem to resolve the root cause, rigorously stress-testing your logic against all potential paths, edge cases, and adversarial scenarios.\n";
+             result += "Explicitly write out your entire deliberation process, documenting every intermediate step, considered alternative, and rejected hypothesis to ensure absolutely no assumption is left unchecked.\n\n";
++        } else if (enable_thinking && reasoning_effort == "max") {
++            result += "Reasoning Effort: Beyond maximum — exhaustive, relentless, and uncompromising.\n";
++            result += "You MUST reason with the utmost depth and rigor, leaving absolutely nothing to chance: exhaustively decompose the problem into its most fundamental components, trace every causal chain to its root, and resolve the underlying cause rather than any surface symptom.\n";
++            result += "Do not stop reasoning until you have independently verified the solution from multiple angles and are certain that no assumption remains unchecked and no error remains undiscovered.\n\n";
+         }
+         if (has_tools) {
+             // Tool schema rendering is not implemented for the native DSML
+diff --git a/server/src/server/http_server.h b/server/src/server/http_server.h
+--- a/server/src/server/http_server.h
++++ b/server/src/server/http_server.h
+@@ -243,8 +243,8 @@ struct ParsedRequest {
+     // Thinking/reasoning state
+     bool                      thinking_enabled = true;
+     bool                      started_in_thinking = false;
+-    // Normalized model-facing effort. DeepSeek V4 uses "max" to select the
+-    // official Max prompt prefix; High uses the ordinary thinking prompt.
++    // Normalized model-facing effort. DeepSeek V4 officially defines low,
++    // high, and max; High and Max select distinct prompt prefixes.
+     std::string               reasoning_effort;
+     // True when the request opted in to the thinking-budget envelope via
+     // `thinking: {type: "enabled"}`. Distinct from thinking_enabled (which
+diff --git a/server/src/server/http_server.cpp b/server/src/server/http_server.cpp
+--- a/server/src/server/http_server.cpp
++++ b/server/src/server/http_server.cpp
+@@ -649,8 +649,8 @@ json build_props_body(const ServerConfig & config,
+         reasoning_efforts.push_back("x-high");
+         reasoning_efforts.push_back("max");
+     } else if (is_deepseek4) {
+-        // Official DeepSeek V4 encoding accepts None, high, and max. None is
+-        // represented by omitting effort and disabling thinking.
++        // Official DeepSeek V4 encoding accepts low, high, and max.
++        reasoning_efforts.push_back("low");
+         reasoning_efforts.push_back("high");
+         reasoning_efforts.push_back("max");
+     }
+@@ -1742,16 +1742,20 @@ void HttpServer::apply_request_reasoning(
+ 
+         // Five-tier vocabulary (spec §4.2). Unknown tier → high.
+         int tier_value = config_.effort_tiers.high;
+-        normalized_effort = "high";
+         if (effort == "minimal" || effort == "low") {
+             tier_value = config_.effort_tiers.low;
++            normalized_effort = "low";
+         } else if (effort == "medium") {
+             tier_value = config_.effort_tiers.medium;
++            normalized_effort = config_.arch == "deepseek4" ? "high" : "medium";
+         } else if (effort == "x-high") {
+             tier_value = config_.effort_tiers.x_high;
++            normalized_effort = config_.arch == "deepseek4" ? "max" : "x-high";
+         } else if (effort == "max") {
+             tier_value = config_.effort_tiers.max;
+             normalized_effort = "max";
++        } else {
++            normalized_effort = "high";
+         }
+ 
+         effort_phase1_cap = tier_value;
+diff --git a/server/test/test_server_unit.cpp b/server/test/test_server_unit.cpp
+--- a/server/test/test_server_unit.cpp
++++ b/server/test/test_server_unit.cpp
+@@ -2637,9 +2637,11 @@ TEST_CASE(ServerUnitFixture, test_deepseek4_render_reasoning_effort_max) {
+         /*tools_json=*/"",
+         /*reasoning_effort=*/"max");
+     const std::string bos = "<｜begin▁of▁sentence｜>";
+-    const std::string prefix =
++    const std::string high_prefix =
+         "Reasoning Effort: Absolute maximum with no shortcuts permitted.\n";
+-    TEST_ASSERT(out.rfind(bos + prefix, 0) == 0);
++    const std::string max_prefix =
++        "Reasoning Effort: Beyond maximum — exhaustive, relentless, and uncompromising.\n";
++    TEST_ASSERT(out.rfind(bos + max_prefix, 0) == 0);
+     TEST_ASSERT(out.find("system message<｜User｜>hard problem") !=
+                 std::string::npos);
+     TEST_ASSERT(out.size() >= std::string("<｜Assistant｜><think>").size());
+@@ -2653,8 +2655,18 @@ TEST_CASE(ServerUnitFixture, test_deepseek4_render_reasoning_effort_max) {
+         /*enable_thinking=*/true,
+         /*tools_json=*/"",
+         /*reasoning_effort=*/"high");
+-    TEST_ASSERT(high.find(prefix) == std::string::npos);
+-    TEST_ASSERT(high.rfind(bos + "system message", 0) == 0);
++    TEST_ASSERT(high.rfind(bos + high_prefix, 0) == 0);
++    TEST_ASSERT(high.find(max_prefix) == std::string::npos);
++
++    const std::string low = render_chat_template(
++        msgs, ChatFormat::DEEPSEEK4,
++        /*add_generation_prompt=*/true,
++        /*enable_thinking=*/true,
++        /*tools_json=*/"",
++        /*reasoning_effort=*/"low");
++    TEST_ASSERT(low.find(high_prefix) == std::string::npos);
++    TEST_ASSERT(low.find(max_prefix) == std::string::npos);
++    TEST_ASSERT(low.rfind(bos + "system message", 0) == 0);
+ }
+ 
+ TEST_CASE(ServerUnitFixture, test_jinja_render_basic) {
+@@ -4738,11 +4749,13 @@ TEST_CASE(ServerUnitFixture, test_props_deepseek4_reasoning_capability) {
+     json body = build_props_body(cfg, pc, tm);
+ 
+     TEST_ASSERT(body["reasoning"]["supported"].get<bool>());
+-    TEST_ASSERT(body["reasoning"]["supported_efforts"].size() == 2);
++    TEST_ASSERT(body["reasoning"]["supported_efforts"].size() == 3);
+     TEST_ASSERT(body["reasoning"]["supported_efforts"][0].get<std::string>() ==
+-                "high");
++                "low");
+     TEST_ASSERT(body["reasoning"]["supported_efforts"][1].get<std::string>() ==
+-                "max");
++                "high");
++    TEST_ASSERT(body["reasoning"]["supported_efforts"][2].get<std::string>() ==
++                "max");
+     TEST_ASSERT(body["capabilities"]["reasoning_supported"].get<bool>());
+ }
+ 

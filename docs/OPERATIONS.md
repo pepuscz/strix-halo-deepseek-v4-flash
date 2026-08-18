@@ -1,27 +1,30 @@
-# Operations and maintenance
+# Operations
 
-## Source of truth
+## Select a system
 
-Persistent production changes are made only through this repository. Do not
-edit the systemd unit, GRUB drop-in, host-policy scripts, DKMS metadata, or files
-under the active `/opt/m5/releases/<release-id>` by hand.
+Vulkan IQ3_XXS is the default:
 
-For an update:
+```bash
+bin/deepseekctl validate
+bin/deepseekctl install --allow-reboot
+bin/deepseekctl verify
+```
 
-1. add a new release manifest or review a manifest change;
-2. update every URL, revision, byte size, and SHA-256 together;
-3. run `bin/deepseekctl lint` and `bin/deepseekctl validate`;
-4. run `bin/deepseekctl update --allow-reboot`;
-5. run `bin/deepseekctl verify` and record the benchmark delta;
-6. tag the repository only after all gates pass.
+ROCm ROCmFPX is selected with one environment variable:
 
-Rollback is the same deterministic path: check out the previous release tag and
-run `install`. Release-specific artifacts are immutable and retained. Ansible
-stops and disables the release manifest's explicit legacy server, smoke,
-download, and host-policy units before enabling the selected unit. It does not
-delete their unit files, artifacts, results, or rollback evidence.
+```bash
+export DEEPSEEK_SYSTEM=rocm-rocmfpx
+bin/deepseekctl validate
+bin/deepseekctl install --allow-reboot
+bin/deepseekctl verify
+```
 
-## Day-to-day controls
+Set the same `DEEPSEEK_SYSTEM` value for later start, stop, status, and verify
+commands. Switching systems runs the selected immutable manifest and replaces
+the shared `deepseek-v4-flash.service` definition; it does not overwrite the
+other system's release directory.
+
+## Service controls
 
 ```bash
 bin/deepseekctl status
@@ -30,18 +33,23 @@ bin/deepseekctl start
 bin/deepseekctl verify
 ```
 
-Stopping the model releases the `StopWhenUnneeded` cooling dependency; the
-three fans are verified back in firmware-auto mode. The host policy controller
-also restores the CPU, GPU, and package-power values captured before model
-startup.
+Stop restores the captured CPU, GPU, and package-power policy. The cooling
+dependency returns all three AXB35 fans to firmware-auto. Verify checks API and
+runtime identity, context allocation, model representation, cgroup events,
+memory headroom, memory PSI, temperatures, cooling state, package-power
+readback, kernel errors, and a bounded API request.
 
-`verify` checks API/build/context identity, runtime hashes, cgroup limits and
-events, memory PSI, effective non-CMA headroom, temperatures, all three fan
-states, live RyzenAdj readback, and kernel errors from the service interval.
-Set `deepseek_verify_full_model_hashes=true` for an explicit 111 GB integrity
-scrub; normal runs use authenticated `.verified` identity markers and byte-size
-checks to avoid rehashing the models on every maintenance pass.
+Set `deepseek_verify_full_model_hashes=true` for an explicit full model scrub.
+Normal operation verifies immutable download markers and byte sizes to avoid
+rehashing approximately 109–111 GB on each run.
 
-The installer can adopt already-downloaded artifacts through uncommitted
-inventory variables. Each seed is fully size/hash verified before it is linked
-or reflink-copied. Never commit machine-local seed paths.
+## Updates and rollback
+
+Persistent production changes are made through release manifests and roles.
+Do not edit the active systemd unit, GRUB drop-in, hardware policy, DKMS files,
+or immutable `/opt/m5/releases/<release-id>` content manually.
+
+An update requires a new or reviewed immutable manifest, successful lint and
+validation, installation, live verification, and benchmark evidence. Rollback
+uses the same path: check out a prior repository tag and install its manifest.
+Retained release-specific artifacts are reused only after identity checks.

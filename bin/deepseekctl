@@ -6,12 +6,14 @@ export ANSIBLE_CONFIG="$repo_root/ansible.cfg"
 ansible_playbook=${ANSIBLE_PLAYBOOK:-"$repo_root/.venv/bin/ansible-playbook"}
 ansible_lint=${ANSIBLE_LINT:-"$repo_root/.venv/bin/ansible-lint"}
 inventory=${DEEPSEEK_INVENTORY:-"$repo_root/ansible/inventory/hosts.yml"}
-release=${DEEPSEEK_RELEASE:-"$repo_root/ansible/releases/nathan-c569020-128k-120w.yml"}
+system=${DEEPSEEK_SYSTEM:-vulkan-iq3xxs}
+release=${DEEPSEEK_RELEASE:-"$repo_root/ansible/releases/${system}-128k.yml"}
 
 fail() { printf 'ERROR: %s\n' "$1" >&2; exit 1; }
 need_inventory() { [[ -f "$inventory" ]] || fail "Create $inventory from hosts.example.yml"; }
 run_playbook() {
     need_inventory
+    [[ -f "$release" ]] || fail "Unknown release manifest: $release"
     [[ -x "$ansible_playbook" ]] || fail "Missing $ansible_playbook; install requirements.lock first."
     "$ansible_playbook" -i "$inventory" -e "@$release" "$@"
 }
