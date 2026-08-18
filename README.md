@@ -38,7 +38,9 @@ the alternative when the higher observed quality score is preferred.
 See [BENCHMARKS.md](docs/BENCHMARKS.md) for the workload definitions,
 measurement rules, and reproducibility data.
 
-## Install the default system
+## Install
+
+Prepare the controller once:
 
 ```bash
 git clone https://github.com/pepuscz/strix-halo-deepseek-v4-flash.git
@@ -48,17 +50,21 @@ $EDITOR ansible/inventory/hosts.yml
 
 python3 -m venv .venv
 .venv/bin/pip install --require-hashes -r requirements.lock
+```
+
+Select one system:
+
+```bash
+export DEEPSEEK_SYSTEM=vulkan-iq3xxs  # default
+# or: export DEEPSEEK_SYSTEM=rocm-rocmfpx  # alternative
+```
+
+Run the same installation commands for either system:
+
+```bash
 bin/deepseekctl validate
 bin/deepseekctl install --allow-reboot
 bin/deepseekctl verify
-```
-
-## Install the alternative system
-
-```bash
-DEEPSEEK_SYSTEM=rocm-rocmfpx bin/deepseekctl validate
-DEEPSEEK_SYSTEM=rocm-rocmfpx bin/deepseekctl install --allow-reboot
-DEEPSEEK_SYSTEM=rocm-rocmfpx bin/deepseekctl verify
 ```
 
 ## Common host and service behavior

@@ -2,27 +2,31 @@
 
 ## Select a system
 
-Strix Halo llama.cpp Vulkan IQ3_XXS is the default:
+Select Strix Halo llama.cpp Vulkan IQ3_XXS:
 
 ```bash
-bin/deepseekctl validate
-bin/deepseekctl install --allow-reboot
-bin/deepseekctl verify
+export DEEPSEEK_SYSTEM=vulkan-iq3xxs
 ```
 
-Lucebox ROCm ROCmFPX is selected with one environment variable:
+Or select Lucebox ROCm ROCmFPX:
 
 ```bash
 export DEEPSEEK_SYSTEM=rocm-rocmfpx
+```
+
+Then use the same commands for either system:
+
+```bash
 bin/deepseekctl validate
 bin/deepseekctl install --allow-reboot
 bin/deepseekctl verify
 ```
 
-Set the same `DEEPSEEK_SYSTEM` value for later start, stop, status, and verify
-commands. Switching systems runs the selected immutable manifest and replaces
-the shared `deepseek-v4-flash.service` definition; it does not overwrite the
-other system's release directory.
+Keep the same `DEEPSEEK_SYSTEM` value for later start, stop, status, and verify
+commands. If unset, it defaults to `vulkan-iq3xxs`. Switching systems runs the
+selected immutable manifest and replaces the shared
+`deepseek-v4-flash.service` definition; it does not overwrite the other
+system's release directory.
 
 ## Service controls
 
