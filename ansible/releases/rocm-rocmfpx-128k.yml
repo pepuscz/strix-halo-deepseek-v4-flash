@@ -4,7 +4,7 @@ deepseek_release_schema: 1
 
 deepseek_system:
   id: rocm-rocmfpx
-  name: ROCm ROCmFPX
+  name: Lucebox ROCm ROCmFPX
   engine: rocm
   selected_default: false
 

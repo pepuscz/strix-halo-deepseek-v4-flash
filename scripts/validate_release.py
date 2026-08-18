@@ -18,8 +18,8 @@ HEX64 = re.compile(r"^[0-9a-f]{64}$")
 ALLOWED_ARTIFACT_HOSTS = {"github.com", "huggingface.co", "archive.ubuntu.com"}
 TEXT_SUFFIXES = {"", ".cfg", ".in", ".j2", ".json", ".md", ".patch", ".py", ".sh", ".txt", ".yml", ".yaml"}
 SYSTEMS = {
-    "vulkan-iq3xxs": ("Vulkan IQ3_XXS", "vulkan"),
-    "rocm-rocmfpx": ("ROCm ROCmFPX", "rocm"),
+    "vulkan-iq3xxs": ("Strix Halo llama.cpp Vulkan IQ3_XXS", "vulkan"),
+    "rocm-rocmfpx": ("Lucebox ROCm ROCmFPX", "rocm"),
 }
 FORBIDDEN_PUBLIC_PATTERNS = {
     "macOS home path": re.compile(r"/Users/[^/\s]+/"),
@@ -79,7 +79,7 @@ def validate_manifest(path: Path, root: Path) -> dict:
 
     if system["engine"] == "vulkan":
         if len(files) != 4:
-            fail("Vulkan IQ3_XXS requires four target files")
+            fail("Strix Halo llama.cpp Vulkan IQ3_XXS requires four target files")
         runtime = data["deepseek_runtime"]
         require_url(runtime["archive_url"], "runtime archive_url")
         require_url(data["deepseek_vulkan_loader"]["url"], "Vulkan loader URL")
@@ -89,7 +89,7 @@ def validate_manifest(path: Path, root: Path) -> dict:
             require_sha(data["deepseek_vulkan_loader"][key], f"Vulkan loader {key}")
     else:
         if len(files) != 1:
-            fail("ROCm ROCmFPX requires one target file")
+            fail("Lucebox ROCm ROCmFPX requires one target file")
         runtime = data["deepseek_runtime"]
         rocm = data["deepseek_rocm"]
         require_url(runtime["repository"], "ROCm runtime repository")

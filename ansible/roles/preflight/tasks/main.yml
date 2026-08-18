@@ -5,7 +5,7 @@
       - deepseek_release_schema | int == 1
       - deepseek_release_id | length > 0
       - deepseek_system.id in ['vulkan-iq3xxs', 'rocm-rocmfpx']
-      - deepseek_system.name in ['Vulkan IQ3_XXS', 'ROCm ROCmFPX']
+      - deepseek_system.name in ['Strix Halo llama.cpp Vulkan IQ3_XXS', 'Lucebox ROCm ROCmFPX']
       - deepseek_system.engine in ['vulkan', 'rocm']
       - deepseek_service.context | int == 131072
       - deepseek_service.memory_high == '118G'

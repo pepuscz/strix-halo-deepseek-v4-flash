@@ -11,7 +11,7 @@
       - verify_props.json.prefix_cache.capacity | int == deepseek_service.prefix_cache_slots | int
       - verify_props.json.capabilities.reasoning_supported | bool
       - "'max' in verify_props.json.reasoning.supported_efforts"
-    fail_msg: The live API does not match ROCm ROCmFPX.
+    fail_msg: The live API does not match Lucebox ROCm ROCmFPX.
 
 - name: Read ROCm server identity
   ansible.builtin.stat:

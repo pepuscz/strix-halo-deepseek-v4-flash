@@ -2,7 +2,7 @@
 
 ## Select a system
 
-Vulkan IQ3_XXS is the default:
+Strix Halo llama.cpp Vulkan IQ3_XXS is the default:
 
 ```bash
 bin/deepseekctl validate
@@ -10,7 +10,7 @@ bin/deepseekctl install --allow-reboot
 bin/deepseekctl verify
 ```
 
-ROCm ROCmFPX is selected with one environment variable:
+Lucebox ROCm ROCmFPX is selected with one environment variable:
 
 ```bash
 export DEEPSEEK_SYSTEM=rocm-rocmfpx

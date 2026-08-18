@@ -7,7 +7,7 @@
       - verify_props.json.model_alias == deepseek_service.alias
       - verify_props.json.model_ftype == 'IQ3_XXS - 3.0625 bpw'
       - verify_props.json.build_info == deepseek_runtime.build_info
-    fail_msg: The live API does not match Vulkan IQ3_XXS.
+    fail_msg: The live API does not match Strix Halo llama.cpp Vulkan IQ3_XXS.
 
 - name: Read Vulkan runtime identities
   ansible.builtin.stat:

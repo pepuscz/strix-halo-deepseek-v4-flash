@@ -65,7 +65,7 @@
           - "'deepseek-host-policy restore' in rendered_unit_text"
           - "'serviceRequires' not in rendered_unit_text"
 
-    - name: Assert Vulkan IQ3_XXS service contract
+    - name: Assert Strix Halo llama.cpp Vulkan IQ3_XXS service contract
       ansible.builtin.assert:
         that:
           - "'-c 131072' in rendered_unit_text"
@@ -75,7 +75,7 @@
           - "'GGML_VK_FA_WAVE32=1' in rendered_unit_text"
       when: deepseek_system.engine == 'vulkan'
 
-    - name: Assert ROCm ROCmFPX service contract
+    - name: Assert Lucebox ROCm ROCmFPX service contract
       ansible.builtin.assert:
         that:
           - "'--max-ctx 131072' in rendered_unit_text"

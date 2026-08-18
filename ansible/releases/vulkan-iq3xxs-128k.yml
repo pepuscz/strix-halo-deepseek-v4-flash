@@ -4,7 +4,7 @@ deepseek_release_schema: 1
 
 deepseek_system:
   id: vulkan-iq3xxs
-  name: Vulkan IQ3_XXS
+  name: Strix Halo llama.cpp Vulkan IQ3_XXS
   engine: vulkan
   selected_default: true
 

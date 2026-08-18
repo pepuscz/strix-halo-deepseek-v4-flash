@@ -64,7 +64,7 @@
   },
   "systems": {
     "vulkan-iq3xxs": {
-      "name": "Vulkan IQ3_XXS",
+      "name": "Strix Halo llama.cpp Vulkan IQ3_XXS",
       "manifest": "ansible/releases/vulkan-iq3xxs-128k.yml",
       "power_watts": {"stapm": 120, "fast": 120, "slow": 120},
       "cpu": {"governor": "performance", "minimum_khz": 2000000, "boost": false},
@@ -107,7 +107,7 @@
       "tool_contract_passed": true
     },
     "rocm-rocmfpx": {
-      "name": "ROCm ROCmFPX",
+      "name": "Lucebox ROCm ROCmFPX",
       "manifest": "ansible/releases/rocm-rocmfpx-128k.yml",
       "power_watts": {"stapm": 120, "fast": 120, "slow": 120},
       "cpu": {"governor": "performance", "minimum_khz": 2000000, "boost": true},

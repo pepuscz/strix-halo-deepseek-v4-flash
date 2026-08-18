@@ -1,6 +1,6 @@
 # Sources and provenance
 
-## Vulkan IQ3_XXS
+## Strix Halo llama.cpp Vulkan IQ3_XXS
 
 | Component | Pinned source |
 |---|---|
@@ -12,7 +12,7 @@
 The exact runtime archive, executable, manifest, loader, and model identities
 are in [`vulkan-iq3xxs-128k.yml`](../ansible/releases/vulkan-iq3xxs-128k.yml).
 
-## ROCm ROCmFPX
+## Lucebox ROCm ROCmFPX
 
 | Component | Pinned source |
 |---|---|
