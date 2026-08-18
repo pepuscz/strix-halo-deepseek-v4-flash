@@ -41,7 +41,7 @@
       "ignore_eos": true,
       "warmups": 1
     },
-    "quality_30": {
+    "quality": {
       "source_repository": "https://github.com/Luce-Org/lucebox",
       "source_commit": "90f85fa401c6a3c61d9e4d0e2da7fc48a5e8915e",
       "runner_sha256": "a4db6be2a77623a6e3976af80edfb1c80cb0e25161ac01b64102aa08a6c14c0e",
@@ -89,7 +89,7 @@
         "generated_tokens_per_second_median": 35.01059052036951,
         "acceptance_rate_median": 0.8049792531120332
       },
-      "quality_30": {
+      "quality": {
         "coding_observed_minimum": 6,
         "coding_observed_maximum": 7,
         "gsm8k": 10,
@@ -128,7 +128,7 @@
         "generated_tokens_per_second_median": 29.1,
         "acceptance_rate_median": 1.0
       },
-      "quality_30": {"coding": 10, "gsm8k": 10, "math": 10, "total": 30},
+      "quality": {"coding": 10, "gsm8k": 10, "math": 10, "total": 30},
       "humaneval_plus": {"passed": 131, "total": 164, "request_errors": 0},
       "hermes_cache_8k": {
         "cache_hits": 5,
