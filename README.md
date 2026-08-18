@@ -69,7 +69,7 @@ bin/deepseekctl verify
 
 ## Common host and service behavior
 
-Both manifests require:
+Both systems require:
 
 - BOSGAME M5 / Sixunited AXB35-02 with AMD Ryzen AI Max+ 395 and 128 GiB RAM;
 - Ubuntu 26.04 LTS with kernel `7.0.0-29-generic`;
