@@ -7,16 +7,20 @@ systems on a 128 GiB AMD Ryzen AI Max+ 395 / Radeon 8060S host.
 
 ### Default: Strix Halo llama.cpp Vulkan IQ3_XXS
 
-The default system uses the unmodified `strix-halo-llamacpp` v0.6.4 portable
-release, an Unsloth UD-IQ3_XXS target, and a DSpark Q2_K/Q8_0 draft. Deploy it
-with [`vulkan-iq3xxs-128k.yml`](ansible/releases/vulkan-iq3xxs-128k.yml).
+The default system uses the unmodified
+[`Nathanw1014/strix-halo-llamacpp`](https://github.com/Nathanw1014/strix-halo-llamacpp)
+v0.6.4 portable release, an Unsloth UD-IQ3_XXS target, and a DSpark Q2_K/Q8_0
+draft. Deploy it with
+[`vulkan-iq3xxs-128k.yml`](ansible/releases/vulkan-iq3xxs-128k.yml).
 
 ### Alternative: Lucebox ROCm ROCmFPX
 
-The alternative system builds Lucebox commit `90f85fa` with 11 published
-patches, a ROCmFPX MIX target, and a DSpark Q4RMFP4 draft. The patches add the
-ROCm 7.1 build fix, DeepSeek tool and reasoning support, fused-verification
-attention paths, and bounded-memory 128K prefill/cache behavior. Deploy it with
+The alternative system builds
+[`Luce-Org/lucebox`](https://github.com/Luce-Org/lucebox) commit `90f85fa` with
+11 published patches, a ROCmFPX MIX target, and a DSpark Q4RMFP4 draft. The
+patches add the ROCm 7.1 build fix, DeepSeek tool and reasoning support,
+fused-verification attention paths, and bounded-memory 128K prefill/cache
+behavior. Deploy it with
 [`rocm-rocmfpx-128k.yml`](ansible/releases/rocm-rocmfpx-128k.yml); the exact
 changes are listed in [ARCHITECTURE.md](docs/ARCHITECTURE.md#lucebox-source-modifications).
 
