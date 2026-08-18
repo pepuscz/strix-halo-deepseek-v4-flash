@@ -17,7 +17,7 @@ draft. Deploy it with
 
 The alternative system builds
 [`Luce-Org/lucebox`](https://github.com/Luce-Org/lucebox) commit `90f85fa` with
-11 published patches, a ROCmFPX MIX target, and a DSpark Q4RMFP4 draft. The
+[11 published patches](patches/), a ROCmFPX MIX target, and a DSpark Q4RMFP4 draft. The
 patches add the ROCm 7.1 build fix, DeepSeek tool and reasoning support,
 fused-verification attention paths, bounded-memory 128K context, and caching.
 Deploy it with

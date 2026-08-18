@@ -4,7 +4,7 @@
 
 | Layer | Strix Halo llama.cpp Vulkan IQ3_XXS | Lucebox ROCm ROCmFPX |
 |---|---|---|
-| Runtime | Unmodified `strix-halo-llamacpp` v0.6.4 portable release, commit `baf6360be95b00fa98659cb86afc364f4ff45513` | Lucebox commit `90f85fa401c6a3c61d9e4d0e2da7fc48a5e8915e` plus 11 patches |
+| Runtime | Unmodified `strix-halo-llamacpp` v0.6.4 portable release, commit `baf6360be95b00fa98659cb86afc364f4ff45513` | Lucebox commit `90f85fa401c6a3c61d9e4d0e2da7fc48a5e8915e` plus [11 patches](#lucebox-source-modifications) |
 | GPU backend | Bundled Mesa RADV/Vulkan | Ubuntu ROCm 7.1, HIP `gfx1151`, rocWMMA `rocm-7.1.1` |
 | Target | Unsloth UD-IQ3_XXS, four GGUF files, 104.21 GB | ROCmFPX MIX, one GGUF file, 98.29 GB |
 | Draft | DSpark Q2_K/Q8_0, 6.98 GB | DSpark Q4RMFP4 dense-F16, 10.65 GB |

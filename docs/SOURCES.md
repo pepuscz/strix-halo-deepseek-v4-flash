@@ -22,9 +22,10 @@ are in [`vulkan-iq3xxs-128k.yml`](../ansible/releases/vulkan-iq3xxs-128k.yml).
 | Target | [`Lucebox/DeepSeek-V4-Flash-0731-ROCmFP3`](https://huggingface.co/Lucebox/DeepSeek-V4-Flash-0731-ROCmFP3), revision `39745d3f6f4b92ff1d764ada79a73616bc8903a5`, ROCmFPX MIX |
 | Draft | [`Lucebox/DeepSeek-V4-Flash-0731-DSpark-GGUF`](https://huggingface.co/Lucebox/DeepSeek-V4-Flash-0731-DSpark-GGUF), revision `8e8bbf5bdb384b6e867d01ad3215be70b1d920c5` |
 
-The 11 patches are published under `patches/`. Their individual SHA-256 values,
-the combined source-diff SHA-256, pinned Ubuntu ROCm package versions, absolute
-build paths, compiler flags, output binary identity, and model identities are in
+The [11 patch files](../patches/) are published in this repository. Their
+individual SHA-256 values, the combined source-diff SHA-256, pinned Ubuntu ROCm
+package versions, absolute build paths, compiler flags, output binary identity,
+and model identities are in
 [`rocm-rocmfpx-128k.yml`](../ansible/releases/rocm-rocmfpx-128k.yml).
 
 ## Shared host components
