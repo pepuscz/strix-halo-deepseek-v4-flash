@@ -8,8 +8,8 @@ runtime and the patched **Lucebox ROCm ROCmFPX** runtime defined in
 
 - **2K-prompt generation:** generated-token throughput after a fixed synthetic
   prompt of approximately 2,000 tokens.
-- **Long-128K:** ingestion, generation, and five-key retrieval with an actual
-  122,879-token prompt.
+- **128K context:** input processing, generation, and five-key retrieval with
+  an actual 122,879-token prompt.
 - **Agent-cache:** end-to-end latency for six requests in one growing
   tool-using conversation.
 - **Quality-30:** a fixed regression set containing ten coding, ten GSM8K-style,
@@ -17,13 +17,13 @@ runtime and the patched **Lucebox ROCm ROCmFPX** runtime defined in
 
 ## Results
 
-| System | 2K-prompt generation | Long-128K prefill | Long-128K decode | Long-128K retrieval | Agent-cache wall time | Quality-30 |
+| System | 2K-prompt generation | 128K-context input | 128K-context generation | 128K-context retrieval | Agent-cache wall time | Quality-30 |
 |---|---:|---:|---:|---:|---:|---:|
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 35.01 tok/s | 130.63 tok/s | 22.43 tok/s | 5/5 | 38.283 s | 26–27/30 |
 | **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 5/5 | 50.313 s | 30/30 |
 
 The Strix Halo llama.cpp system is the default because it leads the matched
-decode and agent-cache measurements. The Lucebox system records the higher
+generation and agent-cache measurements. The Lucebox system records the higher
 Quality-30 result.
 
 ## Measurement rules
@@ -31,7 +31,7 @@ Quality-30 result.
 | Case | Protocol | Reported value |
 |---|---|---|
 | 2K-prompt generation | Fixed source prompt; 2,048 requested input tokens; 510 forced output tokens; temperature 0; top-k 1; top-p 1; one warmup | Median server-reported generated-token rate from six Strix Halo llama.cpp runs and three Lucebox runs |
-| Long-128K | Identical five-key prompt; 122,879 actual input tokens; 256-token output cap; keys at approximately 2%, 20%, 50%, 80%, and 98% depth | Server-reported prefill and decode rates; retrieval passes only when all five values match byte-for-byte |
+| 128K context | Identical five-key prompt; 122,879 actual input tokens; 256-token output cap; keys at approximately 2%, 20%, 50%, 80%, and 98% depth | Server-reported input-processing and generated-token rates; retrieval passes only when all five values match byte-for-byte |
 | Agent-cache | Identical six-request conversation and ten-tool schema; first request cold; five subsequent prefix hits | Client wall time for all six requests |
 | Quality-30 | Pinned 30-task fixtures; temperature 0; 512-token output cap | Coding tests execute generated Python; GSM8K-style and MATH-style answers use the pinned extractors |
 
@@ -53,7 +53,7 @@ reference is scored against the corrected answer `20/3` for both systems.
 ## Reproduction inputs
 
 [`results.json`](../benchmarks/results.json) records the exact 2K-prompt generation instruction
-and prompt hash, Long-128K key values and prompt hash, request parameters,
+and prompt hash, 128K-context key values and prompt hash, request parameters,
 hardware, manifests, and aggregate results.
 
 Quality-30 uses all ten cases from each `bench_he.jsonl`, `bench_gsm.jsonl`, and

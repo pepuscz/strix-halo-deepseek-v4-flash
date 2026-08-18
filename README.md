@@ -19,18 +19,18 @@ The alternative system builds
 [`Luce-Org/lucebox`](https://github.com/Luce-Org/lucebox) commit `90f85fa` with
 11 published patches, a ROCmFPX MIX target, and a DSpark Q4RMFP4 draft. The
 patches add the ROCm 7.1 build fix, DeepSeek tool and reasoning support,
-fused-verification attention paths, and bounded-memory 128K prefill/cache
-behavior. Deploy it with
+fused-verification attention paths, bounded-memory 128K context, and caching.
+Deploy it with
 [`rocm-rocmfpx-128k.yml`](ansible/releases/rocm-rocmfpx-128k.yml); the exact
 changes are listed in [ARCHITECTURE.md](docs/ARCHITECTURE.md#lucebox-source-modifications).
 
 The Strix Halo llama.cpp system is the benchmark-selected default because it
-has faster decode and cached tool-conversation latency. The Lucebox system is
+has faster generation and cached tool-conversation latency. The Lucebox system is
 the alternative when the higher observed Quality-30 score is preferred.
 
 ## Benchmark summary
 
-| System | 2K-prompt generation | 128K prefill | 128K decode | Retrieval | Quality-30 |
+| System | 2K-prompt generation | 128K-context input | 128K-context generation | 128K-context retrieval | Quality-30 |
 |---|---:|---:|---:|---:|---:|
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 35.01 tok/s | 130.63 tok/s | 22.43 tok/s | 5/5 | 26–27/30 |
 | **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 5/5 | 30/30 |
