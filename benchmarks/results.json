@@ -1,6 +1,6 @@
 {
-  "schema": 3,
-  "published_at": "2026-08-18",
+  "schema": 4,
+  "published_at": "2026-08-19",
   "default_system": "vulkan-iq3xxs",
   "hardware": {
     "system": "BOSGAME M5 / Sixunited AXB35-02",
@@ -18,6 +18,7 @@
       "target_input_tokens": 122880,
       "actual_input_tokens": 122879,
       "requested_output_tokens": 256,
+      "thinking": false,
       "needle_total": 5,
       "needle_depth_fractions": [0.02, 0.20, 0.50, 0.80, 0.98],
       "expected": {
@@ -39,6 +40,7 @@
       "top_k": 1,
       "top_p": 1,
       "ignore_eos": true,
+      "thinking": false,
       "warmups": 1
     },
     "quality": {
@@ -54,12 +56,14 @@
       "gsm8k_tasks": 10,
       "math_tasks": 10,
       "temperature": 0,
+      "thinking": false,
       "output_token_cap": 512
     },
     "hermes_cache_8k": {
       "requests": 6,
       "expected_cache_hits": 5,
-      "tool_count": 10
+      "tool_count": 10,
+      "thinking": false
     }
   },
   "systems": {
@@ -75,34 +79,31 @@
       "kv": {"k": "q8_0", "v": "q8_0"},
       "deep_retrieval": {
         "needle_passes": 5,
-        "prefill_tokens_per_second": 130.62949065118758,
-        "decode_tokens_per_second": 22.434843054904917,
-        "draft_acceptance_rate": 0.6650943396226415,
-        "minimum_effective_non_cma_kib": 8734584,
+        "prefill_tokens_per_second": 130.20083566051562,
+        "decode_tokens_per_second": 30.38357533145981,
+        "draft_acceptance_rate": 1.0,
+        "minimum_effective_non_cma_kib": 7248640,
         "maximum_gpu_temperature_millic": 81000,
-        "maximum_cpu_temperature_millic": 80250,
+        "maximum_cpu_temperature_millic": 79500,
         "oom_events": 0
       },
       "generation_2k": {
         "actual_input_tokens": 2040,
-        "runs": 6,
-        "generated_tokens_per_second_median": 35.01059052036951,
-        "acceptance_rate_median": 0.8049792531120332
+        "runs": 3,
+        "generated_tokens_per_second_median": 41.15001435804037,
+        "acceptance_rate_median": 1.0
       },
       "quality": {
-        "coding_observed_minimum": 6,
-        "coding_observed_maximum": 7,
+        "coding": 10,
         "gsm8k": 10,
         "math": 10,
-        "total_observed_minimum": 26,
-        "total_observed_maximum": 27,
-        "all_observed_failures_reached_output_cap": true
+        "total": 30
       },
       "hermes_cache_8k": {
         "cache_hits": 5,
-        "cached_prefix_tokens": 42960,
-        "prefill_milliseconds": 35603.559,
-        "wall_seconds": 38.28332853602478
+        "cached_prefix_tokens": 42940,
+        "prefill_milliseconds": 35240.576,
+        "wall_seconds": 37.94601170104579
       },
       "tool_contract_passed": true
     },

@@ -19,21 +19,21 @@ runtime and the patched **Lucebox ROCm ROCmFPX** runtime defined in
 
 | System | 2K-prompt generation | 128K-context input | 128K-context generation | 128K-context key retrieval | Agent-cache wall time | Quality |
 |---|---:|---:|---:|---:|---:|---:|
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 35.01 tok/s | 130.63 tok/s | 22.43 tok/s | 5/5 keys found | 38.283 s | 26–27/30 |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 41.15 tok/s | 130.20 tok/s | 30.38 tok/s | 5/5 keys found | 37.946 s | 30/30 |
 | **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 5/5 keys found | 50.313 s | 30/30 |
 
 The Strix Halo llama.cpp system is the default because it leads the matched
-generation and agent-cache measurements. The Lucebox system records the higher
-quality score.
+generation and agent-cache measurements. Both systems pass the same quality
+gate; Lucebox is 0.75% faster on the single 128K input-processing run.
 
 ## Measurement rules
 
 | Case | Protocol | Reported value |
 |---|---|---|
-| 2K-prompt generation | Fixed source prompt; 2,048 requested input tokens; 510 forced output tokens; temperature 0; top-k 1; top-p 1; one warmup | Median server-reported generated-token rate from six Strix Halo llama.cpp runs and three Lucebox runs |
-| 128K context | Identical five-key prompt; 122,879 actual input tokens; 256-token output cap; keys at approximately 2%, 20%, 50%, 80%, and 98% depth | Server-reported input-processing and generated-token rates; retrieval passes only when all five values match byte-for-byte |
-| Agent-cache | Identical six-request conversation and ten-tool schema; first request cold; five subsequent prefix hits | Client wall time for all six requests |
-| Quality | Pinned 30-task fixtures; temperature 0; 512-token output cap | Coding tests execute generated Python; GSM8K-style and MATH-style answers use the pinned extractors |
+| 2K-prompt generation | Fixed source prompt; 2,048 requested input tokens; 510 forced output tokens; thinking disabled; temperature 0; top-k 1; top-p 1; one warmup | Median server-reported generated-token rate from three measured runs per system |
+| 128K context | Identical five-key prompt; 122,879 actual input tokens; 256-token output cap; thinking disabled; keys at approximately 2%, 20%, 50%, 80%, and 98% depth | Server-reported input-processing and generated-token rates; retrieval passes only when all five values match byte-for-byte |
+| Agent-cache | Identical six-request conversation and ten-tool schema; thinking disabled; first request cold; five subsequent prefix hits | Client wall time for all six requests |
+| Quality | Pinned 30-task fixtures; thinking disabled; temperature 0; 512-token output cap | Coding tests execute generated Python; GSM8K-style and MATH-style answers use the pinned extractors |
 
 The two APIs count the identical 2K-prompt generation input as 2,040 and 2,048 tokens. No
 other context size was measured with both exact qualified systems, so no
@@ -43,12 +43,11 @@ additional context curve is reported.
 
 | System | Coding | GSM8K-style | MATH-style | Total |
 |---|---:|---:|---:|---:|
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 6–7/10 | 10/10 | 10/10 | 26–27/30 |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 10/10 | 10/10 | 10/10 | 30/30 |
 | **Lucebox ROCm ROCmFPX** | 10/10 | 10/10 | 10/10 | 30/30 |
 
-The Strix Halo llama.cpp range covers two observed runs; every coding failure
-reached the 512-token cap with truncated code. The known incorrect `math_08`
-reference is scored against the corrected answer `20/3` for both systems.
+Both systems passed all 30 tasks. The `math_08` fixture is evaluated against
+the algebraically correct reference answer `20/3`.
 
 ## Reproduction inputs
 

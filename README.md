@@ -25,14 +25,14 @@ Deploy it with
 changes are listed in [ARCHITECTURE.md](docs/ARCHITECTURE.md#lucebox-source-modifications).
 
 The Strix Halo llama.cpp system is the benchmark-selected default because it
-has faster generation and cached tool-conversation latency. The Lucebox system is
-the alternative when the higher observed quality score is preferred.
+has faster generation and cached tool-conversation latency. Both systems pass
+the same 30-task quality gate; Lucebox provides the alternative ROCmFPX stack.
 
 ## Benchmark summary
 
 | System | 2K-prompt generation | 128K-context input | 128K-context generation | Quality |
 |---|---:|---:|---:|---:|
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 35.01 tok/s | 130.63 tok/s | 22.43 tok/s | 26–27/30 |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 41.15 tok/s | 130.20 tok/s | 30.38 tok/s | 30/30 |
 | **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 30/30 |
 
 See [BENCHMARKS.md](docs/BENCHMARKS.md) for the workload definitions,
