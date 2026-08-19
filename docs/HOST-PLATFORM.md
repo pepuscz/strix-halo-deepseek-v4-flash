@@ -4,19 +4,19 @@ The frozen profile is intentionally strict: Ubuntu 26.04, kernel
 `7.0.0-29-generic`, AMD GPU PCI ID `1002:1586`, AXB35-02 board, at least 125,000,000
 KiB RAM, no swap, Secure Boot disabled, and at least 120 GB free on `/`.
 
-Set these BIOS options before installation:
+The qualified machine used BIOS `3.10`. Set these options before installation;
+the labels and values below match the BOSGAME BIOS menus:
 
-| Setting | Qualified value |
-|---|---|
-| BIOS version | `3.10` |
-| UMA framebuffer | 1 GB |
-| Above 4G decoding | enabled |
-| ReBAR | enabled |
-| Secure Boot | disabled |
-| IOMMU | disabled |
-| SVM | disabled |
-| Core Performance Boost | enabled |
-| CPPC | auto |
+| BIOS menu | BIOS label | Value |
+|---|---|---|
+| Advanced > GFX Configuration | `iGPU Configuration` | `UMA_SPECIFIED` |
+| Advanced > GFX Configuration | `UMA Frame buffer Size` | `1G` |
+| Advanced > GFX Configuration | `PCIE Resizable BAR support` | `Enabled` |
+| Advanced > GFX Configuration | `Above 4G Decoding` | `Enabled` |
+| Advanced > CPU Configuration | `IOMMU(AMD-Vi)` | `Disabled` |
+| Advanced > CPU Configuration | `SVM Mode(AMD-V)` | `Disabled` |
+| Advanced > CPU Configuration | `Core Performance Boost` | `Enabled` |
+| Security > Secure Boot | `Secure Boot` | `Disabled` |
 
 These settings must be configured manually. Ansible verifies Secure Boot but
 does not change BIOS options.
