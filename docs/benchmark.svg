@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 540" role="img" aria-labelledby="title description">
-  <title id="title">Cold-retrieval context scaling</title>
-  <desc id="description">Strix Halo llama.cpp Vulkan IQ3_XXS was measured at exact prompt lengths from 59,933 to 491,520 tokens. Lucebox ROCm ROCmFPX was measured at 122,879 tokens. Every measured point recovered all five keys.</desc>
+  <title id="title">Cold-retrieval throughput by prompt length</title>
+  <desc id="description">Two panels show cold-retrieval input-processing and generation throughput from 59,933 through 491,520 prompt tokens for Strix Halo llama.cpp Vulkan IQ3_XXS and at 122,879 prompt tokens for Lucebox ROCm ROCmFPX.</desc>
   <style>
     .background { fill: #ffffff; }
     .frame { fill: none; stroke: #d0d7de; stroke-width: 1; }
     .grid { stroke: #d8dee4; stroke-width: 1; stroke-dasharray: 3 5; }
     .axis { stroke: #57606a; stroke-width: 1.25; }
     .vulkan-line { fill: none; stroke: #0969da; stroke-width: 3; }
-    .vulkan-point { fill: #0969da; }
-    .rocm-point { fill: #bf3989; }
+    .vulkan-mark { fill: #0969da; }
+    .rocm-mark { fill: #bf3989; }
     text { fill: #24292f; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     .chart-title { font-size: 22px; font-weight: 600; }
     .legend { font-size: 12px; font-weight: 500; }
@@ -22,18 +22,18 @@
       .grid { stroke: #30363d; }
       .axis { stroke: #8b949e; }
       .vulkan-line { stroke: #58a6ff; }
-      .vulkan-point { fill: #58a6ff; }
-      .rocm-point { fill: #db61a2; }
+      .vulkan-mark { fill: #58a6ff; }
+      .rocm-mark { fill: #db61a2; }
       text { fill: #e6edf3; }
     }
   </style>
 
   <rect class="background" width="900" height="540"/>
-  <text class="chart-title" x="450" y="28" text-anchor="middle">Cold-retrieval context scaling</text>
+  <text class="chart-title" x="450" y="28" text-anchor="middle">Cold-retrieval throughput by prompt length</text>
   <line class="vulkan-line" x1="65" y1="52" x2="93" y2="52"/>
-  <circle class="vulkan-point" cx="79" cy="52" r="4"/>
+  <circle class="vulkan-mark" cx="79" cy="52" r="4"/>
   <text class="legend" x="102" y="56">Strix Halo llama.cpp Vulkan IQ3_XXS</text>
-  <rect class="rocm-point" x="522" y="48" width="8" height="8"/>
+  <rect class="rocm-mark" x="522" y="48" width="8" height="8"/>
   <text class="legend" x="539" y="56">Lucebox ROCm ROCmFPX</text>
 
   <text class="panel-title" x="90" y="83">Input processing (tok/s)</text>
@@ -45,13 +45,13 @@
   <text class="tick" x="78" y="171" text-anchor="end">180</text>
   <text class="tick" x="78" y="240" text-anchor="end">120</text>
   <path class="vulkan-line" d="M90 103 L199 124 L271 136 L356 151 L413 160 L840 206"/>
-  <circle class="vulkan-point" cx="90" cy="103" r="4.5"/>
-  <circle class="vulkan-point" cx="199" cy="124" r="4.5"/>
-  <circle class="vulkan-point" cx="271" cy="136" r="4.5"/>
-  <circle class="vulkan-point" cx="356" cy="151" r="4.5"/>
-  <circle class="vulkan-point" cx="413" cy="160" r="4.5"/>
-  <circle class="vulkan-point" cx="840" cy="206" r="4.5"/>
-  <rect class="rocm-point" x="194" y="219" width="10" height="10"/>
+  <circle class="vulkan-mark" cx="90" cy="103" r="4.5"/>
+  <circle class="vulkan-mark" cx="199" cy="124" r="4.5"/>
+  <circle class="vulkan-mark" cx="271" cy="136" r="4.5"/>
+  <circle class="vulkan-mark" cx="356" cy="151" r="4.5"/>
+  <circle class="vulkan-mark" cx="413" cy="160" r="4.5"/>
+  <circle class="vulkan-mark" cx="840" cy="206" r="4.5"/>
+  <rect class="rocm-mark" x="194" y="219" width="10" height="10"/>
   <text class="value" x="98" y="98">235.49</text>
   <text class="value" x="207" y="119">218.08</text>
   <text class="value" x="279" y="131">207.28</text>
@@ -69,13 +69,13 @@
   <text class="tick" x="78" y="378" text-anchor="end">26</text>
   <text class="tick" x="78" y="441" text-anchor="end">16</text>
   <path class="vulkan-line" d="M90 317 L199 345 L271 358 L356 374 L413 383 L840 429"/>
-  <circle class="vulkan-point" cx="90" cy="317" r="4.5"/>
-  <circle class="vulkan-point" cx="199" cy="345" r="4.5"/>
-  <circle class="vulkan-point" cx="271" cy="358" r="4.5"/>
-  <circle class="vulkan-point" cx="356" cy="374" r="4.5"/>
-  <circle class="vulkan-point" cx="413" cy="383" r="4.5"/>
-  <circle class="vulkan-point" cx="840" cy="429" r="4.5"/>
-  <rect class="rocm-point" x="194" y="429" width="10" height="10"/>
+  <circle class="vulkan-mark" cx="90" cy="317" r="4.5"/>
+  <circle class="vulkan-mark" cx="199" cy="345" r="4.5"/>
+  <circle class="vulkan-mark" cx="271" cy="358" r="4.5"/>
+  <circle class="vulkan-mark" cx="356" cy="374" r="4.5"/>
+  <circle class="vulkan-mark" cx="413" cy="383" r="4.5"/>
+  <circle class="vulkan-mark" cx="840" cy="429" r="4.5"/>
+  <rect class="rocm-mark" x="194" y="429" width="10" height="10"/>
   <text class="value" x="98" y="312">35.02</text>
   <text class="value" x="207" y="340">30.55</text>
   <text class="value" x="279" y="353">28.51</text>

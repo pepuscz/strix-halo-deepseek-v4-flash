@@ -22,20 +22,17 @@ q4_0 K/V, and one 131,072-token slot. Deploy
 [`rocm-rocmfpx-128k.yml`](ansible/releases/rocm-rocmfpx-128k.yml); its source
 changes are listed in [ARCHITECTURE.md](docs/ARCHITECTURE.md#lucebox-source-modifications).
 
-## Matched benchmark
+## Benchmarks
 
-![Matched throughput for Strix Halo llama.cpp Vulkan IQ3_XXS and Lucebox ROCm ROCmFPX](docs/matched-benchmark.svg)
+| System | 2K-prompt generation | 122,879-token input processing | 122,879-token generation | Quality |
+|---|---:|---:|---:|---:|
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 40.96 tok/s | 218.08 tok/s | 30.55 tok/s | 30/30 |
+| **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 30/30 |
 
-Both systems pass the same 30-task quality gate.
+![Cold-retrieval input-processing and generation throughput by prompt length for Strix Halo llama.cpp Vulkan IQ3_XXS and Lucebox ROCm ROCmFPX](docs/benchmark.svg)
 
-## Cold-retrieval context scaling
-
-![Cold-retrieval context scaling for Strix Halo llama.cpp Vulkan IQ3_XXS and Lucebox ROCm ROCmFPX](docs/context-scaling.svg)
-
-The 59,933-token retrieval point was measured only for **Strix Halo llama.cpp
-Vulkan IQ3_XXS**. The 2K-prompt result uses a separate generation workload and
-is shown only in the matched benchmark. See
-[BENCHMARKS.md](docs/BENCHMARKS.md) for the exact results and protocols.
+See [BENCHMARKS.md](docs/BENCHMARKS.md) for the complete results, protocols,
+and reproducibility data.
 
 ## Install
 
