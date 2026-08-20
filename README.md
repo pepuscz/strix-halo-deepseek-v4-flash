@@ -24,16 +24,18 @@ changes are listed in [ARCHITECTURE.md](docs/ARCHITECTURE.md#lucebox-source-modi
 
 ## Matched benchmark
 
-| System | 2K-prompt generation | 122,879-token input | 122,879-token generation | Quality |
-|---|---:|---:|---:|---:|
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 40.96 tok/s | 218.08 tok/s | 30.55 tok/s | 30/30 |
-| **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 30/30 |
+![Matched throughput for Strix Halo llama.cpp Vulkan IQ3_XXS and Lucebox ROCm ROCmFPX](docs/matched-benchmark.svg)
 
-![Input-processing and generation throughput from 122,879 to 491,520 prompt tokens](docs/context-scaling.svg)
+Both systems pass the same 30-task quality gate.
 
-The 524,288-token service passed every measured retrieval point; longer
-requests run progressively slower. See [BENCHMARKS.md](docs/BENCHMARKS.md) for
-the exact results, workload definitions, and reproducibility data.
+## Cold-retrieval context scaling
+
+![Cold-retrieval context scaling for Strix Halo llama.cpp Vulkan IQ3_XXS and Lucebox ROCm ROCmFPX](docs/context-scaling.svg)
+
+The 59,933-token retrieval point was measured only for **Strix Halo llama.cpp
+Vulkan IQ3_XXS**. The 2K-prompt result uses a separate generation workload and
+is shown only in the matched benchmark. See
+[BENCHMARKS.md](docs/BENCHMARKS.md) for the exact results and protocols.
 
 ## Install
 

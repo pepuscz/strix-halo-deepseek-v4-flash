@@ -25,18 +25,20 @@ with a 131,072-token allocation and thinking disabled.
 The default leads generation, long-prompt input processing, and cached
 tool-conversation latency while both systems pass the same quality gate.
 
-## Strix Halo llama.cpp Vulkan IQ3_XXS context scaling
+## Cold-retrieval context scaling
 
-Each row is one cold five-key retrieval request using v0.6.6, q8_0 K/V, the
-same target and draft, batch 2,048, microbatch 1,024, and one slot.
+Each row is one cold five-key retrieval request using the qualified
+configuration named in the first column.
 
-| Server allocation | Exact prompt | Input processing | Generation | Keys found |
-|---:|---:|---:|---:|---:|
-| 131,072 | 122,879 | 218.08 tok/s | 30.55 tok/s | 5/5 |
-| 262,144 | 163,840 | 207.28 tok/s | 28.51 tok/s | 5/5 |
-| 262,144 | 212,992 | 193.79 tok/s | 25.98 tok/s | 5/5 |
-| 262,144 | 245,760 | 186.25 tok/s | 24.50 tok/s | 5/5 |
-| 524,288 | 491,520 | 146.28 tok/s | 17.19 tok/s | 5/5 |
+| System | Server allocation | Exact prompt | Input processing | Generation | Keys found |
+|---|---:|---:|---:|---:|---:|
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 131,072 | 59,933 | 235.49 tok/s | 35.02 tok/s | 5/5 |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 131,072 | 122,879 | 218.08 tok/s | 30.55 tok/s | 5/5 |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 262,144 | 163,840 | 207.28 tok/s | 28.51 tok/s | 5/5 |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 262,144 | 212,992 | 193.79 tok/s | 25.98 tok/s | 5/5 |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 262,144 | 245,760 | 186.25 tok/s | 24.50 tok/s | 5/5 |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 524,288 | 491,520 | 146.28 tok/s | 17.19 tok/s | 5/5 |
+| **Lucebox ROCm ROCmFPX** | 131,072 | 122,879 | 131.19 tok/s | 16.40 tok/s | 5/5 |
 
 ## Measurement rules
 

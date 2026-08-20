@@ -121,6 +121,14 @@
       "context_scaling": [
         {
           "allocation_tokens": 131072,
+          "actual_input_tokens": 59933,
+          "prompt_sha256": "106bb660430f97f3ca13aa51b43664fef77cbd3cf910b0d08dbcb204f0e82cc1",
+          "prefill_tokens_per_second": 235.4885333649744,
+          "decode_tokens_per_second": 35.024344135905096,
+          "needle_passes": 5
+        },
+        {
+          "allocation_tokens": 131072,
           "actual_input_tokens": 122879,
           "prompt_sha256": "f5d337a32fbf5e29f150974500a8d49cff172c2d03c125a243f6c990e1dbd7a3",
           "prefill_tokens_per_second": 218.08149471490069,
@@ -198,6 +206,16 @@
         "prefill_milliseconds": 47376.5,
         "wall_seconds": 50.31293214299512
       },
+      "context_scaling": [
+        {
+          "allocation_tokens": 131072,
+          "actual_input_tokens": 122879,
+          "prompt_sha256": "f5d337a32fbf5e29f150974500a8d49cff172c2d03c125a243f6c990e1dbd7a3",
+          "prefill_tokens_per_second": 131.18515887486888,
+          "decode_tokens_per_second": 16.4,
+          "needle_passes": 5
+        }
+      ],
       "tool_contract_passed": true
     }
   }
