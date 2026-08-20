@@ -29,19 +29,11 @@ changes are listed in [ARCHITECTURE.md](docs/ARCHITECTURE.md#lucebox-source-modi
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 40.96 tok/s | 218.08 tok/s | 30.55 tok/s | 30/30 |
 | **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 30/30 |
 
-The default also passed 5/5 retrieval with a 491,520-token cold prompt at
-146.28 tok/s input processing and 17.19 tok/s generation. Across measured
-prompt lengths from 120 to 480 Ki tokens, with `C` in Ki tokens:
+![Input-processing and generation throughput from 122,879 to 491,520 prompt tokens](docs/context-scaling.svg)
 
-```text
-input tok/s      ≈ 1 / (0.00384448 + 0.00000625 × C)
-generation tok/s ≈ 1 / (0.02382352 + 0.00007133 × C)
-```
-
-These empirical fits describe the tested configuration and range; longer
-client requests use the same 512K-capable service but run progressively
-slower. See [BENCHMARKS.md](docs/BENCHMARKS.md) for the measured points,
-workload definitions, and reproducibility data.
+The 524,288-token service passed every measured retrieval point; longer
+requests run progressively slower. See [BENCHMARKS.md](docs/BENCHMARKS.md) for
+the exact results, workload definitions, and reproducibility data.
 
 ## Install
 

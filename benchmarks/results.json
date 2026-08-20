@@ -70,11 +70,7 @@
       "requested_output_tokens": 256,
       "thinking": false,
       "needle_total": 5,
-      "needle_depth_fractions": [0.02, 0.20, 0.50, 0.80, 0.98],
-      "fit_context_unit": "Ki tokens",
-      "prefill_fit": "1 / (0.00384448 + 0.00000625 * C)",
-      "decode_fit": "1 / (0.02382352 + 0.00007133 * C)",
-      "fit_range_actual_tokens": [122879, 491520]
+      "needle_depth_fractions": [0.02, 0.20, 0.50, 0.80, 0.98]
     }
   },
   "systems": {

@@ -25,7 +25,7 @@ with a 131,072-token allocation and thinking disabled.
 The default leads generation, long-prompt input processing, and cached
 tool-conversation latency while both systems pass the same quality gate.
 
-## Default-system context scaling
+## Strix Halo llama.cpp Vulkan IQ3_XXS context scaling
 
 Each row is one cold five-key retrieval request using v0.6.6, q8_0 K/V, the
 same target and draft, batch 2,048, microbatch 1,024, and one slot.
@@ -37,19 +37,6 @@ same target and draft, batch 2,048, microbatch 1,024, and one slot.
 | 262,144 | 212,992 | 193.79 tok/s | 25.98 tok/s | 5/5 |
 | 262,144 | 245,760 | 186.25 tok/s | 24.50 tok/s | 5/5 |
 | 524,288 | 491,520 | 146.28 tok/s | 17.19 tok/s | 5/5 |
-
-For `C` measured in Ki tokens, inverse-linear least-squares fits across these
-points are:
-
-```text
-input tok/s      ≈ 1 / (0.00384448 + 0.00000625 × C)
-generation tok/s ≈ 1 / (0.02382352 + 0.00007133 × C)
-```
-
-The fitted point errors are within 0.45% for input processing and 1.09% for
-generation. The equations are empirical estimators for the measured 120–480
-Ki-token range, not extrapolations beyond the qualified 524,288-token
-allocation.
 
 ## Measurement rules
 
