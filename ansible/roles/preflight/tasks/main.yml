@@ -7,11 +7,13 @@
       - deepseek_system.id in ['vulkan-iq3xxs', 'rocm-rocmfpx']
       - deepseek_system.name in ['Strix Halo llama.cpp Vulkan IQ3_XXS', 'Lucebox ROCm ROCmFPX']
       - deepseek_system.engine in ['vulkan', 'rocm']
-      - deepseek_service.context | int == 131072
+      - >-
+        (deepseek_system.engine == 'vulkan' and deepseek_service.context | int == 524288) or
+        (deepseek_system.engine == 'rocm' and deepseek_service.context | int == 131072)
       - deepseek_service.memory_high == '118G'
       - deepseek_service.memory_max == '120G'
       - deepseek_service.memory_swap_max | int == 0
-      - deepseek_service.minimum_effective_non_cma_kib | int >= 4194304
+      - deepseek_service.minimum_effective_non_cma_kib | int >= 2097152
       - deepseek_target.files | length > 0
       - deepseek_target.files | map(attribute='size') | map('int') | sum == deepseek_target.total_size | int
       - deepseek_service.conflicts | difference(deepseek_service.retire_units) | length == 0

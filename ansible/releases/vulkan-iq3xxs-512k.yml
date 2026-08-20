@@ -1,5 +1,5 @@
 ---
-deepseek_release_id: vulkan-iq3xxs-128k-v1
+deepseek_release_id: vulkan-iq3xxs-512k-v1
 deepseek_release_schema: 1
 
 deepseek_system:
@@ -29,23 +29,26 @@ deepseek_paths:
   root: /opt/m5
   source: /opt/m5/src
   bin: /opt/m5/bin
-  downloads: /opt/m5/downloads/vulkan-iq3xxs-128k-v1
-  release: /opt/m5/releases/vulkan-iq3xxs-128k-v1
-  models: /opt/m5/models/vulkan-iq3xxs-128k-v1
+  downloads: /opt/m5/downloads/vulkan-iq3xxs-512k-v1
+  release: /opt/m5/releases/vulkan-iq3xxs-512k-v1
+  models: /opt/m5/models/vulkan-iq3xxs-512k-v1
   state: /var/lib/deepseek-v4-flash
 
 deepseek_runtime:
   repository: https://github.com/Nathanw1014/strix-halo-llamacpp
-  release_tag: v0.6.4
-  source_commit: baf6360be95b00fa98659cb86afc364f4ff45513
+  release_tag: v0.6.6
+  source_commit: 7b6c61330edf370659f531932e0b91aca67ba055
   archive_name: strix-halo-llamacpp-vulkan-portable.tar.gz
-  archive_url: https://github.com/Nathanw1014/strix-halo-llamacpp/releases/download/v0.6.4/strix-halo-llamacpp-vulkan-portable.tar.gz
-  archive_size: 33918202
-  archive_sha256: 3f2c97587900c4f8cabbd1a2388c5fa177d92e671e5e26db7c91395fe1af4c48
-  manifest_sha256: 369d31947244a7e6fb2001214c46685e75e7d2cc9854899e12f246c18669e149
-  launcher_sha256: b825cf3a482f571e10582f1480d24e394054dd4e1fce4450f4b3ac9cf9c3e1d0
-  server_sha256: d53d77e3d04fe564c7aeb081bfb951d37c2346cab5cb721ef23065600ec3a928
-  build_info: b10565-baf6360be
+  archive_url: https://github.com/Nathanw1014/strix-halo-llamacpp/releases/download/v0.6.6/strix-halo-llamacpp-vulkan-portable.tar.gz
+  archive_size: 34073710
+  archive_sha256: c62d04843a680f7a666a355dd93edea0f5a9c94b450faf78623d485fdd1d0785
+  manifest_name: MANIFEST.txt
+  manifest_url: https://github.com/Nathanw1014/strix-halo-llamacpp/releases/download/v0.6.6/MANIFEST.txt
+  manifest_size: 478
+  manifest_sha256: e42ed67d9a10179ff0d7541403802afdabcf6560b6472278af62bfef5efa0393
+  launcher_sha256: 203684bb16b00b50e1744cafad5457289675fbe2619258651d22a201ec74dc54
+  server_sha256: 749c26627da50bad55b733f32ebc9f4d64965ee2932418b7b30921a0d90b1975
+  build_info: b10569-7b6c6133
 
 deepseek_target:
   repository: unsloth/DeepSeek-V4-Flash-0731-GGUF
@@ -97,7 +100,7 @@ deepseek_service:
   host: 127.0.0.1
   port: 18109
   alias: deepseek-v4-flash-0731
-  context: 131072
+  context: 524288
   parallel_slots: 1
   batch: 2048
   microbatch: 1024
@@ -107,7 +110,7 @@ deepseek_service:
   memory_high: 118G
   memory_max: 120G
   memory_swap_max: 0
-  minimum_effective_non_cma_kib: 4194304
+  minimum_effective_non_cma_kib: 2097152
   thermal_limit_millic: 95000
   health_retries: 720
   health_delay_seconds: 5
@@ -147,10 +150,6 @@ deepseek_vulkan_loader:
   size: 157194
   sha256: b4aca7a519d6318347f15a0e485c636603005e2553dae1a986272ac8c96176b0
   library_sha256: def4af45e9e5784cf65eaaaa289530a5c73546b01015da4c0920ef0a144fe189
-
-deepseek_artifact_seed_paths: {}
-deepseek_runtime_archive_seed_path: ""
-deepseek_vulkan_loader_seed_path: ""
 
 deepseek_allow_reboot: false
 deepseek_verify_full_model_hashes: false

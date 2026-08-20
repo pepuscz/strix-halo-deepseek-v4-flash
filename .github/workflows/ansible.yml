@@ -34,7 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           grep -Fq 'DEEPSEEK_SYSTEM:-vulkan-iq3xxs' bin/deepseekctl
-          test -f ansible/releases/vulkan-iq3xxs-128k.yml
+          test -f ansible/releases/vulkan-iq3xxs-512k.yml
           test -f ansible/releases/rocm-rocmfpx-128k.yml
           test "$(find ansible/releases -maxdepth 1 -type f -name '*.yml' | wc -l)" -eq 2
       - name: Render and inspect both service contracts

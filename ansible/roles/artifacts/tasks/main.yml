@@ -40,7 +40,7 @@
       - "{{ deepseek_paths.models }}/{{ item.name }}"
       - "{{ item.size }}"
       - "{{ item.sha256 }}"
-      - "{{ deepseek_artifact_seed_paths[item.name] | default('') }}"
+      - "{{ (deepseek_artifact_seed_paths | default({}))[item.name] | default('') }}"
   loop: "{{ artifacts_model_artifacts }}"
   loop_control:
     label: "{{ item.name }}"

@@ -7,36 +7,41 @@ systems on a 128 GiB AMD Ryzen AI Max+ 395 / Radeon 8060S host.
 
 ### Default: Strix Halo llama.cpp Vulkan IQ3_XXS
 
-The default system uses the unmodified
+The default uses the unmodified
 [`Nathanw1014/strix-halo-llamacpp`](https://github.com/Nathanw1014/strix-halo-llamacpp)
-v0.6.4 portable release, an Unsloth UD-IQ3_XXS target, and a DSpark Q2_K/Q8_0
-draft. Deploy it with
-[`vulkan-iq3xxs-128k.yml`](ansible/releases/vulkan-iq3xxs-128k.yml).
+v0.6.6 portable release, an Unsloth UD-IQ3_XXS target, a DSpark Q2_K/Q8_0
+draft, q8_0 K/V, and one 524,288-token slot. Deploy
+[`vulkan-iq3xxs-512k.yml`](ansible/releases/vulkan-iq3xxs-512k.yml).
 
 ### Alternative: Lucebox ROCm ROCmFPX
 
-The alternative system builds
+The alternative builds
 [`Luce-Org/lucebox`](https://github.com/Luce-Org/lucebox) commit `90f85fa` with
-[11 published patches](patches/), a ROCmFPX MIX target, and a DSpark Q4RMFP4 draft. The
-patches add the ROCm 7.1 build fix, DeepSeek tool and reasoning support,
-fused-verification attention paths, bounded-memory 128K context, and caching.
-Deploy it with
-[`rocm-rocmfpx-128k.yml`](ansible/releases/rocm-rocmfpx-128k.yml); the exact
+[11 pinned patches](patches/), a ROCmFPX MIX target, a DSpark Q4RMFP4 draft,
+q4_0 K/V, and one 131,072-token slot. Deploy
+[`rocm-rocmfpx-128k.yml`](ansible/releases/rocm-rocmfpx-128k.yml); its source
 changes are listed in [ARCHITECTURE.md](docs/ARCHITECTURE.md#lucebox-source-modifications).
 
-The Strix Halo llama.cpp system is the benchmark-selected default because it
-has faster generation and cached tool-conversation latency. Both systems pass
-the same 30-task quality gate; Lucebox provides the alternative ROCmFPX stack.
+## Matched benchmark
 
-## Benchmark summary
-
-| System | 2K-prompt generation | 128K-context input | 128K-context generation | Quality |
+| System | 2K-prompt generation | 122,879-token input | 122,879-token generation | Quality |
 |---|---:|---:|---:|---:|
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 41.15 tok/s | 130.20 tok/s | 30.38 tok/s | 30/30 |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 40.96 tok/s | 218.08 tok/s | 30.55 tok/s | 30/30 |
 | **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 30/30 |
 
-See [BENCHMARKS.md](docs/BENCHMARKS.md) for the workload definitions,
-measurement rules, and reproducibility data.
+The default also passed 5/5 retrieval with a 491,520-token cold prompt at
+146.28 tok/s input processing and 17.19 tok/s generation. Across measured
+prompt lengths from 120 to 480 Ki tokens, with `C` in Ki tokens:
+
+```text
+input tok/s      ≈ 1 / (0.00384448 + 0.00000625 × C)
+generation tok/s ≈ 1 / (0.02382352 + 0.00007133 × C)
+```
+
+These empirical fits describe the tested configuration and range; longer
+client requests use the same 512K-capable service but run progressively
+slower. See [BENCHMARKS.md](docs/BENCHMARKS.md) for the measured points,
+workload definitions, and reproducibility data.
 
 ## Install
 
@@ -59,7 +64,7 @@ export DEEPSEEK_SYSTEM=vulkan-iq3xxs  # default
 # or: export DEEPSEEK_SYSTEM=rocm-rocmfpx  # alternative
 ```
 
-Run the same installation commands for either system:
+Run the same commands for either system:
 
 ```bash
 bin/deepseekctl validate
@@ -67,21 +72,21 @@ bin/deepseekctl install --allow-reboot
 bin/deepseekctl verify
 ```
 
-## Common host and service behavior
+## Host and service
 
 Both systems require:
 
 - BOSGAME M5 / Sixunited AXB35-02 with AMD Ryzen AI Max+ 395 and 128 GiB RAM;
 - Ubuntu 26.04 LTS with kernel `7.0.0-29-generic`;
 - swap and Secure Boot disabled, plus at least 120 GB free on `/`;
-- large-GTT kernel parameters and IOMMU disabled;
+- the documented BIOS settings and large-GTT kernel parameters;
 - 120/120/120 W package limits, `MemoryHigh=118G`, `MemoryMax=120G`, and
   maximum model-scoped fan cooling.
 
 The default uses CPU boost off and GPU DPM auto; the alternative uses CPU
 boost on and GPU DPM high. Both install the boot-enabled
 `deepseek-v4-flash.service`, bind the API to `127.0.0.1:18109`, and restore the
-previous hardware policy and firmware-auto fan control when stopped.
+previous hardware policy and automatic fan control when stopped.
 
 Read [HOST-PLATFORM.md](docs/HOST-PLATFORM.md) before authorizing the required
 reboot. Operational procedures are in [OPERATIONS.md](docs/OPERATIONS.md), and

@@ -4,13 +4,13 @@
 
 | Component | Pinned source |
 |---|---|
-| Runtime | [`Nathanw1014/strix-halo-llamacpp`](https://github.com/Nathanw1014/strix-halo-llamacpp), release `v0.6.4`, commit `baf6360be95b00fa98659cb86afc364f4ff45513` |
+| Runtime | [`Nathanw1014/strix-halo-llamacpp`](https://github.com/Nathanw1014/strix-halo-llamacpp), release `v0.6.6`, commit `7b6c61330edf370659f531932e0b91aca67ba055` |
 | Target | [`unsloth/DeepSeek-V4-Flash-0731-GGUF`](https://huggingface.co/unsloth/DeepSeek-V4-Flash-0731-GGUF), revision `fbbb5b93fb787c21338159b0af3318bb3f4d9768`, UD-IQ3_XXS |
 | Draft | [`alessandrobologna/DeepSeek-V4-Flash-DSpark-Drafter-GGUF`](https://huggingface.co/alessandrobologna/DeepSeek-V4-Flash-DSpark-Drafter-GGUF), revision `824190cb58c1469a603d9686107dd85ef11a5d51` |
 | Vulkan loader | Ubuntu `libvulkan1` `1.4.341.0-1`, extracted inside the immutable release |
 
 The exact runtime archive, executable, manifest, loader, and model identities
-are in [`vulkan-iq3xxs-128k.yml`](../ansible/releases/vulkan-iq3xxs-128k.yml).
+are in [`vulkan-iq3xxs-512k.yml`](../ansible/releases/vulkan-iq3xxs-512k.yml).
 
 ## Lucebox ROCm ROCmFPX
 

@@ -6,10 +6,14 @@ export ANSIBLE_CONFIG="$repo_root/ansible.cfg"
 ansible_playbook=${ANSIBLE_PLAYBOOK:-"$repo_root/.venv/bin/ansible-playbook"}
 ansible_lint=${ANSIBLE_LINT:-"$repo_root/.venv/bin/ansible-lint"}
 inventory=${DEEPSEEK_INVENTORY:-"$repo_root/ansible/inventory/hosts.yml"}
-system=${DEEPSEEK_SYSTEM:-vulkan-iq3xxs}
-release=${DEEPSEEK_RELEASE:-"$repo_root/ansible/releases/${system}-128k.yml"}
-
 fail() { printf 'ERROR: %s\n' "$1" >&2; exit 1; }
+system=${DEEPSEEK_SYSTEM:-vulkan-iq3xxs}
+case "$system" in
+    vulkan-iq3xxs) default_release="$repo_root/ansible/releases/vulkan-iq3xxs-512k.yml" ;;
+    rocm-rocmfpx) default_release="$repo_root/ansible/releases/rocm-rocmfpx-128k.yml" ;;
+    *) fail "Unknown system: $system" ;;
+esac
+release=${DEEPSEEK_RELEASE:-$default_release}
 need_inventory() { [[ -f "$inventory" ]] || fail "Create $inventory from hosts.example.yml"; }
 run_playbook() {
     need_inventory

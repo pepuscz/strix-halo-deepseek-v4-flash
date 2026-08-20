@@ -7,11 +7,23 @@
       - "{{ deepseek_paths.downloads }}/{{ deepseek_runtime.archive_name }}"
       - "{{ deepseek_runtime.archive_size }}"
       - "{{ deepseek_runtime.archive_sha256 }}"
-      - "{{ deepseek_runtime_archive_seed_path }}"
+      - "{{ deepseek_runtime_archive_seed_path | default('') }}"
   register: artifacts_runtime_fetch
   changed_when: "'downloaded' in artifacts_runtime_fetch.stdout or 'adopted' in artifacts_runtime_fetch.stdout"
   async: 86400
   poll: 30
+
+- name: Fetch or adopt the pinned runtime manifest
+  ansible.builtin.command:
+    argv:
+      - "{{ deepseek_paths.bin }}/fetch-verified-artifact"
+      - "{{ deepseek_runtime.manifest_url }}"
+      - "{{ deepseek_paths.downloads }}/{{ deepseek_runtime.manifest_name }}"
+      - "{{ deepseek_runtime.manifest_size }}"
+      - "{{ deepseek_runtime.manifest_sha256 }}"
+      - "{{ deepseek_runtime_manifest_seed_path | default('') }}"
+  register: artifacts_manifest_fetch
+  changed_when: "'downloaded' in artifacts_manifest_fetch.stdout or 'adopted' in artifacts_manifest_fetch.stdout"
 
 - name: Fetch or adopt the pinned Vulkan loader package
   ansible.builtin.command:
@@ -21,7 +33,7 @@
       - "{{ deepseek_paths.downloads }}/libvulkan1_{{ deepseek_vulkan_loader.version }}_{{ deepseek_vulkan_loader.architecture }}.deb"
       - "{{ deepseek_vulkan_loader.size }}"
       - "{{ deepseek_vulkan_loader.sha256 }}"
-      - "{{ deepseek_vulkan_loader_seed_path }}"
+      - "{{ deepseek_vulkan_loader_seed_path | default('') }}"
   register: artifacts_loader_fetch
   changed_when: "'downloaded' in artifacts_loader_fetch.stdout or 'adopted' in artifacts_loader_fetch.stdout"
 
@@ -66,9 +78,10 @@
     path: "{{ item.path }}"
     checksum_algorithm: sha256
     get_checksum: true
+    follow: true
   loop:
     - {name: launcher, path: "{{ deepseek_paths.release }}/vulkan/_run", sha256: "{{ deepseek_runtime.launcher_sha256 }}"}
-    - {name: runtime-manifest, path: "{{ deepseek_paths.release }}/MANIFEST.txt", sha256: "{{ deepseek_runtime.manifest_sha256 }}"}
+    - {name: runtime-manifest, path: "{{ deepseek_paths.downloads }}/{{ deepseek_runtime.manifest_name }}", sha256: "{{ deepseek_runtime.manifest_sha256 }}"}
     - {name: server-wrapper, path: "{{ deepseek_paths.release }}/vulkan/llama-server", sha256: "{{ deepseek_runtime.launcher_sha256 }}"}
     - {name: server, path: "{{ deepseek_paths.release }}/vulkan/bin/llama-server", sha256: "{{ deepseek_runtime.server_sha256 }}"}
     - name: vulkan-loader

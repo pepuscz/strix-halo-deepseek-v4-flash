@@ -184,7 +184,6 @@ deepseek_policy:
   slow_mw: 120000
   expected_watts: "120.000"
 
-deepseek_artifact_seed_paths: {}
 deepseek_allow_reboot: false
 deepseek_verify_full_model_hashes: false
 deepseek_verify_api_smoke: true

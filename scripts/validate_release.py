@@ -57,10 +57,11 @@ def validate_manifest(path: Path, root: Path) -> dict:
         fail("non-canonical deepseek_system identity")
 
     service = data["deepseek_service"]
-    if service["context"] != 131072:
-        fail("release must allocate exactly 131072 tokens")
-    if service["minimum_effective_non_cma_kib"] < 4 * 1024 * 1024:
-        fail("effective non-CMA memory floor is below 4 GiB")
+    required_context = 524288 if system["engine"] == "vulkan" else 131072
+    if service["context"] != required_context:
+        fail(f"{system['engine']} release must allocate exactly {required_context} tokens")
+    if service["minimum_effective_non_cma_kib"] < 2 * 1024 * 1024:
+        fail("effective non-CMA memory floor is below 2 GiB")
     if service["memory_high"] != "118G" or service["memory_max"] != "120G":
         fail("cgroup memory envelope drifted")
     if service["memory_swap_max"] != 0:
@@ -82,6 +83,9 @@ def validate_manifest(path: Path, root: Path) -> dict:
             fail("Strix Halo llama.cpp Vulkan IQ3_XXS requires four target files")
         runtime = data["deepseek_runtime"]
         require_url(runtime["archive_url"], "runtime archive_url")
+        require_url(runtime["manifest_url"], "runtime manifest_url")
+        if runtime["manifest_name"] != "MANIFEST.txt" or runtime["manifest_size"] <= 0:
+            fail("runtime manifest metadata is invalid")
         require_url(data["deepseek_vulkan_loader"]["url"], "Vulkan loader URL")
         for key in ("archive_sha256", "manifest_sha256", "launcher_sha256"):
             require_sha(runtime[key], f"runtime {key}")
@@ -120,6 +124,8 @@ def validate_manifest(path: Path, root: Path) -> dict:
         fail("public manifest contains machine-local artifact seeds")
     if data.get("deepseek_runtime_archive_seed_path"):
         fail("public manifest contains a machine-local runtime seed")
+    if data.get("deepseek_runtime_manifest_seed_path"):
+        fail("public manifest contains a machine-local runtime manifest seed")
     if data.get("deepseek_vulkan_loader_seed_path"):
         fail("public manifest contains a machine-local Vulkan loader seed")
     return data

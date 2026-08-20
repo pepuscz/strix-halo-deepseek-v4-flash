@@ -1,6 +1,6 @@
 {
-  "schema": 4,
-  "published_at": "2026-08-19",
+  "schema": 5,
+  "published_at": "2026-08-20",
   "default_system": "vulkan-iq3xxs",
   "hardware": {
     "system": "BOSGAME M5 / Sixunited AXB35-02",
@@ -64,33 +64,50 @@
       "expected_cache_hits": 5,
       "tool_count": 10,
       "thinking": false
+    },
+    "context_scaling": {
+      "definition": "cold deterministic five-key byte-exact retrieval at increasing prompt lengths",
+      "requested_output_tokens": 256,
+      "thinking": false,
+      "needle_total": 5,
+      "needle_depth_fractions": [0.02, 0.20, 0.50, 0.80, 0.98],
+      "fit_context_unit": "Ki tokens",
+      "prefill_fit": "1 / (0.00384448 + 0.00000625 * C)",
+      "decode_fit": "1 / (0.02382352 + 0.00007133 * C)",
+      "fit_range_actual_tokens": [122879, 491520]
     }
   },
   "systems": {
     "vulkan-iq3xxs": {
       "name": "Strix Halo llama.cpp Vulkan IQ3_XXS",
-      "manifest": "ansible/releases/vulkan-iq3xxs-128k.yml",
+      "manifest": "ansible/releases/vulkan-iq3xxs-512k.yml",
+      "runtime": {
+        "release": "v0.6.6",
+        "source_commit": "7b6c61330edf370659f531932e0b91aca67ba055",
+        "build": "b10569-7b6c6133"
+      },
       "power_watts": {"stapm": 120, "fast": 120, "slow": 120},
       "cpu": {"governor": "performance", "minimum_khz": 2000000, "boost": false},
       "gpu_dpm": "auto",
-      "context_allocation": 131072,
+      "context_allocation": 524288,
       "target": {"quantization": "UD-IQ3_XXS", "bytes": 104207848032},
       "draft": {"quantization": "Q2_K/Q8_0", "bytes": 6976490112, "maximum_draft_tokens": 4},
       "kv": {"k": "q8_0", "v": "q8_0"},
       "deep_retrieval": {
+        "allocation_tokens": 131072,
         "needle_passes": 5,
-        "prefill_tokens_per_second": 130.20083566051562,
-        "decode_tokens_per_second": 30.38357533145981,
+        "prefill_tokens_per_second": 218.08149471490069,
+        "decode_tokens_per_second": 30.549512251901227,
         "draft_acceptance_rate": 1.0,
-        "minimum_effective_non_cma_kib": 7248640,
-        "maximum_gpu_temperature_millic": 81000,
-        "maximum_cpu_temperature_millic": 79500,
+        "minimum_effective_non_cma_kib": 9112125,
+        "maximum_gpu_temperature_millic": 78000,
+        "maximum_cpu_temperature_millic": 77750,
         "oom_events": 0
       },
       "generation_2k": {
         "actual_input_tokens": 2040,
         "runs": 3,
-        "generated_tokens_per_second_median": 41.15001435804037,
+        "generated_tokens_per_second_median": 40.959158890394654,
         "acceptance_rate_median": 1.0
       },
       "quality": {
@@ -102,9 +119,57 @@
       "hermes_cache_8k": {
         "cache_hits": 5,
         "cached_prefix_tokens": 42940,
-        "prefill_milliseconds": 35240.576,
-        "wall_seconds": 37.94601170104579
+        "prefill_milliseconds": 37038.542,
+        "wall_seconds": 39.71563108303235
       },
+      "context_scaling": [
+        {
+          "allocation_tokens": 131072,
+          "actual_input_tokens": 122879,
+          "prompt_sha256": "f5d337a32fbf5e29f150974500a8d49cff172c2d03c125a243f6c990e1dbd7a3",
+          "prefill_tokens_per_second": 218.08149471490069,
+          "decode_tokens_per_second": 30.549512251901227,
+          "needle_passes": 5
+        },
+        {
+          "allocation_tokens": 262144,
+          "actual_input_tokens": 163840,
+          "prompt_sha256": "2df7bd978960015d35c9e4efe5025aabf9e8e13954ef6ab7bf94b2d06950fa3b",
+          "prefill_tokens_per_second": 207.28178008916754,
+          "decode_tokens_per_second": 28.509511891894814,
+          "needle_passes": 5
+        },
+        {
+          "allocation_tokens": 262144,
+          "actual_input_tokens": 212992,
+          "prompt_sha256": "2c012ddee01827965c890f3c5a57d219f5c429c41bb2609bbf3859146deb5147",
+          "prefill_tokens_per_second": 193.79329602085105,
+          "decode_tokens_per_second": 25.980005261773215,
+          "needle_passes": 5
+        },
+        {
+          "allocation_tokens": 262144,
+          "actual_input_tokens": 245760,
+          "prompt_sha256": "a014dfcb38f2cc4a2ba34c0bb6d357afa3ed706b807dca7e1386a37d9886639d",
+          "prefill_tokens_per_second": 186.25306830539273,
+          "decode_tokens_per_second": 24.498638464909114,
+          "needle_passes": 5
+        },
+        {
+          "allocation_tokens": 524288,
+          "actual_input_tokens": 491520,
+          "prompt_sha256": "c0d21b6084d82783f2f427d48081845b5002f907882dab9b9a35d3c8d86bb5e2",
+          "prefill_tokens_per_second": 146.28245327541737,
+          "decode_tokens_per_second": 17.1939552147525,
+          "needle_passes": 5,
+          "draft_acceptance_rate": 1.0,
+          "minimum_mem_available_gib": 9.565,
+          "minimum_effective_non_cma_gib": 2.395,
+          "maximum_gpu_temperature_c": 79.0,
+          "maximum_cpu_temperature_c": 77.2,
+          "oom_events": 0
+        }
+      ],
       "tool_contract_passed": true
     },
     "rocm-rocmfpx": {

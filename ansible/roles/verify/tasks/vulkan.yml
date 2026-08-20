@@ -14,6 +14,7 @@
     path: "{{ item.path }}"
     checksum_algorithm: sha256
     get_checksum: true
+    follow: true
   loop:
     - {path: "{{ deepseek_paths.release }}/vulkan/llama-server", sha256: "{{ deepseek_runtime.launcher_sha256 }}"}
     - {path: "{{ deepseek_paths.release }}/vulkan/bin/llama-server", sha256: "{{ deepseek_runtime.server_sha256 }}"}
