@@ -37,6 +37,8 @@ ExecStart={{ deepseek_paths.release }}/vulkan/llama-server \
   -ctk {{ deepseek_service.cache_type_k }} -ctv {{ deepseek_service.cache_type_v }} \
   -c {{ deepseek_service.context }} -np {{ deepseek_service.parallel_slots }} \
   -b {{ deepseek_service.batch }} -ub {{ deepseek_service.microbatch }} \
+  --temp {{ deepseek_service.sampling.temperature }} --top-p {{ deepseek_service.sampling.top_p }} \
+  --top-k {{ deepseek_service.sampling.top_k }} --min-p {{ deepseek_service.sampling.min_p }} \
   -fit off --spec-type draft-dspark --spec-draft-n-max {{ deepseek_service.draft_max }} \
   --jinja --slots --slot-save-path /run/deepseek-v4-flash-slots \
   --host {{ deepseek_service.host }} --port {{ deepseek_service.port }}

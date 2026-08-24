@@ -1,0 +1,15 @@
+artifact=vulkan-v066-lightning-indexer-small-cm-4-15.tar.gz
+source_repository=https://github.com/Nathanw1014/llama.cpp
+source_commit=7b6c61330edf370659f531932e0b91aca67ba055
+patch=patches/0001-vulkan-lightning-indexer-small-cm-4-15.patch
+patch_sha256=fdc4a52cdea142f9c73700fdbdb78cba41e949a9ffb803213a64cbd2d953d92b
+cmake_flags=-DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DGGML_NATIVE=ON -DGGML_VULKAN=ON -DLLAMA_CURL=OFF
+c_compiler=cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+cmake=4.2.3
+shaderc=2026.1-1
+glslang=16.1.0-1
+file=vulkan/bin/libggml-vulkan.so.0.20.1
+file_size=56606384
+file_sha256=23daae832dbbe8cf391ed28e33b1be8c9073fd8e9a2870a71c8e35d80e6d43a4
+license=LICENSE-llama.cpp
+license_sha256=94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d

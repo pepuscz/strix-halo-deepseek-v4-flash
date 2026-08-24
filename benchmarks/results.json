@@ -1,6 +1,6 @@
 {
-  "schema": 5,
-  "published_at": "2026-08-20",
+  "schema": 6,
+  "published_at": "2026-08-24",
   "default_system": "vulkan-iq3xxs",
   "hardware": {
     "system": "BOSGAME M5 / Sixunited AXB35-02",
@@ -59,12 +59,6 @@
       "thinking": false,
       "output_token_cap": 512
     },
-    "hermes_cache_8k": {
-      "requests": 6,
-      "expected_cache_hits": 5,
-      "tool_count": 10,
-      "thinking": false
-    },
     "context_scaling": {
       "definition": "cold deterministic five-key byte-exact retrieval at increasing prompt lengths",
       "requested_output_tokens": 256,
@@ -80,7 +74,13 @@
       "runtime": {
         "release": "v0.6.6",
         "source_commit": "7b6c61330edf370659f531932e0b91aca67ba055",
-        "build": "b10569-7b6c6133"
+        "build": "b10569-7b6c6133",
+        "patch": {
+          "file": "patches/0001-vulkan-lightning-indexer-small-cm-4-15.patch",
+          "sha256": "fdc4a52cdea142f9c73700fdbdb78cba41e949a9ffb803213a64cbd2d953d92b",
+          "environment": "GGML_VK_LIGHTNING_INDEXER_SMALL_CM=1",
+          "dispatch_batches": "4-15"
+        }
       },
       "power_watts": {"stapm": 120, "fast": 120, "slow": 120},
       "cpu": {"governor": "performance", "minimum_khz": 2000000, "boost": false},
@@ -92,19 +92,17 @@
       "deep_retrieval": {
         "allocation_tokens": 131072,
         "needle_passes": 5,
-        "prefill_tokens_per_second": 218.08149471490069,
-        "decode_tokens_per_second": 30.549512251901227,
+        "prefill_tokens_per_second": 215.95572624132706,
+        "decode_tokens_per_second": 32.598007560261955,
         "draft_acceptance_rate": 1.0,
-        "minimum_effective_non_cma_kib": 9112125,
-        "maximum_gpu_temperature_millic": 78000,
-        "maximum_cpu_temperature_millic": 77750,
         "oom_events": 0
       },
       "generation_2k": {
         "actual_input_tokens": 2040,
-        "runs": 3,
-        "generated_tokens_per_second_median": 40.959158890394654,
-        "acceptance_rate_median": 1.0
+        "runs": 1,
+        "prefill_tokens_per_second": 32.06618460502477,
+        "generated_tokens_per_second": 40.79075074134585,
+        "acceptance_rate": 1.0
       },
       "quality": {
         "coding": 10,
@@ -112,68 +110,98 @@
         "math": 10,
         "total": 30
       },
-      "hermes_cache_8k": {
-        "cache_hits": 5,
-        "cached_prefix_tokens": 42940,
-        "prefill_milliseconds": 37038.542,
-        "wall_seconds": 39.71563108303235
-      },
       "context_scaling": [
         {
+          "workload": "generation_2k",
+          "allocation_tokens": 131072,
+          "actual_input_tokens": 2040,
+          "prompt_sha256": "3ed38be9c93333e209a66ada0b10efbde517b06f9a6b6d727b0e216b0c890463",
+          "prefill_tokens_per_second": 32.06618460502477,
+          "decode_tokens_per_second": 40.79075074134585
+        },
+        {
+          "workload": "deep_retrieval",
           "allocation_tokens": 131072,
           "actual_input_tokens": 59933,
           "prompt_sha256": "106bb660430f97f3ca13aa51b43664fef77cbd3cf910b0d08dbcb204f0e82cc1",
-          "prefill_tokens_per_second": 235.4885333649744,
-          "decode_tokens_per_second": 35.024344135905096,
+          "prefill_tokens_per_second": 234.99717999855105,
+          "decode_tokens_per_second": 36.48119902156501,
           "needle_passes": 5
         },
         {
+          "workload": "deep_retrieval",
           "allocation_tokens": 131072,
           "actual_input_tokens": 122879,
           "prompt_sha256": "f5d337a32fbf5e29f150974500a8d49cff172c2d03c125a243f6c990e1dbd7a3",
-          "prefill_tokens_per_second": 218.08149471490069,
-          "decode_tokens_per_second": 30.549512251901227,
+          "prefill_tokens_per_second": 215.95572624132706,
+          "decode_tokens_per_second": 32.598007560261955,
           "needle_passes": 5
         },
         {
+          "workload": "deep_retrieval",
           "allocation_tokens": 262144,
           "actual_input_tokens": 163840,
           "prompt_sha256": "2df7bd978960015d35c9e4efe5025aabf9e8e13954ef6ab7bf94b2d06950fa3b",
-          "prefill_tokens_per_second": 207.28178008916754,
-          "decode_tokens_per_second": 28.509511891894814,
+          "prefill_tokens_per_second": 206.92447260917555,
+          "decode_tokens_per_second": 30.468603261374717,
           "needle_passes": 5
         },
         {
+          "workload": "deep_retrieval",
           "allocation_tokens": 262144,
           "actual_input_tokens": 212992,
           "prompt_sha256": "2c012ddee01827965c890f3c5a57d219f5c429c41bb2609bbf3859146deb5147",
-          "prefill_tokens_per_second": 193.79329602085105,
-          "decode_tokens_per_second": 25.980005261773215,
+          "prefill_tokens_per_second": 193.5603329998912,
+          "decode_tokens_per_second": 28.588343772300718,
           "needle_passes": 5
         },
         {
+          "workload": "deep_retrieval",
           "allocation_tokens": 262144,
           "actual_input_tokens": 245760,
           "prompt_sha256": "a014dfcb38f2cc4a2ba34c0bb6d357afa3ed706b807dca7e1386a37d9886639d",
-          "prefill_tokens_per_second": 186.25306830539273,
-          "decode_tokens_per_second": 24.498638464909114,
+          "prefill_tokens_per_second": 185.87871154041468,
+          "decode_tokens_per_second": 27.21461514400321,
           "needle_passes": 5
         },
         {
+          "workload": "deep_retrieval",
           "allocation_tokens": 524288,
           "actual_input_tokens": 491520,
           "prompt_sha256": "c0d21b6084d82783f2f427d48081845b5002f907882dab9b9a35d3c8d86bb5e2",
-          "prefill_tokens_per_second": 146.28245327541737,
-          "decode_tokens_per_second": 17.1939552147525,
+          "prefill_tokens_per_second": 145.80848601846648,
+          "decode_tokens_per_second": 20.00789517895474,
           "needle_passes": 5,
           "draft_acceptance_rate": 1.0,
-          "minimum_mem_available_gib": 9.565,
-          "minimum_effective_non_cma_gib": 2.395,
-          "maximum_gpu_temperature_c": 79.0,
-          "maximum_cpu_temperature_c": 77.2,
           "oom_events": 0
         }
       ],
+      "patch_qualification": {
+        "kernel_correctness_cases": 600,
+        "kernel_correctness_passes": 600,
+        "quality_passes": 30,
+        "quality_total": 30,
+        "held_out_exact_matches": 12,
+        "held_out_total": 12,
+        "maximum_reasoning_operational_successes": 15,
+        "maximum_reasoning_runs": 15,
+        "maximum_reasoning_truncations": 0
+      },
+      "fan_control": {
+        "strategy": "GPU-demand-based",
+        "sample_interval_seconds": 1,
+        "idle_hold_seconds": 300,
+        "busy_threshold_percent": 5,
+        "busy_state": "fixed-level-5",
+        "idle_state": "firmware-auto",
+        "fail_safe_state": "fixed-level-5",
+        "busy_to_fixed_seconds": 1.519869,
+        "observer_to_fixed_fan_baseline": {
+          "prefill_ratio": 0.9999605329628695,
+          "decode_ratio": 1.001818247210323,
+          "end_to_end_ratio": 1.0017990988591767
+        }
+      },
       "tool_contract_passed": true
     },
     "rocm-rocmfpx": {
@@ -200,12 +228,6 @@
       },
       "quality": {"coding": 10, "gsm8k": 10, "math": 10, "total": 30},
       "humaneval_plus": {"passed": 131, "total": 164, "request_errors": 0},
-      "hermes_cache_8k": {
-        "cache_hits": 5,
-        "cached_prefix_tokens": 40825,
-        "prefill_milliseconds": 47376.5,
-        "wall_seconds": 50.31293214299512
-      },
       "context_scaling": [
         {
           "allocation_tokens": 131072,

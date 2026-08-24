@@ -36,6 +36,13 @@
         mode: "0755"
       when: deepseek_system.engine == 'rocm'
 
+    - name: Render the demand-based fan governor service
+      ansible.builtin.template:
+        src: ../ansible/roles/fan/templates/deepseek-fan-governor.service.j2
+        dest: "{{ render_root }}/deepseek-fan-governor.service"
+        mode: "0644"
+      when: deepseek_fan.governor.enabled | default(false) | bool
+
     - name: Syntax-check rendered shell programs
       ansible.builtin.command:
         argv: [bash, -n, "{{ render_root }}/{{ item }}"]
@@ -70,11 +77,31 @@
         that:
           - "'-c 524288' in rendered_unit_text"
           - "'-ctk q8_0 -ctv q8_0' in rendered_unit_text"
+          - "'--temp 1.0 --top-p 1.0' in rendered_unit_text"
+          - "'--top-k 0 --min-p 0.0' in rendered_unit_text"
           - "'--spec-type draft-dspark' in rendered_unit_text"
           - "'--spec-draft-n-max 4' in rendered_unit_text"
           - "'--slot-save-path /run/deepseek-v4-flash-slots' in rendered_unit_text"
           - "'GGML_VK_FA_WAVE32=1' in rendered_unit_text"
+          - "'GGML_VK_LIGHTNING_INDEXER_SMALL_CM=1' in rendered_unit_text"
       when: deepseek_system.engine == 'vulkan'
+
+    - name: Read rendered demand-based fan governor service
+      ansible.builtin.slurp:
+        src: "{{ render_root }}/deepseek-fan-governor.service"
+      register: rendered_fan_governor
+      when: deepseek_fan.governor.enabled | default(false) | bool
+
+    - name: Assert demand-based fan governor contract
+      ansible.builtin.assert:
+        that:
+          - "'--interval-seconds 1' in (rendered_fan_governor.content | b64decode)"
+          - "'--idle-seconds 300' in (rendered_fan_governor.content | b64decode)"
+          - "'--busy-threshold 5' in (rendered_fan_governor.content | b64decode)"
+          - "'CPUQuota=1%' in (rendered_fan_governor.content | b64decode)"
+          - "'MemoryMax=64M' in (rendered_fan_governor.content | b64decode)"
+          - "'ExecStopPost=/usr/local/sbin/deepseek-fan-governor --set-state max' in (rendered_fan_governor.content | b64decode)"
+      when: deepseek_fan.governor.enabled | default(false) | bool
 
     - name: Assert Lucebox ROCm ROCmFPX service contract
       ansible.builtin.assert:

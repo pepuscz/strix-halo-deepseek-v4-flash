@@ -1,0 +1,216 @@
+#!/usr/bin/env python3
+
+"""Fail-safe demand-based fan governor without inference-server polling."""
+
+from __future__ import annotations
+
+import argparse
+import fcntl
+import glob
+import os
+import signal
+import sys
+import threading
+import time
+from pathlib import Path
+
+
+def read_gpu_busy(paths: list[Path]) -> int:
+    values: list[int] = []
+    for path in paths:
+        try:
+            value = int(path.read_text(encoding="ascii").strip())
+        except (OSError, ValueError):
+            continue
+        if 0 <= value <= 100:
+            values.append(value)
+    if not values:
+        raise RuntimeError("no valid GPU busy counter")
+    return max(values)
+
+
+def next_state(
+    current: str,
+    last_busy_at: float,
+    now: float,
+    gpu_busy: int,
+    busy_threshold: int,
+    idle_seconds: float,
+) -> tuple[str, float]:
+    if gpu_busy >= busy_threshold:
+        return "max", now
+    if now - last_busy_at >= idle_seconds:
+        return "auto", last_busy_at
+    return current, last_busy_at
+
+
+def write_fans(sysfs: Path, state: str) -> None:
+    fans = [sysfs / f"fan{number}" for number in range(1, 4)]
+    for fan in fans:
+        if not (fan / "mode").is_file() or not (fan / "level").is_file():
+            raise RuntimeError(f"missing fan controls under {fan}")
+    if state == "auto":
+        for fan in fans:
+            (fan / "mode").write_text("auto\n", encoding="ascii")
+        return
+    if state != "max":
+        raise ValueError(f"unknown fan state: {state}")
+    for fan in fans:
+        (fan / "level").write_text("5\n", encoding="ascii")
+        (fan / "mode").write_text("fixed\n", encoding="ascii")
+        (fan / "level").write_text("5\n", encoding="ascii")
+
+
+class FanGovernor:
+    def __init__(
+        self,
+        *,
+        mode: str,
+        gpu_busy_paths: list[Path],
+        fan_sysfs: Path,
+        interval_seconds: float,
+        idle_seconds: float,
+        busy_threshold: int,
+    ) -> None:
+        self.mode = mode
+        self.gpu_busy_paths = gpu_busy_paths
+        self.fan_sysfs = fan_sysfs
+        self.interval_seconds = interval_seconds
+        self.idle_seconds = idle_seconds
+        self.busy_threshold = busy_threshold
+        self.stop_event = threading.Event()
+        self.state = "max"
+        self.last_activity = "unknown"
+        self.last_fault = ""
+
+    def log(self, message: str) -> None:
+        print(f"fan-governor mode={self.mode} {message}", file=sys.stderr, flush=True)
+
+    def set_fans(self, state: str) -> None:
+        if self.mode == "control":
+            write_fans(self.fan_sysfs, state)
+
+    def fail_safe_max(self) -> None:
+        if self.mode != "control":
+            return
+        try:
+            self.set_fans("max")
+            self.state = "max"
+        except Exception as error:  # best effort after the initiating failure
+            self.log(f"fail_safe=max_failed error={type(error).__name__}")
+
+    def request_stop(self, signum: int, _frame: object) -> None:
+        self.log(f"signal={signum} stopping=1")
+        self.stop_event.set()
+
+    def run(self) -> int:
+        signal.signal(signal.SIGTERM, self.request_stop)
+        signal.signal(signal.SIGINT, self.request_stop)
+
+        if self.mode == "control":
+            self.set_fans("max")
+        started = time.monotonic()
+        last_busy_at = started
+        self.log(
+            f"started=1 interval_seconds={self.interval_seconds:g} "
+            f"idle_seconds={self.idle_seconds:g} "
+            f"busy_threshold={self.busy_threshold} state={self.state}"
+        )
+
+        try:
+            while not self.stop_event.is_set():
+                now = time.monotonic()
+                try:
+                    gpu_busy = read_gpu_busy(self.gpu_busy_paths)
+                    desired, last_busy_at = next_state(
+                        self.state,
+                        last_busy_at,
+                        now,
+                        gpu_busy,
+                        self.busy_threshold,
+                        self.idle_seconds,
+                    )
+                    activity = "busy" if gpu_busy >= self.busy_threshold else "idle"
+                    if activity != self.last_activity:
+                        self.log(f"activity={activity} gpu_busy_pct={gpu_busy}")
+                        self.last_activity = activity
+                    if desired != self.state:
+                        self.set_fans(desired)
+                        self.state = desired
+                        self.log(f"transition={desired} gpu_busy_pct={gpu_busy}")
+                    self.last_fault = ""
+                except Exception as error:
+                    fault = type(error).__name__
+                    if fault != self.last_fault:
+                        self.log(f"counter_fault={fault} fail_safe=max")
+                        self.last_fault = fault
+                    self.fail_safe_max()
+                    last_busy_at = now
+                self.stop_event.wait(self.interval_seconds)
+        finally:
+            self.fail_safe_max()
+            self.log("stopped=1 fail_safe=max")
+        return 0
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    action = parser.add_mutually_exclusive_group(required=True)
+    action.add_argument("--mode", choices=("observe", "control"))
+    action.add_argument("--set-state", choices=("auto", "max"))
+    parser.add_argument(
+        "--gpu-busy-glob",
+        default="/sys/class/drm/card*/device/gpu_busy_percent",
+    )
+    parser.add_argument(
+        "--fan-sysfs",
+        type=Path,
+        default=Path("/sys/class/ec_su_axb35"),
+    )
+    parser.add_argument("--interval-seconds", type=float, default=1.0)
+    parser.add_argument("--idle-seconds", type=float, default=300.0)
+    parser.add_argument("--busy-threshold", type=int, default=5)
+    parser.add_argument(
+        "--lock-file",
+        type=Path,
+        default=Path("/run/lock/deepseek-fan-governor.lock"),
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    if args.set_state:
+        write_fans(args.fan_sysfs, args.set_state)
+        return 0
+    if args.interval_seconds < 0.25:
+        raise SystemExit("interval must be at least 0.25 seconds")
+    if args.idle_seconds < 30:
+        raise SystemExit("idle delay must be at least 30 seconds")
+    if not 1 <= args.busy_threshold <= 100:
+        raise SystemExit("busy threshold must be between 1 and 100")
+    gpu_busy_paths = [Path(path) for path in sorted(glob.glob(args.gpu_busy_glob))]
+    if not gpu_busy_paths:
+        raise SystemExit(f"no GPU busy counters match {args.gpu_busy_glob}")
+
+    args.lock_file.parent.mkdir(parents=True, exist_ok=True)
+    lock = args.lock_file.open("w", encoding="ascii")
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        raise SystemExit("another fan governor instance is already running") from None
+    lock.write(f"{os.getpid()}\n")
+    lock.flush()
+
+    return FanGovernor(
+        mode=args.mode,
+        gpu_busy_paths=gpu_busy_paths,
+        fan_sysfs=args.fan_sysfs,
+        interval_seconds=args.interval_seconds,
+        idle_seconds=args.idle_seconds,
+        busy_threshold=args.busy_threshold,
+    ).run()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

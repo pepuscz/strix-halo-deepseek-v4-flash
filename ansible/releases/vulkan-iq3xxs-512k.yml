@@ -1,5 +1,5 @@
 ---
-deepseek_release_id: vulkan-iq3xxs-512k-v1
+deepseek_release_id: vulkan-iq3xxs-512k-v2
 deepseek_release_schema: 1
 
 deepseek_system:
@@ -29,9 +29,9 @@ deepseek_paths:
   root: /opt/m5
   source: /opt/m5/src
   bin: /opt/m5/bin
-  downloads: /opt/m5/downloads/vulkan-iq3xxs-512k-v1
-  release: /opt/m5/releases/vulkan-iq3xxs-512k-v1
-  models: /opt/m5/models/vulkan-iq3xxs-512k-v1
+  downloads: /opt/m5/downloads/vulkan-iq3xxs-512k-v2
+  release: /opt/m5/releases/vulkan-iq3xxs-512k-v2
+  models: /opt/m5/models/vulkan-iq3xxs-512k-v2
   state: /var/lib/deepseek-v4-flash
 
 deepseek_runtime:
@@ -49,6 +49,18 @@ deepseek_runtime:
   launcher_sha256: 203684bb16b00b50e1744cafad5457289675fbe2619258651d22a201ec74dc54
   server_sha256: 749c26627da50bad55b733f32ebc9f4d64965ee2932418b7b30921a0d90b1975
   build_info: b10569-7b6c6133
+  patch:
+    name: 0001-vulkan-lightning-indexer-small-cm-4-15.patch
+    sha256: fdc4a52cdea142f9c73700fdbdb78cba41e949a9ffb803213a64cbd2d953d92b
+    pull_request: https://github.com/Nathanw1014/llama.cpp/pull/6
+    environment: GGML_VK_LIGHTNING_INDEXER_SMALL_CM
+    batches: 4-15
+  overlay_name: vulkan-v066-lightning-indexer-small-cm-4-15.tar.gz
+  overlay_url: https://github.com/pepuscz/strix-halo-deepseek-v4-flash/releases/download/v1.2.0/vulkan-v066-lightning-indexer-small-cm-4-15.tar.gz
+  overlay_size: 17598572
+  overlay_sha256: 67ea853b58db7f4708a5bc7d9030b146102ebcd89b2830b1e2875a4c490f66f2
+  upstream_vulkan_backend_sha256: d19f69314830a6a755d1303edf189c9bddd3f699ee37c34216e184e3d139e9d8
+  vulkan_backend_sha256: 23daae832dbbe8cf391ed28e33b1be8c9073fd8e9a2870a71c8e35d80e6d43a4
 
 deepseek_target:
   repository: unsloth/DeepSeek-V4-Flash-0731-GGUF
@@ -92,6 +104,13 @@ deepseek_fan:
   dkms_version: 0.1.0_git7a9f372
   sysfs: /sys/class/ec_su_axb35
   minimum_max_rpm: 2000
+  governor:
+    enabled: true
+    implementation_sha256: 609198a59fe3a73d25447be1db2d315bc457836112ffcceff1fe95d63247f388
+    interval_seconds: 1
+    idle_seconds: 300
+    busy_threshold_pct: 5
+    fail_safe_state: max
 
 deepseek_service:
   name: deepseek-v4-flash.service
@@ -104,6 +123,11 @@ deepseek_service:
   parallel_slots: 1
   batch: 2048
   microbatch: 1024
+  sampling:
+    temperature: 1.0
+    top_p: 1.0
+    top_k: 0
+    min_p: 0.0
   cache_type_k: q8_0
   cache_type_v: q8_0
   draft_max: 4
@@ -141,6 +165,7 @@ deepseek_vulkan_environment:
   GGML_VK_MMID_WAVE32: "1"
   GGML_VK_MMID_F16B: "1"
   GGML_VK_FA_WAVE32: "1"
+  GGML_VK_LIGHTNING_INDEXER_SMALL_CM: "1"
 
 deepseek_vulkan_loader:
   package: libvulkan1

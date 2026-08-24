@@ -84,6 +84,27 @@
         mode: "0644"
       notify: Reload systemd
 
+    - name: Install demand-based fan governor
+      ansible.builtin.copy:
+        src: deepseek-fan-governor
+        dest: /usr/local/sbin/deepseek-fan-governor
+        owner: root
+        group: root
+        mode: "0755"
+      register: fan_governor_program
+      when: deepseek_fan.governor.enabled | default(false) | bool
+
+    - name: Install model-scoped demand-based fan governor service
+      ansible.builtin.template:
+        src: deepseek-fan-governor.service.j2
+        dest: /etc/systemd/system/deepseek-fan-governor.service
+        owner: root
+        group: root
+        mode: "0644"
+      register: fan_governor_unit
+      when: deepseek_fan.governor.enabled | default(false) | bool
+      notify: Reload systemd
+
     - name: Verify the driver exported every expected interface
       ansible.builtin.command:
         argv: [/usr/local/sbin/deepseek-axb35-fan, status]

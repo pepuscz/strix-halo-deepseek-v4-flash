@@ -45,3 +45,16 @@
     name: "{{ deepseek_service.name }}"
     enabled: "{{ deepseek_service.auto_start }}"
     state: started
+
+- name: Enable and start demand-based fan governor
+  ansible.builtin.systemd_service:
+    name: deepseek-fan-governor.service
+    enabled: true
+    state: >-
+      {{ 'restarted'
+         if (fan_governor_program.changed | default(false) or
+             fan_governor_unit.changed | default(false))
+         else 'started' }}
+  when:
+    - deepseek_fan.manage | bool
+    - deepseek_fan.governor.enabled | default(false) | bool

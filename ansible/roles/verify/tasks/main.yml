@@ -76,6 +76,15 @@
   changed_when: false
   when: deepseek_fan.manage | bool
 
+- name: Read demand-based fan governor state
+  ansible.builtin.command:
+    argv: [systemctl, is-active, deepseek-fan-governor.service]
+  register: verify_fan_governor
+  changed_when: false
+  when:
+    - deepseek_fan.manage | bool
+    - deepseek_fan.governor.enabled | default(false) | bool
+
 - name: Read maximum current CPU or GPU temperature
   ansible.builtin.shell: |
     set -o pipefail
@@ -136,8 +145,19 @@
       - verify_max_temperature.stdout | int < deepseek_service.thermal_limit_millic | int
       - >-
         not deepseek_fan.manage | bool or
-        (verify_live_fans.stdout.count('mode=fixed') == 3 and
-         verify_live_fans.stdout.count('level=5') == 3)
+        (
+          (deepseek_fan.governor.enabled | default(false) | bool and
+           (verify_live_fans.stdout.count('mode=auto') == 3 or
+            (verify_live_fans.stdout.count('mode=fixed') == 3 and
+             verify_live_fans.stdout.count('level=5') == 3))) or
+          (not deepseek_fan.governor.enabled | default(false) | bool and
+           verify_live_fans.stdout.count('mode=fixed') == 3 and
+           verify_live_fans.stdout.count('level=5') == 3)
+        )
+      - >-
+        not deepseek_fan.manage | bool or
+        not deepseek_fan.governor.enabled | default(false) | bool or
+        verify_fan_governor.stdout | trim == 'active'
       - >-
         not deepseek_verify_api_smoke | bool or
         (verify_api_smoke.json.choices | length == 1 and

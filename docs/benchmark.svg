@@ -1,101 +1,101 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 540" role="img" aria-labelledby="title description">
-  <title id="title">Cold-retrieval throughput by prompt length</title>
-  <desc id="description">Two panels show cold-retrieval input-processing and generation throughput from 59,933 through 491,520 prompt tokens for Strix Halo llama.cpp Vulkan IQ3_XXS and at 122,879 prompt tokens for Lucebox ROCm ROCmFPX.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 620" role="img" aria-labelledby="title description">
+  <title id="title">Qualified throughput from 2K to 512K context</title>
+  <desc id="description">Input-processing and generation throughput for the qualified Strix Halo llama.cpp Vulkan IQ3_XXS configuration at every measured prompt length from 2,040 through 491,520 tokens, with available Lucebox ROCm ROCmFPX reference points.</desc>
   <style>
     .background { fill: #ffffff; }
     .frame { fill: none; stroke: #d0d7de; stroke-width: 1; }
     .grid { stroke: #d8dee4; stroke-width: 1; stroke-dasharray: 3 5; }
     .axis { stroke: #57606a; stroke-width: 1.25; }
-    .vulkan-line { fill: none; stroke: #0969da; stroke-width: 3; }
-    .vulkan-mark { fill: #0969da; }
-    .rocm-mark { fill: #bf3989; }
+    .default-line { fill: none; stroke: #0969da; stroke-width: 3; }
+    .default-mark { fill: #0969da; }
+    .reference-mark { fill: #bf3989; }
     text { fill: #24292f; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     .chart-title { font-size: 22px; font-weight: 600; }
     .legend { font-size: 12px; font-weight: 500; }
     .panel-title { font-size: 16px; font-weight: 600; }
-    .tick { font-size: 12px; }
-    .value { font-size: 12px; font-weight: 600; }
+    .tick { font-size: 11px; }
+    .value { font-size: 11px; font-weight: 600; }
+    .note { font-size: 11px; fill: #57606a; }
     .axis-title { font-size: 13px; font-weight: 500; }
     @media (prefers-color-scheme: dark) {
-      .background { fill: #0d1117; }
-      .frame { stroke: #30363d; }
-      .grid { stroke: #30363d; }
-      .axis { stroke: #8b949e; }
-      .vulkan-line { stroke: #58a6ff; }
-      .vulkan-mark { fill: #58a6ff; }
-      .rocm-mark { fill: #db61a2; }
-      text { fill: #e6edf3; }
+      .background { fill: #0d1117; } .frame, .grid { stroke: #30363d; }
+      .axis { stroke: #8b949e; } .default-line { stroke: #58a6ff; }
+      .default-mark { fill: #58a6ff; } .reference-mark { fill: #db61a2; }
+      text { fill: #e6edf3; } .note { fill: #8b949e; }
     }
   </style>
-
-  <rect class="background" width="900" height="540"/>
-  <text class="chart-title" x="450" y="28" text-anchor="middle">Cold-retrieval throughput by prompt length</text>
-  <line class="vulkan-line" x1="65" y1="52" x2="93" y2="52"/>
-  <circle class="vulkan-mark" cx="79" cy="52" r="4"/>
-  <text class="legend" x="102" y="56">Strix Halo llama.cpp Vulkan IQ3_XXS</text>
-  <rect class="rocm-mark" x="522" y="48" width="8" height="8"/>
-  <text class="legend" x="539" y="56">Lucebox ROCm ROCmFPX</text>
-
-  <text class="panel-title" x="90" y="83">Input processing (tok/s)</text>
-  <rect class="frame" x="90" y="92" width="750" height="150"/>
-  <line class="grid" x1="90" y1="98" x2="840" y2="98"/>
-  <line class="grid" x1="90" y1="167" x2="840" y2="167"/>
-  <line class="grid" x1="90" y1="236" x2="840" y2="236"/>
-  <text class="tick" x="78" y="102" text-anchor="end">240</text>
-  <text class="tick" x="78" y="171" text-anchor="end">180</text>
-  <text class="tick" x="78" y="240" text-anchor="end">120</text>
-  <path class="vulkan-line" d="M90 103 L199 124 L271 136 L356 151 L413 160 L840 206"/>
-  <circle class="vulkan-mark" cx="90" cy="103" r="4.5"/>
-  <circle class="vulkan-mark" cx="199" cy="124" r="4.5"/>
-  <circle class="vulkan-mark" cx="271" cy="136" r="4.5"/>
-  <circle class="vulkan-mark" cx="356" cy="151" r="4.5"/>
-  <circle class="vulkan-mark" cx="413" cy="160" r="4.5"/>
-  <circle class="vulkan-mark" cx="840" cy="206" r="4.5"/>
-  <rect class="rocm-mark" x="194" y="219" width="10" height="10"/>
-  <text class="value" x="98" y="98">235.49</text>
-  <text class="value" x="207" y="119">218.08</text>
-  <text class="value" x="279" y="131">207.28</text>
-  <text class="value" x="364" y="146">193.79</text>
-  <text class="value" x="421" y="155">186.25</text>
-  <text class="value" x="832" y="201" text-anchor="end">146.28</text>
-  <text class="value" x="211" y="228">131.19</text>
-
-  <text class="panel-title" x="90" y="292">Generation (tok/s)</text>
-  <rect class="frame" x="90" y="305" width="750" height="150"/>
-  <line class="grid" x1="90" y1="311" x2="840" y2="311"/>
-  <line class="grid" x1="90" y1="374" x2="840" y2="374"/>
-  <line class="grid" x1="90" y1="437" x2="840" y2="437"/>
-  <text class="tick" x="78" y="315" text-anchor="end">36</text>
-  <text class="tick" x="78" y="378" text-anchor="end">26</text>
-  <text class="tick" x="78" y="441" text-anchor="end">16</text>
-  <path class="vulkan-line" d="M90 317 L199 345 L271 358 L356 374 L413 383 L840 429"/>
-  <circle class="vulkan-mark" cx="90" cy="317" r="4.5"/>
-  <circle class="vulkan-mark" cx="199" cy="345" r="4.5"/>
-  <circle class="vulkan-mark" cx="271" cy="358" r="4.5"/>
-  <circle class="vulkan-mark" cx="356" cy="374" r="4.5"/>
-  <circle class="vulkan-mark" cx="413" cy="383" r="4.5"/>
-  <circle class="vulkan-mark" cx="840" cy="429" r="4.5"/>
-  <rect class="rocm-mark" x="194" y="429" width="10" height="10"/>
-  <text class="value" x="98" y="312">35.02</text>
-  <text class="value" x="207" y="340">30.55</text>
-  <text class="value" x="279" y="353">28.51</text>
-  <text class="value" x="364" y="369">25.98</text>
-  <text class="value" x="421" y="378">24.50</text>
-  <text class="value" x="832" y="424" text-anchor="end">17.19</text>
-  <text class="value" x="211" y="438">16.40</text>
-
-  <line class="axis" x1="90" y1="455" x2="840" y2="455"/>
-  <line class="axis" x1="90" y1="455" x2="90" y2="463"/>
-  <line class="axis" x1="199" y1="455" x2="199" y2="463"/>
-  <line class="axis" x1="271" y1="455" x2="271" y2="463"/>
-  <line class="axis" x1="356" y1="455" x2="356" y2="463"/>
-  <line class="axis" x1="413" y1="455" x2="413" y2="463"/>
-  <line class="axis" x1="840" y1="455" x2="840" y2="463"/>
-  <text class="tick" x="90" y="480" text-anchor="middle">59,933</text>
-  <text class="tick" x="199" y="499" text-anchor="middle">122,879</text>
-  <text class="tick" x="271" y="480" text-anchor="middle">163,840</text>
-  <text class="tick" x="356" y="499" text-anchor="middle">212,992</text>
-  <text class="tick" x="413" y="480" text-anchor="middle">245,760</text>
-  <text class="tick" x="840" y="480" text-anchor="middle">491,520</text>
-  <text class="axis-title" x="465" y="526" text-anchor="middle">Exact prompt length (tokens)</text>
+  <rect class="background" width="940" height="620"/>
+  <text class="chart-title" x="470" y="30" text-anchor="middle">Qualified throughput from 2K to 512K context</text>
+  <line class="default-line" x1="92" y1="55" x2="120" y2="55"/>
+  <circle class="default-mark" cx="106" cy="55" r="4"/>
+  <text class="legend" x="130" y="59">Strix Halo llama.cpp Vulkan IQ3_XXS</text>
+  <rect class="reference-mark" x="564" y="51" width="8" height="8"/>
+  <text class="legend" x="581" y="59">Lucebox ROCm ROCmFPX</text>
+  <text class="panel-title" x="92" y="98">Input processing (tok/s)</text>
+  <rect class="frame" x="92" y="110" width="758" height="170"/>
+  <line class="grid" x1="92" y1="110.00" x2="850" y2="110.00"/>
+  <text class="tick" x="80" y="114.00" text-anchor="end">260</text>
+  <line class="grid" x1="92" y1="195.00" x2="850" y2="195.00"/>
+  <text class="tick" x="80" y="199.00" text-anchor="end">130</text>
+  <line class="grid" x1="92" y1="280.00" x2="850" y2="280.00"/>
+  <text class="tick" x="80" y="284.00" text-anchor="end">0</text>
+  <path class="default-line" d="M92.00 259.03 L559.18 126.35 L658.40 138.80 L698.16 144.70 L734.43 153.44 L754.20 158.46 L850.00 184.66"/>
+  <circle class="default-mark" cx="92.00" cy="259.03" r="4.5"/>
+  <text class="value" x="99.00" y="251.03" text-anchor="start">32.07</text>
+  <circle class="default-mark" cx="559.18" cy="126.35" r="4.5"/>
+  <text class="value" x="566.18" y="144.35" text-anchor="start">235.00</text>
+  <circle class="default-mark" cx="658.40" cy="138.80" r="4.5"/>
+  <text class="value" x="665.40" y="130.80" text-anchor="start">215.96</text>
+  <circle class="default-mark" cx="698.16" cy="144.70" r="4.5"/>
+  <text class="value" x="705.16" y="162.70" text-anchor="start">206.92</text>
+  <circle class="default-mark" cx="734.43" cy="153.44" r="4.5"/>
+  <text class="value" x="741.43" y="145.44" text-anchor="start">193.56</text>
+  <circle class="default-mark" cx="754.20" cy="158.46" r="4.5"/>
+  <text class="value" x="761.20" y="176.46" text-anchor="start">185.88</text>
+  <circle class="default-mark" cx="850.00" cy="184.66" r="4.5"/>
+  <text class="value" x="843.00" y="176.66" text-anchor="end">145.81</text>
+  <rect class="reference-mark" x="87.54" y="110.89" width="10" height="10"/>
+  <rect class="reference-mark" x="653.40" y="189.23" width="10" height="10"/>
+  <text class="panel-title" x="92" y="338">Generation (tok/s)</text>
+  <rect class="frame" x="92" y="350" width="758" height="170"/>
+  <line class="grid" x1="92" y1="350.00" x2="850" y2="350.00"/>
+  <text class="tick" x="80" y="354.00" text-anchor="end">45</text>
+  <line class="grid" x1="92" y1="435.00" x2="850" y2="435.00"/>
+  <text class="tick" x="80" y="439.00" text-anchor="end">22.5</text>
+  <line class="grid" x1="92" y1="520.00" x2="850" y2="520.00"/>
+  <text class="tick" x="80" y="524.00" text-anchor="end">0</text>
+  <path class="default-line" d="M92.00 365.90 L559.18 382.18 L658.40 396.85 L698.16 404.90 L734.43 412.00 L754.20 417.19 L850.00 444.41"/>
+  <circle class="default-mark" cx="92.00" cy="365.90" r="4.5"/>
+  <text class="value" x="99.00" y="383.90" text-anchor="start">40.79</text>
+  <circle class="default-mark" cx="559.18" cy="382.18" r="4.5"/>
+  <text class="value" x="566.18" y="400.18" text-anchor="start">36.48</text>
+  <circle class="default-mark" cx="658.40" cy="396.85" r="4.5"/>
+  <text class="value" x="665.40" y="388.85" text-anchor="start">32.60</text>
+  <circle class="default-mark" cx="698.16" cy="404.90" r="4.5"/>
+  <text class="value" x="705.16" y="422.90" text-anchor="start">30.47</text>
+  <circle class="default-mark" cx="734.43" cy="412.00" r="4.5"/>
+  <text class="value" x="741.43" y="404.00" text-anchor="start">28.59</text>
+  <circle class="default-mark" cx="754.20" cy="417.19" r="4.5"/>
+  <text class="value" x="761.20" y="435.19" text-anchor="start">27.21</text>
+  <circle class="default-mark" cx="850.00" cy="444.41" r="4.5"/>
+  <text class="value" x="843.00" y="436.41" text-anchor="end">20.01</text>
+  <rect class="reference-mark" x="87.54" y="405.07" width="10" height="10"/>
+  <rect class="reference-mark" x="653.40" y="453.04" width="10" height="10"/>
+  <line class="axis" x1="92" y1="530" x2="850" y2="530"/>
+  <line class="axis" x1="92.00" y1="530" x2="92.00" y2="537"/>
+  <text class="tick" x="92.00" y="551" text-anchor="middle">2K</text>
+  <line class="axis" x1="559.18" y1="530" x2="559.18" y2="537"/>
+  <text class="tick" x="559.18" y="568" text-anchor="middle">60K</text>
+  <line class="axis" x1="658.40" y1="530" x2="658.40" y2="537"/>
+  <text class="tick" x="658.40" y="551" text-anchor="middle">123K</text>
+  <line class="axis" x1="698.16" y1="530" x2="698.16" y2="537"/>
+  <text class="tick" x="698.16" y="568" text-anchor="middle">164K</text>
+  <line class="axis" x1="734.43" y1="530" x2="734.43" y2="537"/>
+  <text class="tick" x="734.43" y="551" text-anchor="middle">213K</text>
+  <line class="axis" x1="754.20" y1="530" x2="754.20" y2="537"/>
+  <text class="tick" x="754.20" y="568" text-anchor="middle">246K</text>
+  <line class="axis" x1="850.00" y1="530" x2="850.00" y2="537"/>
+  <text class="tick" x="850.00" y="551" text-anchor="middle">492K</text>
+  <text class="axis-title" x="471" y="592" text-anchor="middle">Exact prompt length (tokens, logarithmic scale)</text>
+  <text class="note" x="471" y="611" text-anchor="middle">2K uses the fixed generation workload; 60K–492K use cold five-key retrieval. Thinking is disabled.</text>
 </svg>

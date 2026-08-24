@@ -29,6 +29,10 @@ jobs:
           for release in ansible/releases/*.yml; do
             python scripts/validate_release.py "$release"
           done
+      - name: Verify generated benchmark chart
+        run: python scripts/render_benchmark.py --check
+      - name: Test demand-based fan governor
+        run: python -m unittest tests/test_fan_governor.py
       - name: Assert the two-system release set
         shell: bash
         run: |

@@ -66,6 +66,13 @@ def validate_manifest(path: Path, root: Path) -> dict:
         fail("cgroup memory envelope drifted")
     if service["memory_swap_max"] != 0:
         fail("swap must remain disabled")
+    if system["engine"] == "vulkan" and service.get("sampling") != {
+        "temperature": 1.0,
+        "top_p": 1.0,
+        "top_k": 0,
+        "min_p": 0.0,
+    }:
+        fail("Vulkan server sampling defaults drifted from the neutral profile")
 
     target = data["deepseek_target"]
     files = target["files"]
@@ -89,8 +96,44 @@ def validate_manifest(path: Path, root: Path) -> dict:
         require_url(data["deepseek_vulkan_loader"]["url"], "Vulkan loader URL")
         for key in ("archive_sha256", "manifest_sha256", "launcher_sha256"):
             require_sha(runtime[key], f"runtime {key}")
+        require_url(runtime["overlay_url"], "runtime overlay_url")
+        if runtime["overlay_size"] <= 0:
+            fail("runtime overlay size is invalid")
+        for key in (
+            "overlay_sha256",
+            "upstream_vulkan_backend_sha256",
+            "vulkan_backend_sha256",
+        ):
+            require_sha(runtime[key], f"runtime {key}")
+        patch = runtime["patch"]
+        require_sha(patch["sha256"], "Vulkan patch")
+        patch_path = root / "patches" / patch["name"]
+        if not patch_path.is_file():
+            fail(f"missing public patch: {patch['name']}")
+        if hashlib.sha256(patch_path.read_bytes()).hexdigest() != patch["sha256"]:
+            fail(f"public patch hash drifted: {patch['name']}")
+        if patch.get("batches") != "4-15":
+            fail("Vulkan small-CM dispatch range drifted")
+        if data.get("deepseek_vulkan_environment", {}).get(
+            "GGML_VK_LIGHTNING_INDEXER_SMALL_CM"
+        ) != "1":
+            fail("qualified Vulkan small-CM dispatch is not enabled")
         for key in ("sha256", "library_sha256"):
             require_sha(data["deepseek_vulkan_loader"][key], f"Vulkan loader {key}")
+        governor = data["deepseek_fan"].get("governor", {})
+        if governor != {
+            "enabled": True,
+            "implementation_sha256": "609198a59fe3a73d25447be1db2d315bc457836112ffcceff1fe95d63247f388",
+            "interval_seconds": 1,
+            "idle_seconds": 300,
+            "busy_threshold_pct": 5,
+            "fail_safe_state": "max",
+        }:
+            fail("demand-based fan governor drifted from the qualified policy")
+        governor_path = root / "ansible/roles/fan/files/deepseek-fan-governor"
+        require_sha(governor["implementation_sha256"], "fan governor")
+        if hashlib.sha256(governor_path.read_bytes()).hexdigest() != governor["implementation_sha256"]:
+            fail("fan governor implementation hash drifted")
     else:
         if len(files) != 1:
             fail("Lucebox ROCm ROCmFPX requires one target file")
