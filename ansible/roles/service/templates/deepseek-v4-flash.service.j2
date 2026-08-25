@@ -55,7 +55,8 @@ ExecStart={{ deepseek_rocm.qualified_build_path }}/dflash_server \
   --disk-prefix-cache {{ deepseek_service.disk_prefix_cache }} \
   --cache-type-k {{ deepseek_service.cache_type_k }} \
   --cache-type-v {{ deepseek_service.cache_type_v }} \
-  --ds4-fused-decode --ds4-expert-top-k {{ deepseek_service.expert_top_k }} \
+  --ds4-fused-decode --ds4-fused-verify-f16-kv \
+  --ds4-expert-top-k {{ deepseek_service.expert_top_k }} \
   --ds4-prefill {{ deepseek_service.prefill }} --chunk {{ deepseek_service.chunk }}
 {% for key, value in deepseek_rocm_environment.items() %}Environment="{{ key }}={{ value }}"
 {% endfor %}{% endif %}ExecStopPost=+/usr/local/sbin/deepseek-host-policy restore

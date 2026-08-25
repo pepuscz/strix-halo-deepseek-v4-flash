@@ -1,0 +1,108 @@
+From 13e9f0655cb865f956d808125d768cb6d54665ce Mon Sep 17 00:00:00 2001
+From: Josef Gattermayer <josef.gattermayer@ackee.cz>
+Date: Mon, 24 Aug 2026 20:21:36 +0200
+Subject: [PATCH 1/7] perf(ds4): restore qualified monolithic long-context
+ bounds
+
+---
+ server/src/deepseek4/deepseek4_backend.cpp | 22 +++++++++++++++++
+ server/src/deepseek4/deepseek4_graph.cpp   | 28 +++++++++++++++++++++-
+ 2 files changed, 49 insertions(+), 1 deletion(-)
+
+diff --git a/server/src/deepseek4/deepseek4_backend.cpp b/server/src/deepseek4/deepseek4_backend.cpp
+index c8750bb..a33b190 100644
+--- a/server/src/deepseek4/deepseek4_backend.cpp
++++ b/server/src/deepseek4/deepseek4_backend.cpp
+@@ -1909,6 +1909,9 @@ int DeepSeek4Backend::do_prefill(const std::vector<int32_t> & tokens,
+               base_chunk, kv_offset + n_total,
+               hybrid_prefill_chunk_cap_)
+         : base_chunk;
++    const bool monolithic_adaptive_prefill =
++        !bound_hybrid_scratch &&
++        env_flag_enabled("DFLASH_DS4_ADAPTIVE_PREFILL_CHUNKS");
+     if (chunk < base_chunk) {
+         hybrid_prefill_chunk_cap_ = hybrid_prefill_chunk_cap_ > 0
+             ? std::min(hybrid_prefill_chunk_cap_, chunk)
+@@ -1921,6 +1924,13 @@ int DeepSeek4Backend::do_prefill(const std::vector<int32_t> & tokens,
+                      base_chunk, chunk, kv_offset + n_total);
+     }
+     int pos = kv_offset;
++    if (monolithic_adaptive_prefill) {
++        std::fprintf(stderr,
++                     "[deepseek4] monolithic adaptive prefill: "
++                     "chunk %d through 60K, at most 2048 through 80K, "
++                     "then at most 512\n",
++                     chunk);
++    }
+     const bool save_snapshot =
+         snap_slot >= 0 && snap_slot < PREFIX_SLOTS &&
+         snap_pos > kv_offset && snap_pos <= kv_offset + n_total;
+@@ -1985,6 +1995,18 @@ int DeepSeek4Backend::do_prefill(const std::vector<int32_t> & tokens,
+         int n_tok = bound_hybrid_scratch
+             ? deepseek4_hybrid_prefill_step_tokens(chunk, pos, n_total - i)
+             : std::min(chunk, n_total - i);
++        if (monolithic_adaptive_prefill) {
++            constexpr int chunk_wide_end = 60 * 1024;
++            constexpr int chunk_mid_end = 80 * 1024;
++            const int stage_cap = pos < chunk_wide_end ? chunk
++                                : pos < chunk_mid_end ? std::min(chunk, 2048)
++                                : std::min(chunk, 512);
++            const int stage_end = pos < chunk_wide_end ? chunk_wide_end
++                                : pos < chunk_mid_end ? chunk_mid_end
++                                : kv_offset + n_total;
++            n_tok = std::min(n_tok, stage_cap);
++            n_tok = std::min(n_tok, std::max(1, stage_end - pos));
++        }
+         if (!late_context_chunk_logged && n_tok < chunk &&
+             pos >= 32768 && n_total - i >= chunk) {
+             late_context_chunk_logged = true;
+diff --git a/server/src/deepseek4/deepseek4_graph.cpp b/server/src/deepseek4/deepseek4_graph.cpp
+index 8986328..82c7d24 100644
+--- a/server/src/deepseek4/deepseek4_graph.cpp
++++ b/server/src/deepseek4/deepseek4_graph.cpp
+@@ -60,6 +60,31 @@ static bool ds4_env_flag(const char * name) {
+     return value && value[0] && std::strcmp(value, "0") != 0;
+ }
+ 
++static size_t ds4_decode_attn_cache_slots() {
++    static const size_t slots = [] {
++        constexpr long default_slots = 20;
++        const char * value = std::getenv("DFLASH_DS4_DECODE_ATTN_CACHE_SLOTS");
++        if (!value || !*value) return (size_t) default_slots;
++
++        char * end = nullptr;
++        const long parsed = std::strtol(value, &end, 10);
++        if (end == value || *end != '\0' || parsed < 1 ||
++            parsed > default_slots) {
++            std::fprintf(stderr,
++                         "[deepseek4] invalid "
++                         "DFLASH_DS4_DECODE_ATTN_CACHE_SLOTS=%s; using %ld\n",
++                         value, default_slots);
++            return (size_t) default_slots;
++        }
++        std::fprintf(stderr,
++                     "[deepseek4] decode attention graph cache slots=%ld "
++                     "(default=%ld)\n",
++                     parsed, default_slots);
++        return (size_t) parsed;
++    }();
++    return slots;
++}
++
+ // F32 key/value-side accumulation protects the short-context quality baseline
+ // while still avoiding a full-cache F16 -> F32 conversion once attention is
+ // large enough for that conversion to dominate verifier time.
+@@ -7550,7 +7575,8 @@ bool deepseek4_step_layer_range(
+                                candidate.index_flush == index_flush;
+                     });
+                 if (it == per_layer.end()) {
+-                    if (per_layer.size() >= 20) {
++                    const size_t cache_slots = ds4_decode_attn_cache_slots();
++                    while (per_layer.size() >= cache_slots) {
+                         per_layer.front().free();
+                         per_layer.erase(per_layer.begin());
+                     }
+-- 
+2.50.1 (Apple Git-155)
+
+

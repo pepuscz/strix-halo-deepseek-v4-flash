@@ -18,7 +18,7 @@ measured on the same 128 GiB Ryzen AI Max+ 395 host with thinking disabled.
 | System | 2K generation | 122,879-token input | 122,879-token generation | Quality |
 |---|---:|---:|---:|---:|
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 40.79 tok/s | 215.96 tok/s | 32.60 tok/s | 30/30 |
-| **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 30/30 |
+| **Lucebox ROCm ROCmFPX** | 30.60 tok/s | 133.74 tok/s | 16.20 tok/s | 30/30 |
 
 The default leads generation and long-prompt input processing while both
 systems pass the same quality gate and recover all five retrieval keys.
@@ -37,8 +37,8 @@ the fixed generation workload; all longer rows use cold five-key retrieval.
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | Retrieval | 262,144 | 212,992 | 193.56 tok/s | 28.59 tok/s |
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | Retrieval | 262,144 | 245,760 | 185.88 tok/s | 27.21 tok/s |
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | Retrieval | 524,288 | 491,520 | 145.81 tok/s | 20.01 tok/s |
-| **Lucebox ROCm ROCmFPX** | Generation | 131,072 | 2,048 | 250.99 tok/s | 29.10 tok/s |
-| **Lucebox ROCm ROCmFPX** | Retrieval | 131,072 | 122,879 | 131.19 tok/s | 16.40 tok/s |
+| **Lucebox ROCm ROCmFPX** | Generation | 131,072 | 2,048 | 247.29 tok/s | 30.60 tok/s |
+| **Lucebox ROCm ROCmFPX** | Retrieval | 131,072 | 122,879 | 133.74 tok/s | 16.20 tok/s |
 
 Every retrieval row recovered 5/5 keys byte-for-byte.
 
