@@ -145,12 +145,12 @@ def render(data: dict) -> str:
     axis_y = 610.0
     lines.append(f'  <line class="axis" x1="{x0:g}" y1="{axis_y:g}" x2="{main_x1:g}" y2="{axis_y:g}"/>')
     lines.append(f'  <line class="axis" x1="{outlier_x0:g}" y1="{axis_y:g}" x2="{outlier_x1:g}" y2="{axis_y:g}"/>')
-    ticks = [0, 32768, 65536, 131072, 196608, 262144]
-    labels = ["0", "32K", "64K", "128K", "192K", "256K"]
-    for index, (value, label) in enumerate(zip(ticks, labels)):
+    ticks = [7680, 15359, 30720, 59933, 122879, 163840, 245760]
+    labels = ["8K", "15K", "31K", "60K", "123K", "164K", "246K"]
+    anchors = ["end", "start", "middle", "middle", "middle", "middle", "middle"]
+    for value, label, anchor in zip(ticks, labels, anchors):
         xx = x(value)
         lines.append(f'  <line class="axis" x1="{xx:.2f}" y1="610" x2="{xx:.2f}" y2="617"/>')
-        anchor = "start" if index == 0 else "end" if index == len(ticks) - 1 else "middle"
         lines.append(f'  <text class="tick" x="{xx:.2f}" y="631" text-anchor="{anchor}">{label}</text>')
     lines.append(f'  <line class="axis" x1="{outlier_x:g}" y1="610" x2="{outlier_x:g}" y2="617"/>')
     lines.append(f'  <text class="tick" x="{outlier_x:g}" y="631" text-anchor="middle">492K</text>')

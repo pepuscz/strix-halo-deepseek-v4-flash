@@ -108,18 +108,20 @@
   <text class="value" x="407.09" y="532.80" text-anchor="start">16.20</text>
   <line class="axis" x1="92" y1="610" x2="745" y2="610"/>
   <line class="axis" x1="765" y1="610" x2="850" y2="610"/>
-  <line class="axis" x1="92.00" y1="610" x2="92.00" y2="617"/>
-  <text class="tick" x="92.00" y="631" text-anchor="start">0</text>
-  <line class="axis" x1="173.62" y1="610" x2="173.62" y2="617"/>
-  <text class="tick" x="173.62" y="631" text-anchor="middle">32K</text>
-  <line class="axis" x1="255.25" y1="610" x2="255.25" y2="617"/>
-  <text class="tick" x="255.25" y="631" text-anchor="middle">64K</text>
-  <line class="axis" x1="418.50" y1="610" x2="418.50" y2="617"/>
-  <text class="tick" x="418.50" y="631" text-anchor="middle">128K</text>
-  <line class="axis" x1="581.75" y1="610" x2="581.75" y2="617"/>
-  <text class="tick" x="581.75" y="631" text-anchor="middle">192K</text>
-  <line class="axis" x1="745.00" y1="610" x2="745.00" y2="617"/>
-  <text class="tick" x="745.00" y="631" text-anchor="end">256K</text>
+  <line class="axis" x1="111.13" y1="610" x2="111.13" y2="617"/>
+  <text class="tick" x="111.13" y="631" text-anchor="end">8K</text>
+  <line class="axis" x1="130.26" y1="610" x2="130.26" y2="617"/>
+  <text class="tick" x="130.26" y="631" text-anchor="start">15K</text>
+  <line class="axis" x1="168.52" y1="610" x2="168.52" y2="617"/>
+  <text class="tick" x="168.52" y="631" text-anchor="middle">31K</text>
+  <line class="axis" x1="241.29" y1="610" x2="241.29" y2="617"/>
+  <text class="tick" x="241.29" y="631" text-anchor="middle">60K</text>
+  <line class="axis" x1="398.09" y1="610" x2="398.09" y2="617"/>
+  <text class="tick" x="398.09" y="631" text-anchor="middle">123K</text>
+  <line class="axis" x1="500.12" y1="610" x2="500.12" y2="617"/>
+  <text class="tick" x="500.12" y="631" text-anchor="middle">164K</text>
+  <line class="axis" x1="704.19" y1="610" x2="704.19" y2="617"/>
+  <text class="tick" x="704.19" y="631" text-anchor="middle">246K</text>
   <line class="axis" x1="807.5" y1="610" x2="807.5" y2="617"/>
   <text class="tick" x="807.5" y="631" text-anchor="middle">492K</text>
   <text class="axis-title" x="471" y="660" text-anchor="middle">Prompt length (tokens)</text>
