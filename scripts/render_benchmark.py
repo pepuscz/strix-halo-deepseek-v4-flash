@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import html
 import json
-import math
 from pathlib import Path
 
 
@@ -30,23 +29,23 @@ def render(data: dict) -> str:
         ("default", default["name"], system_points(default)),
         ("reference", reference["name"], system_points(reference)),
     ]
-    x0, x1 = 92.0, 850.0
-    x_min = default["context_scaling"][0]["actual_input_tokens"]
-    x_max = default["context_scaling"][-1]["actual_input_tokens"]
+    x0, main_x1 = 92.0, 730.0
+    outlier_x0, outlier_x, outlier_x1 = 790.0, 820.0, 850.0
+    main_max = 262144
 
     def x(value: int) -> float:
-        return x0 + (math.log(value) - math.log(x_min)) / (
-            math.log(x_max) - math.log(x_min)
-        ) * (x1 - x0)
+        if value <= main_max:
+            return x0 + value / main_max * (main_x1 - x0)
+        return outlier_x
 
     panels = [
-        ("Input processing", "prefill_tokens_per_second", 110.0, 170.0, 280.0),
-        ("Generation", "decode_tokens_per_second", 350.0, 170.0, 45.0),
+        ("Input processing", "prefill_tokens_per_second", 145.0, 170.0, 280.0),
+        ("Generation", "decode_tokens_per_second", 420.0, 170.0, 45.0),
     ]
     lines = [
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 620" role="img" aria-labelledby="title description">',
-        '  <title id="title">Cold-retrieval throughput from 2K to 492K prompts</title>',
-        '  <desc id="description">Input-processing and generation throughput for the qualified Strix Halo llama.cpp Vulkan IQ3_XXS configuration using the same cold five-key retrieval workload at eleven measured prompt lengths from 2,040 through 491,520 tokens, with the available Lucebox ROCm ROCmFPX retrieval reference.</desc>',
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 710" role="img" aria-labelledby="title description">',
+        '  <title id="title">Cold-retrieval throughput by prompt length</title>',
+        '  <desc id="description">Input-processing and generation throughput for the qualified Strix Halo llama.cpp Vulkan IQ3_XXS configuration using the same cold five-key retrieval workload at eleven measured prompt lengths. The main horizontal segment is linear from zero through 262,144 tokens; the 491,520-token measurement is isolated after an explicit axis break. The available Lucebox ROCm ROCmFPX retrieval reference is shown at 122,879 tokens.</desc>',
         "  <style>",
         "    .background { fill: #ffffff; }",
         "    .frame { fill: none; stroke: #d0d7de; stroke-width: 1; }",
@@ -55,6 +54,7 @@ def render(data: dict) -> str:
         "    .default-line { fill: none; stroke: #0969da; stroke-width: 3; }",
         "    .default-mark { fill: #0969da; }",
         "    .reference-mark { fill: #bf3989; }",
+        "    .leader { stroke: #8c959f; stroke-width: 0.75; }",
         '    text { fill: #24292f; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }',
         "    .chart-title { font-size: 22px; font-weight: 600; }",
         "    .legend { font-size: 12px; font-weight: 500; }",
@@ -70,8 +70,8 @@ def render(data: dict) -> str:
         "      text { fill: #e6edf3; } .note { fill: #8b949e; }",
         "    }",
         "  </style>",
-        '  <rect class="background" width="940" height="620"/>',
-        '  <text class="chart-title" x="470" y="30" text-anchor="middle">Cold-retrieval throughput from 2K to 492K prompts</text>',
+        '  <rect class="background" width="940" height="710"/>',
+        '  <text class="chart-title" x="470" y="30" text-anchor="middle">Cold-retrieval throughput by prompt length</text>',
         '  <line class="default-line" x1="92" y1="55" x2="120" y2="55"/>',
         '  <circle class="default-mark" cx="106" cy="55" r="4"/>',
         f'  <text class="legend" x="130" y="59">{esc(default["name"])}</text>',
@@ -83,14 +83,20 @@ def render(data: dict) -> str:
         bottom = top + height
         lines.extend(
             [
-                f'  <text class="panel-title" x="92" y="{top - 12:g}">{title} (tok/s)</text>',
-                f'  <rect class="frame" x="{x0:g}" y="{top:g}" width="{x1 - x0:g}" height="{height:g}"/>',
+                f'  <text class="panel-title" x="92" y="{top - 55:g}">{title} (tok/s)</text>',
+                f'  <rect class="frame" x="{x0:g}" y="{top:g}" width="{main_x1 - x0:g}" height="{height:g}"/>',
+                f'  <rect class="frame" x="{outlier_x0:g}" y="{top:g}" width="{outlier_x1 - outlier_x0:g}" height="{height:g}"/>',
             ]
         )
+        if key == "prefill_tokens_per_second":
+            lines.append(
+                f'  <text class="note" x="{outlier_x:g}" y="{top - 10:g}" text-anchor="middle">512K allocation</text>'
+            )
         for fraction in (0.0, 0.5, 1.0):
             value = maximum * (1.0 - fraction)
             yy = top + height * fraction
-            lines.append(f'  <line class="grid" x1="{x0:g}" y1="{yy:.2f}" x2="{x1:g}" y2="{yy:.2f}"/>')
+            lines.append(f'  <line class="grid" x1="{x0:g}" y1="{yy:.2f}" x2="{main_x1:g}" y2="{yy:.2f}"/>')
+            lines.append(f'  <line class="grid" x1="{outlier_x0:g}" y1="{yy:.2f}" x2="{outlier_x1:g}" y2="{yy:.2f}"/>')
             lines.append(f'  <text class="tick" x="80" y="{yy + 4:.2f}" text-anchor="end">{value:g}</text>')
 
         def y(value: float) -> float:
@@ -99,46 +105,60 @@ def render(data: dict) -> str:
         for kind, _name, points in series:
             coords = [(x(p["actual_input_tokens"]), y(p[key])) for p in points]
             if kind == "default":
+                main_coords = [
+                    coord
+                    for coord, point in zip(coords, points)
+                    if point["actual_input_tokens"] <= main_max
+                ]
                 path = " ".join(
                     ("M" if index == 0 else "L") + f"{xx:.2f} {yy:.2f}"
-                    for index, (xx, yy) in enumerate(coords)
+                    for index, (xx, yy) in enumerate(main_coords)
                 )
                 lines.append(f'  <path class="default-line" d="{path}"/>')
             for index, ((xx, yy), point) in enumerate(zip(coords, points)):
                 value = point[key]
                 if kind == "default":
                     lines.append(f'  <circle class="default-mark" cx="{xx:.2f}" cy="{yy:.2f}" r="4.5"/>')
-                    anchor = "start" if index < len(points) - 1 else "end"
-                    dx = 7 if anchor == "start" else -7
-                    label_y = yy - 8 if index % 2 == 0 else yy + 18
-                    if label_y < top + 12:
-                        label_y = yy + 18
-                    lines.append(
-                        f'  <text class="value" x="{xx + dx:.2f}" y="{label_y:.2f}" text-anchor="{anchor}">{value:.2f}</text>'
-                    )
+                    if index < 5:
+                        label_x = 96 + index * 28
+                        label_y = top - 30 if index % 2 == 0 else top - 10
+                        lines.append(
+                            f'  <line class="leader" x1="{xx:.2f}" y1="{yy - 5:.2f}" x2="{label_x:.2f}" y2="{label_y + 4:.2f}"/>'
+                        )
+                        lines.append(
+                            f'  <text class="value" x="{label_x:.2f}" y="{label_y:.2f}" text-anchor="middle">{value:.2f}</text>'
+                        )
+                    else:
+                        anchor = "start" if index < len(points) - 1 else "end"
+                        dx = 7 if anchor == "start" else -7
+                        label_y = yy - 8 if index % 2 == 0 else yy + 18
+                        lines.append(
+                            f'  <text class="value" x="{xx + dx:.2f}" y="{label_y:.2f}" text-anchor="{anchor}">{value:.2f}</text>'
+                        )
                 else:
                     lines.append(f'  <rect class="reference-mark" x="{xx - 5:.2f}" y="{yy - 5:.2f}" width="10" height="10"/>')
                     lines.append(
                         f'  <text class="value" x="{xx + 9:.2f}" y="{yy + 4:.2f}" text-anchor="start">{value:.2f}</text>'
                     )
 
-    axis_y = 530.0
-    lines.append(f'  <line class="axis" x1="{x0:g}" y1="{axis_y:g}" x2="{x1:g}" y2="{axis_y:g}"/>')
-    ticks = [point["actual_input_tokens"] for point in default["context_scaling"]]
-    labels = [
-        "2.04K", "3.84K", "7.68K", "15.4K", "30.7K", "59.9K",
-        "122.9K", "163.8K", "213K", "245.8K", "491.5K",
-    ]
+    axis_y = 610.0
+    lines.append(f'  <line class="axis" x1="{x0:g}" y1="{axis_y:g}" x2="{main_x1:g}" y2="{axis_y:g}"/>')
+    lines.append(f'  <line class="axis" x1="{outlier_x0:g}" y1="{axis_y:g}" x2="{outlier_x1:g}" y2="{axis_y:g}"/>')
+    lines.append('  <line class="axis" x1="749" y1="603" x2="757" y2="617"/>')
+    lines.append('  <line class="axis" x1="763" y1="603" x2="771" y2="617"/>')
+    ticks = [0, 32768, 65536, 131072, 196608, 262144]
+    labels = ["0", "32K", "64K", "128K", "192K", "256K"]
     for index, (value, label) in enumerate(zip(ticks, labels)):
         xx = x(value)
-        label_y = 551 if index % 2 == 0 else 568
-        lines.append(f'  <line class="axis" x1="{xx:.2f}" y1="530" x2="{xx:.2f}" y2="537"/>')
+        lines.append(f'  <line class="axis" x1="{xx:.2f}" y1="610" x2="{xx:.2f}" y2="617"/>')
         anchor = "start" if index == 0 else "end" if index == len(ticks) - 1 else "middle"
-        lines.append(f'  <text class="tick" x="{xx:.2f}" y="{label_y}" text-anchor="{anchor}">{label}</text>')
+        lines.append(f'  <text class="tick" x="{xx:.2f}" y="631" text-anchor="{anchor}">{label}</text>')
+    lines.append(f'  <line class="axis" x1="{outlier_x:g}" y1="610" x2="{outlier_x:g}" y2="617"/>')
+    lines.append(f'  <text class="tick" x="{outlier_x:g}" y="631" text-anchor="middle">492K</text>')
     lines.extend(
         [
-            '  <text class="axis-title" x="471" y="592" text-anchor="middle">Exact prompt length (tokens, logarithmic scale)</text>',
-            '  <text class="note" x="471" y="611" text-anchor="middle">All points use cold five-key retrieval. Allocations: 128K through 122.9K; 256K through 245.8K; 512K at 491.5K.</text>',
+            '  <text class="axis-title" x="471" y="660" text-anchor="middle">Prompt length (tokens)</text>',
+            '  <text class="note" x="471" y="689" text-anchor="middle">Cold five-key retrieval. Main segment is linear through 256K; the 491.5K point is isolated after the axis break.</text>',
             "</svg>",
             "",
         ]

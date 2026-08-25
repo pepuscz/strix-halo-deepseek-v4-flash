@@ -39,7 +39,7 @@ default retained its 30/30 quality result. At the shared 122,879-token point,
 Strix Halo llama.cpp Vulkan IQ3_XXS delivers 1.61× Lucebox ROCm ROCmFPX
 input-processing throughput and 2.01× its generation throughput.
 
-![Cold-retrieval input-processing and generation throughput from 2,040 through 491,520 prompt tokens for Strix Halo llama.cpp Vulkan IQ3_XXS, with the available Lucebox ROCm ROCmFPX retrieval reference](docs/benchmark.svg)
+![Cold-retrieval input-processing and generation throughput for Strix Halo llama.cpp Vulkan IQ3_XXS on a linear prompt-length axis through 256K, with the 491,520-token measurement isolated after an explicit axis break and the available Lucebox ROCm ROCmFPX retrieval reference](docs/benchmark.svg)
 
 See [BENCHMARKS.md](docs/BENCHMARKS.md) for the complete results, protocols,
 and reproducibility data.
