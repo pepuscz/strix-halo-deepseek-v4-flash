@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 620" role="img" aria-labelledby="title description">
-  <title id="title">Qualified throughput from 2K to 512K context</title>
-  <desc id="description">Input-processing and generation throughput for the qualified Strix Halo llama.cpp Vulkan IQ3_XXS configuration at every measured prompt length from 2,040 through 491,520 tokens, with available Lucebox ROCm ROCmFPX reference points.</desc>
+  <title id="title">Cold-retrieval throughput from 2K to 492K prompts</title>
+  <desc id="description">Input-processing and generation throughput for the qualified Strix Halo llama.cpp Vulkan IQ3_XXS configuration using the same cold five-key retrieval workload at eleven measured prompt lengths from 2,040 through 491,520 tokens, with the available Lucebox ROCm ROCmFPX retrieval reference.</desc>
   <style>
     .background { fill: #ffffff; }
     .frame { fill: none; stroke: #d0d7de; stroke-width: 1; }
@@ -25,7 +25,7 @@
     }
   </style>
   <rect class="background" width="940" height="620"/>
-  <text class="chart-title" x="470" y="30" text-anchor="middle">Qualified throughput from 2K to 512K context</text>
+  <text class="chart-title" x="470" y="30" text-anchor="middle">Cold-retrieval throughput from 2K to 492K prompts</text>
   <line class="default-line" x1="92" y1="55" x2="120" y2="55"/>
   <circle class="default-mark" cx="106" cy="55" r="4"/>
   <text class="legend" x="130" y="59">Strix Halo llama.cpp Vulkan IQ3_XXS</text>
@@ -34,28 +34,30 @@
   <text class="panel-title" x="92" y="98">Input processing (tok/s)</text>
   <rect class="frame" x="92" y="110" width="758" height="170"/>
   <line class="grid" x1="92" y1="110.00" x2="850" y2="110.00"/>
-  <text class="tick" x="80" y="114.00" text-anchor="end">260</text>
+  <text class="tick" x="80" y="114.00" text-anchor="end">280</text>
   <line class="grid" x1="92" y1="195.00" x2="850" y2="195.00"/>
-  <text class="tick" x="80" y="199.00" text-anchor="end">130</text>
+  <text class="tick" x="80" y="199.00" text-anchor="end">140</text>
   <line class="grid" x1="92" y1="280.00" x2="850" y2="280.00"/>
   <text class="tick" x="80" y="284.00" text-anchor="end">0</text>
-  <path class="default-line" d="M92.00 259.03 L559.18 126.35 L658.40 138.80 L698.16 144.70 L734.43 153.44 L754.20 158.46 L850.00 184.66"/>
-  <circle class="default-mark" cx="92.00" cy="259.03" r="4.5"/>
-  <text class="value" x="99.00" y="251.03" text-anchor="start">32.07</text>
-  <circle class="default-mark" cx="559.18" cy="126.35" r="4.5"/>
-  <text class="value" x="566.18" y="144.35" text-anchor="start">235.00</text>
-  <circle class="default-mark" cx="658.40" cy="138.80" r="4.5"/>
-  <text class="value" x="665.40" y="130.80" text-anchor="start">215.96</text>
-  <circle class="default-mark" cx="698.16" cy="144.70" r="4.5"/>
-  <text class="value" x="705.16" y="162.70" text-anchor="start">206.92</text>
-  <circle class="default-mark" cx="734.43" cy="153.44" r="4.5"/>
-  <text class="value" x="741.43" y="145.44" text-anchor="start">193.56</text>
-  <circle class="default-mark" cx="754.20" cy="158.46" r="4.5"/>
-  <text class="value" x="761.20" y="176.46" text-anchor="start">185.88</text>
-  <circle class="default-mark" cx="850.00" cy="184.66" r="4.5"/>
-  <text class="value" x="843.00" y="176.66" text-anchor="end">145.81</text>
-  <rect class="reference-mark" x="87.54" y="113.31" width="10" height="10"/>
-  <rect class="reference-mark" x="653.40" y="187.55" width="10" height="10"/>
+  <path class="default-line" d="M92.00 130.60 L179.42 122.83 L275.22 126.57 L371.00 127.91 L466.81 131.28 L559.18 137.32 L658.40 148.88 L698.16 154.37 L734.43 162.48 L754.20 167.15 L850.00 191.47"/>
+  <circle class="default-mark" cx="92.00" cy="130.60" r="4.5"/>
+  <text class="value" x="99.00" y="122.60" text-anchor="start">246.07</text>
+  <circle class="default-mark" cx="179.42" cy="122.83" r="4.5"/>
+  <circle class="default-mark" cx="275.22" cy="126.57" r="4.5"/>
+  <circle class="default-mark" cx="371.00" cy="127.91" r="4.5"/>
+  <circle class="default-mark" cx="466.81" cy="131.28" r="4.5"/>
+  <circle class="default-mark" cx="559.18" cy="137.32" r="4.5"/>
+  <text class="value" x="566.18" y="155.32" text-anchor="start">235.00</text>
+  <circle class="default-mark" cx="658.40" cy="148.88" r="4.5"/>
+  <text class="value" x="665.40" y="140.88" text-anchor="start">215.96</text>
+  <circle class="default-mark" cx="698.16" cy="154.37" r="4.5"/>
+  <text class="value" x="705.16" y="172.37" text-anchor="start">206.92</text>
+  <circle class="default-mark" cx="734.43" cy="162.48" r="4.5"/>
+  <circle class="default-mark" cx="754.20" cy="167.15" r="4.5"/>
+  <text class="value" x="761.20" y="185.15" text-anchor="start">185.88</text>
+  <circle class="default-mark" cx="850.00" cy="191.47" r="4.5"/>
+  <text class="value" x="843.00" y="183.47" text-anchor="end">145.81</text>
+  <rect class="reference-mark" x="653.40" y="193.80" width="10" height="10"/>
   <text class="panel-title" x="92" y="338">Generation (tok/s)</text>
   <rect class="frame" x="92" y="350" width="758" height="170"/>
   <line class="grid" x1="92" y1="350.00" x2="850" y2="350.00"/>
@@ -64,9 +66,13 @@
   <text class="tick" x="80" y="439.00" text-anchor="end">22.5</text>
   <line class="grid" x1="92" y1="520.00" x2="850" y2="520.00"/>
   <text class="tick" x="80" y="524.00" text-anchor="end">0</text>
-  <path class="default-line" d="M92.00 365.90 L559.18 382.18 L658.40 396.85 L698.16 404.90 L734.43 412.00 L754.20 417.19 L850.00 444.41"/>
-  <circle class="default-mark" cx="92.00" cy="365.90" r="4.5"/>
-  <text class="value" x="99.00" y="383.90" text-anchor="start">40.79</text>
+  <path class="default-line" d="M92.00 370.60 L179.42 373.61 L275.22 379.12 L371.00 369.32 L466.81 374.90 L559.18 382.18 L658.40 396.85 L698.16 404.90 L734.43 412.00 L754.20 417.19 L850.00 444.41"/>
+  <circle class="default-mark" cx="92.00" cy="370.60" r="4.5"/>
+  <text class="value" x="99.00" y="362.60" text-anchor="start">39.55</text>
+  <circle class="default-mark" cx="179.42" cy="373.61" r="4.5"/>
+  <circle class="default-mark" cx="275.22" cy="379.12" r="4.5"/>
+  <circle class="default-mark" cx="371.00" cy="369.32" r="4.5"/>
+  <circle class="default-mark" cx="466.81" cy="374.90" r="4.5"/>
   <circle class="default-mark" cx="559.18" cy="382.18" r="4.5"/>
   <text class="value" x="566.18" y="400.18" text-anchor="start">36.48</text>
   <circle class="default-mark" cx="658.40" cy="396.85" r="4.5"/>
@@ -74,28 +80,34 @@
   <circle class="default-mark" cx="698.16" cy="404.90" r="4.5"/>
   <text class="value" x="705.16" y="422.90" text-anchor="start">30.47</text>
   <circle class="default-mark" cx="734.43" cy="412.00" r="4.5"/>
-  <text class="value" x="741.43" y="404.00" text-anchor="start">28.59</text>
   <circle class="default-mark" cx="754.20" cy="417.19" r="4.5"/>
   <text class="value" x="761.20" y="435.19" text-anchor="start">27.21</text>
   <circle class="default-mark" cx="850.00" cy="444.41" r="4.5"/>
   <text class="value" x="843.00" y="436.41" text-anchor="end">20.01</text>
-  <rect class="reference-mark" x="87.54" y="399.40" width="10" height="10"/>
   <rect class="reference-mark" x="653.40" y="453.80" width="10" height="10"/>
   <line class="axis" x1="92" y1="530" x2="850" y2="530"/>
   <line class="axis" x1="92.00" y1="530" x2="92.00" y2="537"/>
-  <text class="tick" x="92.00" y="551" text-anchor="middle">2K</text>
+  <text class="tick" x="92.00" y="551" text-anchor="start">2.04K</text>
+  <line class="axis" x1="179.42" y1="530" x2="179.42" y2="537"/>
+  <text class="tick" x="179.42" y="568" text-anchor="middle">3.84K</text>
+  <line class="axis" x1="275.22" y1="530" x2="275.22" y2="537"/>
+  <text class="tick" x="275.22" y="551" text-anchor="middle">7.68K</text>
+  <line class="axis" x1="371.00" y1="530" x2="371.00" y2="537"/>
+  <text class="tick" x="371.00" y="568" text-anchor="middle">15.4K</text>
+  <line class="axis" x1="466.81" y1="530" x2="466.81" y2="537"/>
+  <text class="tick" x="466.81" y="551" text-anchor="middle">30.7K</text>
   <line class="axis" x1="559.18" y1="530" x2="559.18" y2="537"/>
-  <text class="tick" x="559.18" y="568" text-anchor="middle">60K</text>
+  <text class="tick" x="559.18" y="568" text-anchor="middle">59.9K</text>
   <line class="axis" x1="658.40" y1="530" x2="658.40" y2="537"/>
-  <text class="tick" x="658.40" y="551" text-anchor="middle">123K</text>
+  <text class="tick" x="658.40" y="551" text-anchor="middle">122.9K</text>
   <line class="axis" x1="698.16" y1="530" x2="698.16" y2="537"/>
-  <text class="tick" x="698.16" y="568" text-anchor="middle">164K</text>
+  <text class="tick" x="698.16" y="568" text-anchor="middle">163.8K</text>
   <line class="axis" x1="734.43" y1="530" x2="734.43" y2="537"/>
   <text class="tick" x="734.43" y="551" text-anchor="middle">213K</text>
   <line class="axis" x1="754.20" y1="530" x2="754.20" y2="537"/>
-  <text class="tick" x="754.20" y="568" text-anchor="middle">246K</text>
+  <text class="tick" x="754.20" y="568" text-anchor="middle">245.8K</text>
   <line class="axis" x1="850.00" y1="530" x2="850.00" y2="537"/>
-  <text class="tick" x="850.00" y="551" text-anchor="middle">492K</text>
+  <text class="tick" x="850.00" y="551" text-anchor="end">491.5K</text>
   <text class="axis-title" x="471" y="592" text-anchor="middle">Exact prompt length (tokens, logarithmic scale)</text>
-  <text class="note" x="471" y="611" text-anchor="middle">2K uses the fixed generation workload; 60K–492K use cold five-key retrieval. Thinking is disabled.</text>
+  <text class="note" x="471" y="611" text-anchor="middle">All points use cold five-key retrieval. Allocations: 128K through 122.9K; 256K through 245.8K; 512K at 491.5K.</text>
 </svg>

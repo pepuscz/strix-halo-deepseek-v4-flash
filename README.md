@@ -29,9 +29,8 @@ changes are listed in [ARCHITECTURE.md](docs/ARCHITECTURE.md#lucebox-source-modi
 | System | 2K-prompt generation | 122,879-token input processing | 122,879-token generation | Quality |
 |---|---:|---:|---:|---:|
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 40.79 tok/s | 215.96 tok/s | 32.60 tok/s | 30/30 |
-| **Lucebox ROCm ROCmFPX** | 30.60 tok/s | 133.74 tok/s | 16.20 tok/s | 30/30 |
 
-![Qualified input-processing and generation throughput from 2K through 512K context for Strix Halo llama.cpp Vulkan IQ3_XXS, with available Lucebox ROCm ROCmFPX reference points](docs/benchmark.svg)
+![Cold-retrieval input-processing and generation throughput from 2,040 through 491,520 prompt tokens for Strix Halo llama.cpp Vulkan IQ3_XXS, with the available Lucebox ROCm ROCmFPX retrieval reference](docs/benchmark.svg)
 
 See [BENCHMARKS.md](docs/BENCHMARKS.md) for the complete results, protocols,
 and reproducibility data.
