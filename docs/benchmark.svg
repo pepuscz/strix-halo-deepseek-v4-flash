@@ -43,9 +43,13 @@
   <circle class="default-mark" cx="92.00" cy="130.60" r="4.5"/>
   <text class="value" x="99.00" y="122.60" text-anchor="start">246.07</text>
   <circle class="default-mark" cx="179.42" cy="122.83" r="4.5"/>
+  <text class="value" x="186.42" y="140.83" text-anchor="start">258.87</text>
   <circle class="default-mark" cx="275.22" cy="126.57" r="4.5"/>
+  <text class="value" x="282.22" y="144.57" text-anchor="start">252.71</text>
   <circle class="default-mark" cx="371.00" cy="127.91" r="4.5"/>
+  <text class="value" x="378.00" y="145.91" text-anchor="start">250.50</text>
   <circle class="default-mark" cx="466.81" cy="131.28" r="4.5"/>
+  <text class="value" x="473.81" y="123.28" text-anchor="start">244.95</text>
   <circle class="default-mark" cx="559.18" cy="137.32" r="4.5"/>
   <text class="value" x="566.18" y="155.32" text-anchor="start">235.00</text>
   <circle class="default-mark" cx="658.40" cy="148.88" r="4.5"/>
@@ -53,11 +57,13 @@
   <circle class="default-mark" cx="698.16" cy="154.37" r="4.5"/>
   <text class="value" x="705.16" y="172.37" text-anchor="start">206.92</text>
   <circle class="default-mark" cx="734.43" cy="162.48" r="4.5"/>
+  <text class="value" x="741.43" y="154.48" text-anchor="start">193.56</text>
   <circle class="default-mark" cx="754.20" cy="167.15" r="4.5"/>
   <text class="value" x="761.20" y="185.15" text-anchor="start">185.88</text>
   <circle class="default-mark" cx="850.00" cy="191.47" r="4.5"/>
   <text class="value" x="843.00" y="183.47" text-anchor="end">145.81</text>
   <rect class="reference-mark" x="653.40" y="193.80" width="10" height="10"/>
+  <text class="value" x="667.40" y="202.80" text-anchor="start">133.74</text>
   <text class="panel-title" x="92" y="338">Generation (tok/s)</text>
   <rect class="frame" x="92" y="350" width="758" height="170"/>
   <line class="grid" x1="92" y1="350.00" x2="850" y2="350.00"/>
@@ -70,9 +76,13 @@
   <circle class="default-mark" cx="92.00" cy="370.60" r="4.5"/>
   <text class="value" x="99.00" y="362.60" text-anchor="start">39.55</text>
   <circle class="default-mark" cx="179.42" cy="373.61" r="4.5"/>
+  <text class="value" x="186.42" y="391.61" text-anchor="start">38.75</text>
   <circle class="default-mark" cx="275.22" cy="379.12" r="4.5"/>
+  <text class="value" x="282.22" y="371.12" text-anchor="start">37.29</text>
   <circle class="default-mark" cx="371.00" cy="369.32" r="4.5"/>
+  <text class="value" x="378.00" y="387.32" text-anchor="start">39.89</text>
   <circle class="default-mark" cx="466.81" cy="374.90" r="4.5"/>
+  <text class="value" x="473.81" y="366.90" text-anchor="start">38.41</text>
   <circle class="default-mark" cx="559.18" cy="382.18" r="4.5"/>
   <text class="value" x="566.18" y="400.18" text-anchor="start">36.48</text>
   <circle class="default-mark" cx="658.40" cy="396.85" r="4.5"/>
@@ -80,11 +90,13 @@
   <circle class="default-mark" cx="698.16" cy="404.90" r="4.5"/>
   <text class="value" x="705.16" y="422.90" text-anchor="start">30.47</text>
   <circle class="default-mark" cx="734.43" cy="412.00" r="4.5"/>
+  <text class="value" x="741.43" y="404.00" text-anchor="start">28.59</text>
   <circle class="default-mark" cx="754.20" cy="417.19" r="4.5"/>
   <text class="value" x="761.20" y="435.19" text-anchor="start">27.21</text>
   <circle class="default-mark" cx="850.00" cy="444.41" r="4.5"/>
   <text class="value" x="843.00" y="436.41" text-anchor="end">20.01</text>
   <rect class="reference-mark" x="653.40" y="453.80" width="10" height="10"/>
+  <text class="value" x="667.40" y="462.80" text-anchor="start">16.20</text>
   <line class="axis" x1="92" y1="530" x2="850" y2="530"/>
   <line class="axis" x1="92.00" y1="530" x2="92.00" y2="537"/>
   <text class="tick" x="92.00" y="551" text-anchor="start">2.04K</text>

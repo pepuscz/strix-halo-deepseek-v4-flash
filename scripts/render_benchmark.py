@@ -108,18 +108,19 @@ def render(data: dict) -> str:
                 value = point[key]
                 if kind == "default":
                     lines.append(f'  <circle class="default-mark" cx="{xx:.2f}" cy="{yy:.2f}" r="4.5"/>')
-                    label_indices = {0, 5, 6, 7, 9, len(points) - 1}
-                    if index in label_indices:
-                        anchor = "start" if index < len(points) - 1 else "end"
-                        dx = 7 if anchor == "start" else -7
-                        label_y = yy - 8 if index % 2 == 0 else yy + 18
-                        if label_y < top + 12:
-                            label_y = yy + 18
-                        lines.append(
-                            f'  <text class="value" x="{xx + dx:.2f}" y="{label_y:.2f}" text-anchor="{anchor}">{value:.2f}</text>'
-                        )
+                    anchor = "start" if index < len(points) - 1 else "end"
+                    dx = 7 if anchor == "start" else -7
+                    label_y = yy - 8 if index % 2 == 0 else yy + 18
+                    if label_y < top + 12:
+                        label_y = yy + 18
+                    lines.append(
+                        f'  <text class="value" x="{xx + dx:.2f}" y="{label_y:.2f}" text-anchor="{anchor}">{value:.2f}</text>'
+                    )
                 else:
                     lines.append(f'  <rect class="reference-mark" x="{xx - 5:.2f}" y="{yy - 5:.2f}" width="10" height="10"/>')
+                    lines.append(
+                        f'  <text class="value" x="{xx + 9:.2f}" y="{yy + 4:.2f}" text-anchor="start">{value:.2f}</text>'
+                    )
 
     axis_y = 530.0
     lines.append(f'  <line class="axis" x1="{x0:g}" y1="{axis_y:g}" x2="{x1:g}" y2="{axis_y:g}"/>')
