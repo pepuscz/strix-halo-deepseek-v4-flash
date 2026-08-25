@@ -29,8 +29,8 @@ def render(data: dict) -> str:
         ("default", default["name"], system_points(default)),
         ("reference", reference["name"], system_points(reference)),
     ]
-    x0, main_x1 = 92.0, 730.0
-    outlier_x0, outlier_x, outlier_x1 = 790.0, 820.0, 850.0
+    x0, main_x1 = 92.0, 745.0
+    outlier_x0, outlier_x, outlier_x1 = 765.0, 807.5, 850.0
     main_max = 262144
 
     def x(value: int) -> float:
@@ -54,7 +54,6 @@ def render(data: dict) -> str:
         "    .default-line { fill: none; stroke: #0969da; stroke-width: 3; }",
         "    .default-mark { fill: #0969da; }",
         "    .reference-mark { fill: #bf3989; }",
-        "    .leader { stroke: #8c959f; stroke-width: 0.75; }",
         '    text { fill: #24292f; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }',
         "    .chart-title { font-size: 22px; font-weight: 600; }",
         "    .legend { font-size: 12px; font-weight: 500; }",
@@ -120,13 +119,10 @@ def render(data: dict) -> str:
                 if kind == "default":
                     lines.append(f'  <circle class="default-mark" cx="{xx:.2f}" cy="{yy:.2f}" r="4.5"/>')
                     if index < 5:
-                        label_x = 96 + index * 28
-                        label_y = top - 30 if index % 2 == 0 else top - 10
+                        label_y = top + (-42, -25, -8, -42, -25)[index]
+                        anchor = "end" if index == 0 else "start" if index == 3 else "middle"
                         lines.append(
-                            f'  <line class="leader" x1="{xx:.2f}" y1="{yy - 5:.2f}" x2="{label_x:.2f}" y2="{label_y + 4:.2f}"/>'
-                        )
-                        lines.append(
-                            f'  <text class="value" x="{label_x:.2f}" y="{label_y:.2f}" text-anchor="middle">{value:.2f}</text>'
+                            f'  <text class="value" x="{xx:.2f}" y="{label_y:.2f}" text-anchor="{anchor}">{value:.2f}</text>'
                         )
                     else:
                         anchor = "start" if index < len(points) - 1 else "end"
@@ -144,8 +140,6 @@ def render(data: dict) -> str:
     axis_y = 610.0
     lines.append(f'  <line class="axis" x1="{x0:g}" y1="{axis_y:g}" x2="{main_x1:g}" y2="{axis_y:g}"/>')
     lines.append(f'  <line class="axis" x1="{outlier_x0:g}" y1="{axis_y:g}" x2="{outlier_x1:g}" y2="{axis_y:g}"/>')
-    lines.append('  <line class="axis" x1="749" y1="603" x2="757" y2="617"/>')
-    lines.append('  <line class="axis" x1="763" y1="603" x2="771" y2="617"/>')
     ticks = [0, 32768, 65536, 131072, 196608, 262144]
     labels = ["0", "32K", "64K", "128K", "192K", "256K"]
     for index, (value, label) in enumerate(zip(ticks, labels)):
