@@ -119,10 +119,15 @@ def render(data: dict) -> str:
                 if kind == "default":
                     lines.append(f'  <circle class="default-mark" cx="{xx:.2f}" cy="{yy:.2f}" r="4.5"/>')
                     if index < 5:
-                        label_y = top + (-42, -25, -8, -42, -25)[index]
-                        anchor = "end" if index == 0 else "start" if index == 3 else "middle"
+                        dx, dy, anchor = (
+                            (0, -12, "start"),
+                            (0, 24, "start"),
+                            (16, -28, "start"),
+                            (0, 42, "start"),
+                            (6, -10, "start"),
+                        )[index]
                         lines.append(
-                            f'  <text class="value" x="{xx:.2f}" y="{label_y:.2f}" text-anchor="{anchor}">{value:.2f}</text>'
+                            f'  <text class="value" x="{xx + dx:.2f}" y="{yy + dy:.2f}" text-anchor="{anchor}">{value:.2f}</text>'
                         )
                     else:
                         anchor = "start" if index < len(points) - 1 else "end"

@@ -46,15 +46,15 @@
   <text class="tick" x="80" y="319.00" text-anchor="end">0</text>
   <path class="default-line" d="M97.08 165.60 L101.57 157.83 L111.13 161.57 L130.26 162.91 L168.52 166.28 L241.29 172.32 L398.09 183.88 L500.12 189.37 L622.56 197.48 L704.19 202.15"/>
   <circle class="default-mark" cx="97.08" cy="165.60" r="4.5"/>
-  <text class="value" x="97.08" y="103.00" text-anchor="end">246.07</text>
+  <text class="value" x="97.08" y="153.60" text-anchor="start">246.07</text>
   <circle class="default-mark" cx="101.57" cy="157.83" r="4.5"/>
-  <text class="value" x="101.57" y="120.00" text-anchor="middle">258.87</text>
+  <text class="value" x="101.57" y="181.83" text-anchor="start">258.87</text>
   <circle class="default-mark" cx="111.13" cy="161.57" r="4.5"/>
-  <text class="value" x="111.13" y="137.00" text-anchor="middle">252.71</text>
+  <text class="value" x="127.13" y="133.57" text-anchor="start">252.71</text>
   <circle class="default-mark" cx="130.26" cy="162.91" r="4.5"/>
-  <text class="value" x="130.26" y="103.00" text-anchor="start">250.50</text>
+  <text class="value" x="130.26" y="204.91" text-anchor="start">250.50</text>
   <circle class="default-mark" cx="168.52" cy="166.28" r="4.5"/>
-  <text class="value" x="168.52" y="120.00" text-anchor="middle">244.95</text>
+  <text class="value" x="174.52" y="156.28" text-anchor="start">244.95</text>
   <circle class="default-mark" cx="241.29" cy="172.32" r="4.5"/>
   <text class="value" x="248.29" y="190.32" text-anchor="start">235.00</text>
   <circle class="default-mark" cx="398.09" cy="183.88" r="4.5"/>
@@ -83,15 +83,15 @@
   <text class="tick" x="80" y="594.00" text-anchor="end">0</text>
   <path class="default-line" d="M97.08 440.60 L101.57 443.61 L111.13 449.12 L130.26 439.32 L168.52 444.90 L241.29 452.18 L398.09 466.85 L500.12 474.90 L622.56 482.00 L704.19 487.19"/>
   <circle class="default-mark" cx="97.08" cy="440.60" r="4.5"/>
-  <text class="value" x="97.08" y="378.00" text-anchor="end">39.55</text>
+  <text class="value" x="97.08" y="428.60" text-anchor="start">39.55</text>
   <circle class="default-mark" cx="101.57" cy="443.61" r="4.5"/>
-  <text class="value" x="101.57" y="395.00" text-anchor="middle">38.75</text>
+  <text class="value" x="101.57" y="467.61" text-anchor="start">38.75</text>
   <circle class="default-mark" cx="111.13" cy="449.12" r="4.5"/>
-  <text class="value" x="111.13" y="412.00" text-anchor="middle">37.29</text>
+  <text class="value" x="127.13" y="421.12" text-anchor="start">37.29</text>
   <circle class="default-mark" cx="130.26" cy="439.32" r="4.5"/>
-  <text class="value" x="130.26" y="378.00" text-anchor="start">39.89</text>
+  <text class="value" x="130.26" y="481.32" text-anchor="start">39.89</text>
   <circle class="default-mark" cx="168.52" cy="444.90" r="4.5"/>
-  <text class="value" x="168.52" y="395.00" text-anchor="middle">38.41</text>
+  <text class="value" x="174.52" y="434.90" text-anchor="start">38.41</text>
   <circle class="default-mark" cx="241.29" cy="452.18" r="4.5"/>
   <text class="value" x="248.29" y="470.18" text-anchor="start">36.48</text>
   <circle class="default-mark" cx="398.09" cy="466.85" r="4.5"/>
