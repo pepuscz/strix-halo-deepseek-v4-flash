@@ -1,6 +1,6 @@
 {
-  "schema": 6,
-  "published_at": "2026-08-24",
+  "schema": 7,
+  "published_at": "2026-08-25",
   "default_system": "vulkan-iq3xxs",
   "hardware": {
     "system": "BOSGAME M5 / Sixunited AXB35-02",
@@ -62,7 +62,12 @@
     "context_scaling": {
       "definition": "cold deterministic five-key byte-exact retrieval at increasing prompt lengths",
       "requested_output_tokens": 256,
+      "temperature": 0,
+      "top_k": 1,
+      "top_p": 1,
       "thinking": false,
+      "runs_per_point": 1,
+      "cache": "cold",
       "needle_total": 5,
       "needle_depth_fractions": [0.02, 0.20, 0.50, 0.80, 0.98]
     }
@@ -112,12 +117,49 @@
       },
       "context_scaling": [
         {
-          "workload": "generation_2k",
+          "workload": "deep_retrieval",
           "allocation_tokens": 131072,
           "actual_input_tokens": 2040,
-          "prompt_sha256": "3ed38be9c93333e209a66ada0b10efbde517b06f9a6b6d727b0e216b0c890463",
-          "prefill_tokens_per_second": 32.06618460502477,
-          "decode_tokens_per_second": 40.79075074134585
+          "prompt_sha256": "43c4f2c4f02b5cd72255992888d11e76d31d3bcb15aeb8188b59cb97aab6ab2b",
+          "prefill_tokens_per_second": 246.0739741791201,
+          "decode_tokens_per_second": 39.5483676536404,
+          "needle_passes": 5
+        },
+        {
+          "workload": "deep_retrieval",
+          "allocation_tokens": 131072,
+          "actual_input_tokens": 3840,
+          "prompt_sha256": "0138aecad1e2535387f5279f59f6218520bb4bbe73d144e2953e303bd9afa5a0",
+          "prefill_tokens_per_second": 258.8744905683731,
+          "decode_tokens_per_second": 38.750201439539225,
+          "needle_passes": 5
+        },
+        {
+          "workload": "deep_retrieval",
+          "allocation_tokens": 131072,
+          "actual_input_tokens": 7680,
+          "prompt_sha256": "7e0dc9335f919a541ecfb424d57bc9b1ef5c3b990b8b600087a3fe7ffa16c3ed",
+          "prefill_tokens_per_second": 252.70627692777873,
+          "decode_tokens_per_second": 37.29210242960407,
+          "needle_passes": 5
+        },
+        {
+          "workload": "deep_retrieval",
+          "allocation_tokens": 131072,
+          "actual_input_tokens": 15359,
+          "prompt_sha256": "e8054cf1e41b9d503f4fec0bbdba3a40c864c23d7c782526d6def07a4844a386",
+          "prefill_tokens_per_second": 250.5007650393506,
+          "decode_tokens_per_second": 39.8860903907444,
+          "needle_passes": 5
+        },
+        {
+          "workload": "deep_retrieval",
+          "allocation_tokens": 131072,
+          "actual_input_tokens": 30720,
+          "prompt_sha256": "870891577591a004311ca66d539beafd9ba2af319c04e61b8c3dc1331a17b1a2",
+          "prefill_tokens_per_second": 244.94799934176606,
+          "decode_tokens_per_second": 38.40882598241242,
+          "needle_passes": 5
         },
         {
           "workload": "deep_retrieval",
@@ -216,29 +258,28 @@
       "kv": {"k": "q4_0", "v": "q4_0"},
       "deep_retrieval": {
         "needle_passes": 5,
-        "prefill_tokens_per_second": 131.18515887486888,
-        "decode_tokens_per_second": 16.4
+        "prefill_tokens_per_second": 133.7426769084554,
+        "decode_tokens_per_second": 16.2
       },
       "generation_2k": {
         "actual_input_tokens": 2048,
         "runs": 3,
-        "prefill_tokens_per_second_median": 250.99269572037844,
-        "generated_tokens_per_second_median": 29.1,
+        "prefill_tokens_per_second_median": 247.28923663937795,
+        "generated_tokens_per_second_median": 30.6,
         "acceptance_rate_median": 1.0
       },
       "quality": {"coding": 10, "gsm8k": 10, "math": 10, "total": 30},
-      "humaneval_plus": {"passed": 131, "total": 164, "request_errors": 0},
       "context_scaling": [
         {
           "allocation_tokens": 131072,
           "actual_input_tokens": 122879,
           "prompt_sha256": "f5d337a32fbf5e29f150974500a8d49cff172c2d03c125a243f6c990e1dbd7a3",
-          "prefill_tokens_per_second": 131.18515887486888,
-          "decode_tokens_per_second": 16.4,
+          "prefill_tokens_per_second": 133.7426769084554,
+          "decode_tokens_per_second": 16.2,
           "needle_passes": 5
         }
       ],
-      "tool_contract_passed": true
+      "tool_contract_passed": false
     }
   }
 }

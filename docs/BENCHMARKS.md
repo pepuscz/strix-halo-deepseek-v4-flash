@@ -10,7 +10,7 @@ measured on the same 128 GiB Ryzen AI Max+ 395 host with thinking disabled.
 - **2K generation:** input processing and generated-token throughput after a
   fixed synthetic prompt of approximately 2,000 tokens.
 - **Cold retrieval:** input processing, generation, and byte-exact recovery of
-  five keys placed across prompts from 59,933 through 491,520 tokens.
+  five keys placed across prompts from 2,040 through 491,520 tokens.
 - **Quality:** ten coding, ten GSM8K-style, and ten MATH-style tasks.
 
 ## Qualified comparison
@@ -18,27 +18,30 @@ measured on the same 128 GiB Ryzen AI Max+ 395 host with thinking disabled.
 | System | 2K generation | 122,879-token input | 122,879-token generation | Quality |
 |---|---:|---:|---:|---:|
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 40.79 tok/s | 215.96 tok/s | 32.60 tok/s | 30/30 |
-| **Lucebox ROCm ROCmFPX** | 29.10 tok/s | 131.19 tok/s | 16.40 tok/s | 30/30 |
+| **Lucebox ROCm ROCmFPX** | 30.60 tok/s | 133.74 tok/s | 16.20 tok/s | 30/30 |
 
 The default leads generation and long-prompt input processing while both
 systems pass the same quality gate and recover all five retrieval keys.
 
 ## Context scaling
 
-The table includes every published prompt-length measurement. The 2K rows use
-the fixed generation workload; all longer rows use cold five-key retrieval.
+The table includes every published prompt-length measurement using the same
+cold five-key retrieval workload.
 
-| System | Workload | Server allocation | Exact prompt | Input processing | Generation |
-|---|---|---:|---:|---:|---:|
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | Generation | 131,072 | 2,040 | 32.07 tok/s | 40.79 tok/s |
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | Retrieval | 131,072 | 59,933 | 235.00 tok/s | 36.48 tok/s |
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | Retrieval | 131,072 | 122,879 | 215.96 tok/s | 32.60 tok/s |
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | Retrieval | 262,144 | 163,840 | 206.92 tok/s | 30.47 tok/s |
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | Retrieval | 262,144 | 212,992 | 193.56 tok/s | 28.59 tok/s |
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | Retrieval | 262,144 | 245,760 | 185.88 tok/s | 27.21 tok/s |
-| **Strix Halo llama.cpp Vulkan IQ3_XXS** | Retrieval | 524,288 | 491,520 | 145.81 tok/s | 20.01 tok/s |
-| **Lucebox ROCm ROCmFPX** | Generation | 131,072 | 2,048 | 250.99 tok/s | 29.10 tok/s |
-| **Lucebox ROCm ROCmFPX** | Retrieval | 131,072 | 122,879 | 131.19 tok/s | 16.40 tok/s |
+| System | Server allocation | Exact prompt | Input processing | Generation |
+|---|---:|---:|---:|---:|
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 131,072 | 2,040 | 246.07 tok/s | 39.55 tok/s |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 131,072 | 3,840 | 258.87 tok/s | 38.75 tok/s |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 131,072 | 7,680 | 252.71 tok/s | 37.29 tok/s |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 131,072 | 15,359 | 250.50 tok/s | 39.89 tok/s |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 131,072 | 30,720 | 244.95 tok/s | 38.41 tok/s |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 131,072 | 59,933 | 235.00 tok/s | 36.48 tok/s |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 131,072 | 122,879 | 215.96 tok/s | 32.60 tok/s |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 262,144 | 163,840 | 206.92 tok/s | 30.47 tok/s |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 262,144 | 212,992 | 193.56 tok/s | 28.59 tok/s |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 262,144 | 245,760 | 185.88 tok/s | 27.21 tok/s |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 524,288 | 491,520 | 145.81 tok/s | 20.01 tok/s |
+| **Lucebox ROCm ROCmFPX** | 131,072 | 122,879 | 133.74 tok/s | 16.20 tok/s |
 
 Every retrieval row recovered 5/5 keys byte-for-byte.
 
@@ -47,11 +50,12 @@ Every retrieval row recovered 5/5 keys byte-for-byte.
 | Case | Protocol | Reported value |
 |---|---|---|
 | 2K generation | Fixed source prompt; 2,048 requested input tokens; 510 forced output tokens; temperature 0; top-k 1; top-p 1 | Server-reported input and generated-token rates |
-| Retrieval | Identical synthetic filler and five values at approximately 2%, 20%, 50%, 80%, and 98% depth; 256-token output cap; cold KV state | Server-reported input and generated-token rates; all five values must match byte-for-byte |
+| Retrieval | Identical synthetic filler and five values at approximately 2%, 20%, 50%, 80%, and 98% depth; temperature 0; top-k 1; top-p 1; 256-token output cap; one run; cold KV state | Server-reported input and generated-token rates; all five values must match byte-for-byte |
 | Quality | Pinned 30-task fixtures; temperature 0; 512-token output cap | Coding tests execute generated Python; numeric tasks use pinned extractors |
 
-Every reported request disables thinking. The APIs count the nominal 2K input
-as 2,040 and 2,048 tokens respectively.
+Every reported request disables thinking. The fixed generation workloads count
+their nominal 2K inputs as 2,040 and 2,048 tokens respectively; the scaling
+curve begins with a separate 2,040-token cold-retrieval request.
 
 ## Patch qualification
 

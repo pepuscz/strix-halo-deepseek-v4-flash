@@ -18,13 +18,14 @@ launcher, executable, loader, and model identities are in
 
 | Component | Pinned source |
 |---|---|
-| Runtime | [`Luce-Org/lucebox`](https://github.com/Luce-Org/lucebox), commit `90f85fa401c6a3c61d9e4d0e2da7fc48a5e8915e` |
+| Runtime | [`Luce-Org/lucebox`](https://github.com/Luce-Org/lucebox), commit `f686c447f067a04ea100a996e4c826e8cc4decc1` |
 | Block-Sparse-Attention submodule | commit `49d6c39e4dc0303442cda3bb758b3925d4399c49` |
 | rocWMMA headers | [`ROCm/rocWMMA`](https://github.com/ROCm/rocWMMA), tag `rocm-7.1.1`, commit `1ab208f49945c38626b79e3f0c284d65ac44a781` |
 | Target | [`Lucebox/DeepSeek-V4-Flash-0731-ROCmFP3`](https://huggingface.co/Lucebox/DeepSeek-V4-Flash-0731-ROCmFP3), revision `39745d3f6f4b92ff1d764ada79a73616bc8903a5`, ROCmFPX MIX |
 | Draft | [`Lucebox/DeepSeek-V4-Flash-0731-DSpark-GGUF`](https://huggingface.co/Lucebox/DeepSeek-V4-Flash-0731-DSpark-GGUF), revision `8e8bbf5bdb384b6e867d01ad3215be70b1d920c5` |
 
-The [11 patch files](../patches/) are published in this repository. Their
+The four patch files are linked from
+[ARCHITECTURE.md](ARCHITECTURE.md#lucebox-source-modifications). Their
 individual SHA-256 values, the combined source-diff SHA-256, pinned Ubuntu ROCm
 package versions, absolute build paths, compiler flags, output binary identity,
 and model identities are in

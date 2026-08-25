@@ -4,7 +4,7 @@
 
 | Layer | Strix Halo llama.cpp Vulkan IQ3_XXS | Lucebox ROCm ROCmFPX |
 |---|---|---|
-| Runtime | `strix-halo-llamacpp` v0.6.6 portable release, commit `7b6c61330edf370659f531932e0b91aca67ba055`, plus the [4–15 Lightning Indexer dispatch patch](../patches/0001-vulkan-lightning-indexer-small-cm-4-15.patch) | Lucebox commit `90f85fa401c6a3c61d9e4d0e2da7fc48a5e8915e` plus [11 patches](#lucebox-source-modifications) |
+| Runtime | `strix-halo-llamacpp` v0.6.6 portable release, commit `7b6c61330edf370659f531932e0b91aca67ba055`, plus the [4–15 Lightning Indexer dispatch patch](../patches/0001-vulkan-lightning-indexer-small-cm-4-15.patch) | Lucebox commit `f686c447f067a04ea100a996e4c826e8cc4decc1` plus [four patches](#lucebox-source-modifications) |
 | GPU backend | Bundled Mesa RADV/Vulkan | Ubuntu ROCm 7.1, HIP `gfx1151`, rocWMMA `rocm-7.1.1` |
 | Target | Unsloth UD-IQ3_XXS, four GGUF files, 104.21 GB | ROCmFPX MIX, one GGUF file, 98.29 GB |
 | Draft | DSpark Q2_K/Q8_0, 6.98 GB | DSpark Q4RMFP4 dense-F16, 10.65 GB |
@@ -29,30 +29,23 @@ is not enabled.
 
 ### Lucebox source modifications
 
-The Lucebox build applies these functional changes:
+The pinned Lucebox commit supplies the ROCm 7.1 build fixes, named-JSON tool
+calls, and fused-verifier F16 KV reuse. The release adds:
 
-- ROCm 7.1 host/device wavefront detection:
-  [`lucebox-rocm71-host-wavefront.patch`](../patches/lucebox-rocm71-host-wavefront.patch).
-- DeepSeek tool-call parsing for OpenAI wrappers, native
-  `function`/`parameters`, and multi-tool JSON:
-  [`function-call`](../patches/lucebox-deepseek-function-call.patch),
-  [`function-parameters`](../patches/lucebox-deepseek-function-parameters.patch),
-  and [`multi-tool buffering`](../patches/lucebox-multi-tool-json-buffer.patch).
-- DeepSeek reasoning API and `low`, `high`, and `max` effort handling:
-  [`reasoning`](../patches/lucebox-deepseek-v4-reasoning.patch) and
-  [`effort levels`](../patches/lucebox-deepseek-v4-official-effort-v2.patch).
-- Selectable attention implementation in fused verification:
-  [`attention selection`](../patches/lucebox-ds4-fused-verify-attention-select.patch).
-- F16 KV reuse with bounded F32 key attention for short verifier steps:
-  [`F16 KV`](../patches/lucebox-ds4-fused-explicit-f16-kv.patch) and
-  [`F16/F32 attention`](../patches/lucebox-ds4-explicit-f16-f32-attention.patch).
-- Configurable decode-graph cache capacity and adaptive prefill chunks for the
+- bounded monolithic prefill chunks and a one-entry decode graph cache for the
   128K memory envelope:
-  [`cache capacity`](../patches/lucebox-deepseek-decode-attn-cache-cap.patch)
-  and [`adaptive prefill`](../patches/lucebox-ds4-adaptive-prefill-cache-one.patch).
+  [`128K bounds`](../patches/lucebox-ds4-monolithic-128k-bounds.patch);
+- the gfx1151 48-column MMQ tile at narrow prefill widths:
+  [`narrow MMQ`](../patches/lucebox-gfx1151-narrow-mmq-x48.patch);
+- vectorized ROCmFPX activation loads and two-row dense matvec dispatch from
+  [Lucebox PR 607](https://github.com/Luce-Org/lucebox/pull/607):
+  [`dense matvec`](../patches/lucebox-rocmfpx-dense-matvec-pr607.patch);
+- DeepSeek V4 reasoning metadata and `low`, `high`, and `max` effort handling:
+  [`reasoning API`](../patches/lucebox-deepseek-v4-reasoning-current.patch).
 
 The manifest verifies every patch, the combined source diff, and the compiled
-server. Eight targeted unit tests cover the tool and reasoning changes.
+server. Server, feature-gate, ROCmFPX numerical, and grouped-dispatch tests run
+during the build.
 
 ## Shared host layer
 

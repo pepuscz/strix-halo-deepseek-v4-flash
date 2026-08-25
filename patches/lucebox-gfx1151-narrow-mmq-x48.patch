@@ -1,0 +1,58 @@
+From 81d191601059079dacee8aa03da93c93fd6768c8 Mon Sep 17 00:00:00 2001
+From: Josef Gattermayer <josef.gattermayer@ackee.cz>
+Date: Mon, 24 Aug 2026 21:57:38 +0200
+Subject: [PATCH] perf(hip): gate gfx1151 x48 MMQ to narrow prefill
+
+---
+ .../deps/llama.cpp/ggml/src/ggml-cuda/mmq.cuh | 26 ++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
+
+diff --git a/server/deps/llama.cpp/ggml/src/ggml-cuda/mmq.cuh b/server/deps/llama.cpp/ggml/src/ggml-cuda/mmq.cuh
+index 331b76b..811f03a 100644
+--- a/server/deps/llama.cpp/ggml/src/ggml-cuda/mmq.cuh
++++ b/server/deps/llama.cpp/ggml/src/ggml-cuda/mmq.cuh
+@@ -4,8 +4,10 @@
+ #include "vecdotq.cuh"
+ #include "mma.cuh"
+ 
++#include <algorithm>
+ #include <climits>
+ #include <cstdint>
++#include <cstdlib>
+ 
+ using namespace ggml_cuda_mma;
+ 
+@@ -4909,7 +4911,29 @@ void mul_mat_q_case(ggml_backend_cuda_context & ctx, const mmq_args & args, cuda
+     const int warp_size = ggml_cuda_info().devices[id].warp_size;
+     const int nwarps    = mmq_get_nwarps_host(cc, warp_size);
+ 
+-    const int mmq_x_max = get_mmq_x_max_host(cc);
++    int mmq_x_max = get_mmq_x_max_host(cc);
++#if defined(GGML_CUDA_MMQ_SMALL_TILE) && !defined(GGML_CUDA_MMQ_SMALL_TILE_RDNA4_ONLY)
++    // gfx1151 benefits from a 48-column ROCmFPX tile at the 512-token
++    // late-context prefill width, but using it for the 2K/3K bands reduces
++    // throughput. Keep the current 64-column kernel geometry for those wider
++    // bands and narrow only the launch width. Setting the threshold to 0
++    // restores the unmodified selection in the same binary for matched A/Bs.
++    static const int gfx1151_x48_max_ncols = [] {
++        const char * raw = std::getenv("LUCE_MMQ_GFX1151_X48_MAX_NCOLS");
++        if (!raw || !*raw) {
++            return 512;
++        }
++        char * end = nullptr;
++        const long parsed = std::strtol(raw, &end, 10);
++        return end && end != raw && *end == '\0' && parsed >= 0 && parsed <= INT_MAX
++            ? (int) parsed
++            : 512;
++    }();
++    if (GGML_CUDA_CC_IS_RDNA3_5(cc) && gfx1151_x48_max_ncols > 0 &&
++        args.ncols_max <= gfx1151_x48_max_ncols) {
++        mmq_x_max = std::min(mmq_x_max, 48);
++    }
++#endif
+     const int mmq_y = get_mmq_y_host(cc);
+ 
+     int mmq_x_best  = 0;
+-- 
+2.50.1 (Apple Git-155)
+

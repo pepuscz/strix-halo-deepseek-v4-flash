@@ -52,16 +52,8 @@ readonly PATCH_{{ loop.index }}={{ patch.name | quote }}
 current_diff_sha=$(git -C "$SOURCE" diff --binary | sha256sum | cut -d' ' -f1)
 if [ "$current_diff_sha" = "$EMPTY_DIFF_SHA" ]; then
 {% for patch in deepseek_rocm.patches %}
-    if ! patch -d "$SOURCE" -p1 --forward --batch --fuzz=3 \
-        -i "$PATCH_ROOT/$PATCH_{{ loop.index }}"; then
-{% if patch.name == 'lucebox-ds4-adaptive-prefill-cache-one.patch' %}
-        readonly EXPECTED_REJECT="$SOURCE/server/src/deepseek4/deepseek4_graph.cpp.rej"
-        [ -f "$EXPECTED_REJECT" ] || fail 'Adaptive patch failed without its expected duplicate-hunk reject.'
-        rm -f -- "$EXPECTED_REJECT"
-{% else %}
+    git -C "$SOURCE" apply "$PATCH_ROOT/$PATCH_{{ loop.index }}" || \
         fail 'Patch application failed: {{ patch.name }}'
-{% endif %}
-    fi
 {% endfor %}
 elif [ "$current_diff_sha" != "$SOURCE_DIFF_SHA" ]; then
     fail 'Source worktree has an unrecognized diff.'
@@ -80,7 +72,10 @@ if [ ! -x "$SERVER" ] || [ "$(sha256 "$SERVER")" != "$SERVER_SHA" ]; then
         -DDFLASH27B_ROCWMMA_INCLUDE_DIR="$ROCWMMA_INCLUDE" \
         -DCMAKE_HIP_FLAGS="-I$ROCWMMA_INCLUDE" \
         -DGGML_NATIVE=ON
-    cmake --build "$BUILD" --target test_server_unit dflash_server -j "$(nproc)"
+    cmake --build "$BUILD" --target \
+        test_server_unit \
+{% for test_binary in deepseek_rocm.test_binaries %}        {{ test_binary }} \
+{% endfor %}        dflash_server -j "$(nproc)"
     built=1
 fi
 
@@ -91,6 +86,9 @@ if ldd "$SERVER" | grep -q 'not found'; then fail 'ROCm server has an unresolved
 
 {% for test_name in deepseek_rocm.unit_tests %}
 "$BUILD/test_server_unit" --exact {{ test_name | quote }}
+{% endfor %}
+{% for test_binary in deepseek_rocm.test_binaries %}
+(cd "$BUILD" && HIP_VISIBLE_DEVICES=0 ./{{ test_binary }})
 {% endfor %}
 
 printf 'ROCM_RUNTIME_BUILT=%s\n' "$built"
