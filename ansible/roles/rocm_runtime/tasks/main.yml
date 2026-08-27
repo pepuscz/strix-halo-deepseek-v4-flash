@@ -17,7 +17,7 @@
     - "{{ deepseek_paths.release }}"
     - "{{ deepseek_paths.release }}/patches"
 
-- name: Install the qualified ROCm patch chain
+- name: Install the qualified ROCm patch chain when present
   ansible.builtin.copy:
     src: "{{ role_path }}/../../../patches/{{ item.name }}"
     dest: "{{ deepseek_paths.release }}/patches/{{ item.name }}"
@@ -27,6 +27,7 @@
   loop: "{{ deepseek_rocm.patches }}"
   loop_control:
     label: "{{ item.name }}"
+  when: deepseek_rocm.patches | length > 0
 
 - name: Install the reproducible ROCm build program
   ansible.builtin.template:

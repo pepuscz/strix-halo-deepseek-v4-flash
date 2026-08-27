@@ -115,4 +115,5 @@
           - "'--ds4-prefill sparse --chunk 3072' in rendered_unit_text"
           - "'DFLASH_DS4_SPEC_Q=4' in rendered_unit_text"
           - "'DFLASH_DS4_ADAPTIVE_PREFILL_CHUNKS=1' in rendered_unit_text"
+          - "'GGML_DS4_TOPK_BLOCK_RADIX=1' in rendered_unit_text"
       when: deepseek_system.engine == 'rocm'

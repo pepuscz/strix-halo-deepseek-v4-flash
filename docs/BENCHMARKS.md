@@ -1,9 +1,9 @@
 # Benchmarks
 
-The qualified default is the unmodified official v0.7.0 release of **Strix
-Halo llama.cpp Vulkan IQ3_XXS**. The single **Lucebox ROCm ROCmFPX** row is a
-matched 122,879-token reference. Both were measured on the same 128 GiB Ryzen
-AI Max+ 395 host with thinking disabled.
+The default is the unmodified official v0.7.0 release of **Strix Halo llama.cpp
+Vulkan IQ3_XXS**. **Lucebox ROCm ROCmFPX** is the leading alternative. Both
+were measured on the same 128 GiB Ryzen AI Max+ 395 host with thinking
+disabled.
 
 ## Workloads
 
@@ -11,15 +11,15 @@ AI Max+ 395 host with thinking disabled.
   five keys placed across prompts from 2,040 through 491,520 tokens.
 - **Quality:** ten coding, ten GSM8K-style, and ten MATH-style tasks.
 
-## Qualified comparison
+## Measured comparison
 
 | System | 122,879-token input | 122,879-token generation | Quality |
 |---|---:|---:|---:|
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 226.82 tok/s | 35.73 tok/s | 30/30 |
-| **Lucebox ROCm ROCmFPX** | 133.74 tok/s | 16.20 tok/s | 30/30 |
+| **Lucebox ROCm ROCmFPX** | 145.68 tok/s | 26.50 tok/s | 29/30 |
 
-The default leads generation and long-prompt input processing while both
-systems pass the same quality gate and recover all five retrieval keys.
+The default leads generation, long-prompt input processing, and the published
+quality set. Both systems recover all five retrieval keys.
 
 ## Context scaling
 
@@ -39,7 +39,7 @@ cold five-key retrieval workload.
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 262,144 | 212,992 | 206.65 tok/s | 32.77 tok/s |
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 262,144 | 245,760 | 200.21 tok/s | 31.77 tok/s |
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 524,288 | 491,520 | 163.23 tok/s | 25.02 tok/s |
-| **Lucebox ROCm ROCmFPX** | 131,072 | 122,879 | 133.74 tok/s | 16.20 tok/s |
+| **Lucebox ROCm ROCmFPX** | 131,072 | 122,879 | 145.68 tok/s | 26.50 tok/s |
 
 Every retrieval row recovered 5/5 keys byte-for-byte.
 
@@ -48,29 +48,35 @@ Every retrieval row recovered 5/5 keys byte-for-byte.
 | Case | Protocol | Reported value |
 |---|---|---|
 | Retrieval | Identical synthetic filler and five values at approximately 2%, 20%, 50%, 80%, and 98% depth; temperature 0; top-k 1; top-p 1; 256-token output cap; one run; cold KV state | Server-reported input and generated-token rates; all five values must match byte-for-byte |
-| Quality | Pinned 30-task fixtures; temperature 0; 512-token output cap | Coding tests execute generated Python; numeric tasks use pinned extractors |
+| Quality | Pinned 30-task fixtures; temperature 0; 512-token coding, 1,024-token GSM8K-style, and 2,048-token MATH-style completion limits | Coding tests execute generated Python; numeric tasks use pinned extractors |
 
 Every reported request disables thinking. The scaling curve begins with a
 2,040-token cold-retrieval request.
 
-## Release qualification
+## Validation
 
-Official v0.7.0 passed all eleven cold-retrieval points, 30/30 quality tasks,
+Strix Halo llama.cpp v0.7.0 passed all eleven cold-retrieval points, 30/30 quality tasks,
 12/12 held-out comparisons, and 15/15 repeated maximum-reasoning operational
 runs with no truncations. The cached 8K agent conversation hit all five eligible
 prefixes. Streaming, non-streaming, namespace, JSON-normalization, and live Exa
 contracts passed. At 491,520 tokens, speculative decoding was 2.11× the matched
 no-spec generation rate.
 
+Lucebox commit `2f13618` passed its pinned build and kernel tests, 5/5 exact
+retrieval, 12/12 Hermes tool-result cases, and the memory and thermal checks.
+It scored 29/30 because `math_10` reached its 2,048-token completion limit
+without emitting the expected final answer.
+
 ## Quality detail
 
 | System | Coding | GSM8K-style | MATH-style | Total |
 |---|---:|---:|---:|---:|
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 10/10 | 10/10 | 10/10 | 30/30 |
-| **Lucebox ROCm ROCmFPX** | 10/10 | 10/10 | 10/10 | 30/30 |
+| **Lucebox ROCm ROCmFPX** | 10/10 | 10/10 | 9/10 | 29/30 |
 
 The `math_08` fixture is evaluated against the algebraically correct reference
-answer `20/3`.
+answer `20/3`. The Lucebox miss is `math_10`, for which the expected answer is
+`997`.
 
 ## Cooling qualification
 

@@ -1,5 +1,5 @@
 ---
-deepseek_release_id: rocm-rocmfpx-128k-v2
+deepseek_release_id: rocm-rocmfpx-128k-v3
 deepseek_release_schema: 1
 
 deepseek_system:
@@ -29,23 +29,23 @@ deepseek_paths:
   root: /opt/m5
   source: /opt/m5/src
   bin: /opt/m5/bin
-  downloads: /opt/m5/downloads/rocm-rocmfpx-128k-v2
-  release: /opt/m5/releases/rocm-rocmfpx-128k-v2
-  models: /opt/m5/models/rocm-rocmfpx-128k-v2
+  downloads: /opt/m5/downloads/rocm-rocmfpx-128k-v3
+  release: /opt/m5/releases/rocm-rocmfpx-128k-v3
+  models: /opt/m5/models/rocm-rocmfpx-128k-v3
   state: /var/lib/deepseek-v4-flash
 
 deepseek_runtime:
   repository: https://github.com/Luce-Org/lucebox.git
-  source_commit: f686c447f067a04ea100a996e4c826e8cc4decc1
+  source_commit: 2f136181b0b387592e413a81dedc0cd79991e128
   submodule_commit: 49d6c39e4dc0303442cda3bb758b3925d4399c49
-  source_diff_sha256: d0f214542da7c1bb71595d969037a1ca37a109246aa551cb9cd4311598af8509
-  server_sha256: d49710ac6fe586170cad09de1e17a6e40ab6b30a1a7d6262f938c1a29f0f3fa6
-  server_size: 6315888
+  source_diff_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  server_sha256: 3984f894d4ee06c23779a60f1fa3a188884ac48542b49abe269144811d04f187
+  server_size: 6404024
   build_info: luce-dflash v0.0.0+cpp props_schema=2
 
 deepseek_rocm:
-  qualified_source_path: /opt/m5/src/lucebox-rocmfpx-128k-v2
-  qualified_build_path: /opt/m5/src/lucebox-rocmfpx-128k-v2/server/build-qualified
+  qualified_source_path: /opt/m5/src/lucebox-047-pr667
+  qualified_build_path: /opt/m5/src/lucebox-047-pr667/server/build-qualified
   qualified_rocwmma_path: /opt/m5/src/rocWMMA-rocm-7.1.1-public-v2
   rocwmma_repository: https://github.com/ROCm/rocWMMA.git
   rocwmma_tag: rocm-7.1.1
@@ -66,11 +66,7 @@ deepseek_rocm:
     - librocblas-dev=7.1.0-1ubuntu4
     - librocprim-dev=7.1.0-0ubuntu5
     - librocwmma-dev=7.1.0-0ubuntu1
-  patches:
-    - {name: lucebox-ds4-monolithic-128k-bounds.patch, sha256: 2da99775541ba8bf83bd1b88da287e55a290737f065ecd5962284d532b90c6bc}
-    - {name: lucebox-gfx1151-narrow-mmq-x48.patch, sha256: f3d1de4215591be87c5774ef21d28551e6244fcf36310d77d14c2073e2c5c4a9}
-    - {name: lucebox-rocmfpx-dense-matvec-pr607.patch, sha256: c1b16b6cb0788b43b3ce897b4d2dec0a384c265861df9be7d8ab4ece1b5e5d24}
-    - {name: lucebox-deepseek-v4-reasoning-current.patch, sha256: 2cc1eeb08bcb18befc38f2f6f2296eedadc4603fd68809bc2332b3209e5caeda}
+  patches: []
   unit_tests:
     - ServerUnitFixture::test_parse_deepseek_function_parameters_json
     - ServerUnitFixture::test_parse_deepseek_function_stringified_parameters_json
@@ -85,6 +81,8 @@ deepseek_rocm:
     - test_rocmfp_mix_gateup_glu
     - test_rocmfp_mix_slice_matvec
     - test_deepseek4_mmid_grouped_cuda
+    - bench_ds4_topk
+    - test_moe_combine
 
 deepseek_target:
   repository: Lucebox/DeepSeek-V4-Flash-0731-ROCmFP3
@@ -163,11 +161,12 @@ deepseek_rocm_environment:
   DFLASH_DS4_SPEC: "1"
   DFLASH_DS4_SPEC_Q: "4"
   DFLASH_DS4_FUSED_VERIFY: "1"
-  DFLASH_DS4_DRAFT: /opt/m5/models/rocm-rocmfpx-128k-v2/DeepSeek-V4-Flash-0731-DSpark-draft-Q4RMFP4-denseF16.gguf
+  DFLASH_DS4_DRAFT: /opt/m5/models/rocm-rocmfpx-128k-v3/DeepSeek-V4-Flash-0731-DSpark-draft-Q4RMFP4-denseF16.gguf
   DFLASH_DS4_DRAFT_GPU: "0"
   DFLASH_DS4_DRAFT_CONTEXT_KV_CACHE: "1"
   DFLASH_DS4_ADAPTIVE_PREFILL_CHUNKS: "1"
   DFLASH_DS4_DECODE_ATTN_CACHE_SLOTS: "1"
+  GGML_DS4_TOPK_BLOCK_RADIX: "1"
 
 deepseek_policy:
   cpu_governor: performance

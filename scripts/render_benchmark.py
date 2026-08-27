@@ -45,7 +45,7 @@ def render(data: dict) -> str:
     lines = [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 710" role="img" aria-labelledby="title description">',
         '  <title id="title">Cold-retrieval throughput by prompt length</title>',
-        '  <desc id="description">Input-processing and generation throughput for the qualified Strix Halo llama.cpp Vulkan IQ3_XXS configuration using the same cold five-key retrieval workload at eleven measured prompt lengths. The main horizontal segment is linear from zero through 262,144 tokens; the 491,520-token measurement is isolated after an explicit axis break. The available Lucebox ROCm ROCmFPX retrieval reference is shown at 122,879 tokens.</desc>',
+        '  <desc id="description">Input-processing and generation throughput for Strix Halo llama.cpp Vulkan IQ3_XXS and the Lucebox ROCm ROCmFPX leading alternative using the same cold five-key retrieval workload. The main horizontal segment is linear from zero through 262,144 tokens; the 491,520-token measurement is isolated after an explicit axis break. The Lucebox result is shown at 122,879 tokens.</desc>',
         "  <style>",
         "    .background { fill: #ffffff; }",
         "    .frame { fill: none; stroke: #d0d7de; stroke-width: 1; }",

@@ -4,7 +4,7 @@
 
 | Layer | Strix Halo llama.cpp Vulkan IQ3_XXS | Lucebox ROCm ROCmFPX |
 |---|---|---|
-| Runtime | Official `strix-halo-llamacpp` v0.7.0 portable release, commit `95c828eeb315a7ba6f50fcf632c29f8de2ec1a6e`, without local source patches | Lucebox commit `f686c447f067a04ea100a996e4c826e8cc4decc1` plus [four patches](#lucebox-source-modifications) |
+| Runtime | Official `strix-halo-llamacpp` v0.7.0 portable release, commit `95c828eeb315a7ba6f50fcf632c29f8de2ec1a6e`, without local source patches | Unmodified Lucebox commit `2f136181b0b387592e413a81dedc0cd79991e128` from [PR 667](https://github.com/Luce-Org/lucebox/pull/667) |
 | GPU backend | Bundled Mesa RADV/Vulkan | Ubuntu ROCm 7.1, HIP `gfx1151`, rocWMMA `rocm-7.1.1` |
 | Target | Unsloth UD-IQ3_XXS, four GGUF files, 104.21 GB | ROCmFPX MIX, one GGUF file, 98.29 GB |
 | Draft | DSpark Q2_K/Q8_0, 6.98 GB | DSpark Q4RMFP4 dense-F16, 10.65 GB |
@@ -26,25 +26,14 @@ SHA-256. No local Vulkan overlay or Lightning Indexer routing override is
 applied. The release keeps the qualified upstream tuning environment, including
 `GGML_VK_MMID_M128=1`.
 
-### Lucebox source modifications
+### Lucebox runtime
 
-The pinned Lucebox commit supplies the ROCm 7.1 build fixes, named-JSON tool
-calls, and fused-verifier F16 KV reuse. The release adds:
-
-- bounded monolithic prefill chunks and a one-entry decode graph cache for the
-  128K memory envelope:
-  [`128K bounds`](../patches/lucebox-ds4-monolithic-128k-bounds.patch);
-- the gfx1151 48-column MMQ tile at narrow prefill widths:
-  [`narrow MMQ`](../patches/lucebox-gfx1151-narrow-mmq-x48.patch);
-- vectorized ROCmFPX activation loads and two-row dense matvec dispatch from
-  [Lucebox PR 607](https://github.com/Luce-Org/lucebox/pull/607):
-  [`dense matvec`](../patches/lucebox-rocmfpx-dense-matvec-pr607.patch);
-- DeepSeek V4 reasoning metadata and `low`, `high`, and `max` effort handling:
-  [`reasoning API`](../patches/lucebox-deepseek-v4-reasoning-current.patch).
-
-The manifest verifies every patch, the combined source diff, and the compiled
-server. Server, feature-gate, ROCmFPX numerical, and grouped-dispatch tests run
-during the build.
+The pinned clean source includes gfx1151 Q4 MMVF projection, ROCmFP2/3 MoE
+kernels, incremental speculative-verification masks, adaptive speculative
+width, and hierarchical top-512 selection. The production profile explicitly
+enables block-radix top-k selection; direct-visible attention and fused MoE
+combine remain disabled. Server, feature-gate, ROCmFPX numerical,
+grouped-dispatch, top-k, and MoE-combine tests run during the build.
 
 ## Shared host layer
 

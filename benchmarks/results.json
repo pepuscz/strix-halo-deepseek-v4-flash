@@ -1,5 +1,5 @@
 {
-  "schema": 8,
+  "schema": 9,
   "published_at": "2026-08-27",
   "default_system": "vulkan-iq3xxs",
   "hardware": {
@@ -43,7 +43,11 @@
       "math_tasks": 10,
       "temperature": 0,
       "thinking": false,
-      "output_token_cap": 512
+      "output_token_caps": {
+        "coding": 512,
+        "gsm8k": 1024,
+        "math": 2048
+      }
     },
     "context_scaling": {
       "definition": "cold deterministic five-key byte-exact retrieval at increasing prompt lengths",
@@ -234,6 +238,11 @@
     "rocm-rocmfpx": {
       "name": "Lucebox ROCm ROCmFPX",
       "manifest": "ansible/releases/rocm-rocmfpx-128k.yml",
+      "runtime": {
+        "source_commit": "2f136181b0b387592e413a81dedc0cd79991e128",
+        "upstream_pr": "https://github.com/Luce-Org/lucebox/pull/667",
+        "local_source_patches": 0
+      },
       "power_watts": {"stapm": 120, "fast": 120, "slow": 120},
       "cpu": {"governor": "performance", "minimum_khz": 2000000, "boost": true},
       "gpu_dpm": "high",
@@ -243,21 +252,43 @@
       "kv": {"k": "q4_0", "v": "q4_0"},
       "deep_retrieval": {
         "needle_passes": 5,
-        "prefill_tokens_per_second": 133.7426769084554,
-        "decode_tokens_per_second": 16.2
+        "prefill_tokens_per_second": 145.68242182873476,
+        "decode_tokens_per_second": 26.5,
+        "draft_acceptance_rate": 0.9474,
+        "oom_events": 0
       },
-      "quality": {"coding": 10, "gsm8k": 10, "math": 10, "total": 30},
+      "quality": {
+        "coding": 10,
+        "gsm8k": 10,
+        "math": 9,
+        "total": 29,
+        "completion_budget_failure": {
+          "id": "math_10",
+          "expected_answer": "997",
+          "completion_tokens": 2048
+        }
+      },
       "context_scaling": [
         {
           "allocation_tokens": 131072,
           "actual_input_tokens": 122879,
           "prompt_sha256": "f5d337a32fbf5e29f150974500a8d49cff172c2d03c125a243f6c990e1dbd7a3",
-          "prefill_tokens_per_second": 133.7426769084554,
-          "decode_tokens_per_second": 16.2,
+          "prefill_tokens_per_second": 145.68242182873476,
+          "decode_tokens_per_second": 26.5,
           "needle_passes": 5
         }
       ],
-      "tool_contract_passed": false
+      "validation": {
+        "build_and_kernel_tests_passed": true,
+        "tool_result_cases_passed": 12,
+        "tool_result_cases_total": 12,
+        "quality_passes": 29,
+        "quality_total": 30,
+        "gpu_resets": 0,
+        "oom_events": 0,
+        "service_restarts": 0
+      },
+      "tool_contract_passed": true
     }
   }
 }

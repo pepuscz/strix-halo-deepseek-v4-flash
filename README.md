@@ -1,6 +1,6 @@
 # DeepSeek V4 Flash on Strix Halo
 
-Reproducible Ansible deployment of two qualified DeepSeek V4 Flash 0731
+Reproducible Ansible deployment of two tested DeepSeek V4 Flash 0731
 systems on a 128 GiB AMD Ryzen AI Max+ 395 / Radeon 8060S host.
 
 ## Systems
@@ -15,32 +15,29 @@ target, a DSpark Q2_K/Q8_0 draft, q8_0 K/V, and one 524,288-token slot. Deploy
 
 ### Alternative: Lucebox ROCm ROCmFPX
 
-The alternative builds
-[`Luce-Org/lucebox`](https://github.com/Luce-Org/lucebox) commit `f686c44` with
-[four pinned patches](patches/), a ROCmFPX MIX target, a DSpark Q4RMFP4 draft,
-q4_0 K/V, and one 131,072-token slot. Deploy
-[`rocm-rocmfpx-128k.yml`](ansible/releases/rocm-rocmfpx-128k.yml); its source
-changes are listed in [ARCHITECTURE.md](docs/ARCHITECTURE.md#lucebox-source-modifications).
+The leading alternative builds unmodified
+[`Luce-Org/lucebox`](https://github.com/Luce-Org/lucebox) commit `2f13618` from
+[PR 667](https://github.com/Luce-Org/lucebox/pull/667), with a ROCmFPX MIX
+target, a DSpark Q4RMFP4 draft, q4_0 K/V, and one 131,072-token slot. Deploy
+[`rocm-rocmfpx-128k.yml`](ansible/releases/rocm-rocmfpx-128k.yml); the enabled
+runtime paths are listed in [ARCHITECTURE.md](docs/ARCHITECTURE.md#lucebox-runtime).
 
 ## Benchmarks
 
-Official v0.7.0 is the new default. Across the same eleven-point cold-retrieval
-curve, it improved geometric-mean input processing by 4.10% and generation by
-7.74% over the previous qualified v0.6.6 build. The gain grows with context.
+The default provides the strongest 122,879-token throughput and a 30/30 quality
+result. The leading alternative provides a smaller ROCmFPX target and a
+different ROCm execution path.
 
-| Cold-retrieval result | 2,040 tokens | 122,879 tokens | 491,520 tokens |
+| System | 122,879-token input processing | Generation | Quality |
 |---|---:|---:|---:|
-| **Input processing** | 245.23 tok/s | 226.82 tok/s | 163.23 tok/s |
-| **Change from v0.6.6** | -0.34% | +5.03% | +11.95% |
-| **Generation** | 40.04 tok/s | 35.73 tok/s | 25.02 tok/s |
-| **Change from v0.6.6** | +1.24% | +9.60% | +25.05% |
+| **Strix Halo llama.cpp Vulkan IQ3_XXS** | 226.82 tok/s | 35.73 tok/s | 30/30 |
+| **Lucebox ROCm ROCmFPX** | 145.68 tok/s | 26.50 tok/s | 29/30 |
 
-All eleven cold-retrieval points passed 5/5 byte-exact retrieval, and the
-default retained its 30/30 quality result. At 491,520 tokens, DSpark speculative
-decoding delivered 2.11× the generation rate of the matched no-spec arm. The
-chart keeps the available 122,879-token Lucebox result as a single reference.
+Every published retrieval point recovered all five keys byte-for-byte. The
+quality difference is one MATH-style response that exhausted its 2,048-token
+completion limit before producing the answer.
 
-![Cold-retrieval input-processing and generation throughput for Strix Halo llama.cpp Vulkan IQ3_XXS on a linear prompt-length axis through 256K, with the 491,520-token measurement isolated after an explicit axis break and the available Lucebox ROCm ROCmFPX retrieval reference](docs/benchmark.svg)
+![Cold-retrieval input-processing and generation throughput for Strix Halo llama.cpp Vulkan IQ3_XXS on a linear prompt-length axis through 256K, with the 491,520-token measurement isolated after an explicit axis break and the Lucebox ROCm ROCmFPX 122,879-token result](docs/benchmark.svg)
 
 See [BENCHMARKS.md](docs/BENCHMARKS.md) for the complete results, protocols,
 and reproducibility data.
