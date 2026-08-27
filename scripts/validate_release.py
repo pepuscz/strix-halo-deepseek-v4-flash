@@ -68,11 +68,11 @@ def validate_manifest(path: Path, root: Path) -> dict:
         fail("swap must remain disabled")
     if system["engine"] == "vulkan" and service.get("sampling") != {
         "temperature": 1.0,
-        "top_p": 1.0,
+        "top_p": 0.95,
         "top_k": 0,
         "min_p": 0.0,
     }:
-        fail("Vulkan server sampling defaults drifted from the neutral profile")
+        fail("Vulkan server sampling defaults drifted from the qualified profile")
 
     target = data["deepseek_target"]
     files = target["files"]
@@ -96,28 +96,14 @@ def validate_manifest(path: Path, root: Path) -> dict:
         require_url(data["deepseek_vulkan_loader"]["url"], "Vulkan loader URL")
         for key in ("archive_sha256", "manifest_sha256", "launcher_sha256"):
             require_sha(runtime[key], f"runtime {key}")
-        require_url(runtime["overlay_url"], "runtime overlay_url")
-        if runtime["overlay_size"] <= 0:
-            fail("runtime overlay size is invalid")
-        for key in (
-            "overlay_sha256",
-            "upstream_vulkan_backend_sha256",
-            "vulkan_backend_sha256",
-        ):
-            require_sha(runtime[key], f"runtime {key}")
-        patch = runtime["patch"]
-        require_sha(patch["sha256"], "Vulkan patch")
-        patch_path = root / "patches" / patch["name"]
-        if not patch_path.is_file():
-            fail(f"missing public patch: {patch['name']}")
-        if hashlib.sha256(patch_path.read_bytes()).hexdigest() != patch["sha256"]:
-            fail(f"public patch hash drifted: {patch['name']}")
-        if patch.get("batches") != "4-15":
-            fail("Vulkan small-CM dispatch range drifted")
-        if data.get("deepseek_vulkan_environment", {}).get(
-            "GGML_VK_LIGHTNING_INDEXER_SMALL_CM"
-        ) != "1":
-            fail("qualified Vulkan small-CM dispatch is not enabled")
+        require_sha(runtime["vulkan_backend_sha256"], "runtime Vulkan backend")
+        if "patch" in runtime or "overlay_name" in runtime:
+            fail("the official v0.7.0 Vulkan runtime must not use a local overlay")
+        vulkan_environment = data.get("deepseek_vulkan_environment", {})
+        if "GGML_VK_LIGHTNING_INDEXER_SMALL_CM" in vulkan_environment:
+            fail("the official v0.7.0 indexer routing must not be overridden")
+        if vulkan_environment.get("GGML_VK_MMID_M128") != "1":
+            fail("the qualified M128 Vulkan tuning is not enabled")
         for key in ("sha256", "library_sha256"):
             require_sha(data["deepseek_vulkan_loader"][key], f"Vulkan loader {key}")
         governor = data["deepseek_fan"].get("governor", {})
