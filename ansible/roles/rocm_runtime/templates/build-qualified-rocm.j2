@@ -51,6 +51,7 @@ readonly PATCH_{{ loop.index }}={{ patch.name | quote }}
 
 current_diff_sha=$(git -C "$SOURCE" diff --binary | sha256sum | cut -d' ' -f1)
 if [ "$current_diff_sha" = "$EMPTY_DIFF_SHA" ]; then
+    :
 {% for patch in deepseek_rocm.patches %}
     git -C "$SOURCE" apply "$PATCH_ROOT/$PATCH_{{ loop.index }}" || \
         fail 'Patch application failed: {{ patch.name }}'
@@ -60,7 +61,7 @@ elif [ "$current_diff_sha" != "$SOURCE_DIFF_SHA" ]; then
 fi
 
 git -C "$SOURCE" diff --check
-[ "$(git -C "$SOURCE" diff --binary | sha256sum | cut -d' ' -f1)" = "$SOURCE_DIFF_SHA" ] || fail 'Patched source identity mismatch.'
+[ "$(git -C "$SOURCE" diff --binary | sha256sum | cut -d' ' -f1)" = "$SOURCE_DIFF_SHA" ] || fail 'Source identity mismatch.'
 
 built=0
 if [ ! -x "$SERVER" ] || [ "$(sha256 "$SERVER")" != "$SERVER_SHA" ]; then
