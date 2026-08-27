@@ -77,13 +77,14 @@
         that:
           - "'-c 524288' in rendered_unit_text"
           - "'-ctk q8_0 -ctv q8_0' in rendered_unit_text"
-          - "'--temp 1.0 --top-p 1.0' in rendered_unit_text"
+          - "'--temp 1.0 --top-p 0.95' in rendered_unit_text"
           - "'--top-k 0 --min-p 0.0' in rendered_unit_text"
           - "'--spec-type draft-dspark' in rendered_unit_text"
           - "'--spec-draft-n-max 4' in rendered_unit_text"
           - "'--slot-save-path /run/deepseek-v4-flash-slots' in rendered_unit_text"
           - "'GGML_VK_FA_WAVE32=1' in rendered_unit_text"
-          - "'GGML_VK_LIGHTNING_INDEXER_SMALL_CM=1' in rendered_unit_text"
+          - "'GGML_VK_MMID_M128=1' in rendered_unit_text"
+          - "'GGML_VK_LIGHTNING_INDEXER_SMALL_CM=' not in rendered_unit_text"
       when: deepseek_system.engine == 'vulkan'
 
     - name: Read rendered demand-based fan governor service

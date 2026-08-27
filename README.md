@@ -9,10 +9,8 @@ systems on a 128 GiB AMD Ryzen AI Max+ 395 / Radeon 8060S host.
 
 The default uses the pinned
 [`Nathanw1014/strix-halo-llamacpp`](https://github.com/Nathanw1014/strix-halo-llamacpp)
-v0.6.6 portable release plus the qualified
-[4–15 Lightning Indexer dispatch patch](patches/0001-vulkan-lightning-indexer-small-cm-4-15.patch),
-an Unsloth UD-IQ3_XXS target, a DSpark Q2_K/Q8_0 draft, q8_0 K/V, and one
-524,288-token slot. Deploy
+v0.7.0 portable release without local source patches, an Unsloth UD-IQ3_XXS
+target, a DSpark Q2_K/Q8_0 draft, q8_0 K/V, and one 524,288-token slot. Deploy
 [`vulkan-iq3xxs-512k.yml`](ansible/releases/vulkan-iq3xxs-512k.yml).
 
 ### Alternative: Lucebox ROCm ROCmFPX
@@ -26,18 +24,21 @@ changes are listed in [ARCHITECTURE.md](docs/ARCHITECTURE.md#lucebox-source-modi
 
 ## Benchmarks
 
-Strix Halo llama.cpp Vulkan IQ3_XXS retains useful throughput across the full
-measured range while recovering every key at every context length.
+Official v0.7.0 is the new default. Across the same eleven-point cold-retrieval
+curve, it improved geometric-mean input processing by 4.10% and generation by
+7.74% over the previous qualified v0.6.6 build. The gain grows with context.
 
-| Cold-retrieval result | 2,040-token prompt | 122,879-token prompt | 491,520-token prompt |
+| Cold-retrieval result | 2,040 tokens | 122,879 tokens | 491,520 tokens |
 |---|---:|---:|---:|
-| **Input processing** | 246.07 tok/s | 215.96 tok/s | 145.81 tok/s |
-| **Generation** | 39.55 tok/s | 32.60 tok/s | 20.01 tok/s |
+| **Input processing** | 245.23 tok/s | 226.82 tok/s | 163.23 tok/s |
+| **Change from v0.6.6** | -0.34% | +5.03% | +11.95% |
+| **Generation** | 40.04 tok/s | 35.73 tok/s | 25.02 tok/s |
+| **Change from v0.6.6** | +1.24% | +9.60% | +25.05% |
 
 All eleven cold-retrieval points passed 5/5 byte-exact retrieval, and the
-default retained its 30/30 quality result. At the shared 122,879-token point,
-Strix Halo llama.cpp Vulkan IQ3_XXS delivers 1.61× Lucebox ROCm ROCmFPX
-input-processing throughput and 2.01× its generation throughput.
+default retained its 30/30 quality result. At 491,520 tokens, DSpark speculative
+decoding delivered 2.11× the generation rate of the matched no-spec arm. The
+chart keeps the available 122,879-token Lucebox result as a single reference.
 
 ![Cold-retrieval input-processing and generation throughput for Strix Halo llama.cpp Vulkan IQ3_XXS on a linear prompt-length axis through 256K, with the 491,520-token measurement isolated after an explicit axis break and the available Lucebox ROCm ROCmFPX retrieval reference](docs/benchmark.svg)
 
@@ -91,10 +92,9 @@ cooling as its failure state. Both systems install the boot-enabled
 `deepseek-v4-flash.service`, bind the API to `127.0.0.1:18109`, and restore the
 previous hardware policy and automatic fan control when stopped.
 
-The default API uses a neutral sampling fallback (`temperature=1`, `top_p=1`,
-`top_k=0`, `min_p=0`). Clients remain free to override it per request; agentic
-clients should normally send DeepSeek's recommended `temperature=1` and
-`top_p=0.95`, with the generic llama.cpp `top_k` and `min_p` cutoffs disabled.
+The default API uses the qualified DeepSeek agentic profile (`temperature=1`,
+`top_p=0.95`, `top_k=0`, `min_p=0`). Clients remain free to override it per
+request.
 
 Read [HOST-PLATFORM.md](docs/HOST-PLATFORM.md) before authorizing the required
 reboot. Operational procedures are in [OPERATIONS.md](docs/OPERATIONS.md), and

@@ -1,5 +1,5 @@
 ---
-deepseek_release_id: vulkan-iq3xxs-512k-v2
+deepseek_release_id: vulkan-iq3xxs-512k-v3
 deepseek_release_schema: 1
 
 deepseek_system:
@@ -29,38 +29,27 @@ deepseek_paths:
   root: /opt/m5
   source: /opt/m5/src
   bin: /opt/m5/bin
-  downloads: /opt/m5/downloads/vulkan-iq3xxs-512k-v2
-  release: /opt/m5/releases/vulkan-iq3xxs-512k-v2
+  downloads: /opt/m5/downloads/vulkan-iq3xxs-512k-v3
+  release: /opt/m5/releases/vulkan-iq3xxs-512k-v3
   models: /opt/m5/models/vulkan-iq3xxs-512k-v2
   state: /var/lib/deepseek-v4-flash
 
 deepseek_runtime:
   repository: https://github.com/Nathanw1014/strix-halo-llamacpp
-  release_tag: v0.6.6
-  source_commit: 7b6c61330edf370659f531932e0b91aca67ba055
+  release_tag: v0.7.0
+  source_commit: 95c828eeb315a7ba6f50fcf632c29f8de2ec1a6e
   archive_name: strix-halo-llamacpp-vulkan-portable.tar.gz
-  archive_url: https://github.com/Nathanw1014/strix-halo-llamacpp/releases/download/v0.6.6/strix-halo-llamacpp-vulkan-portable.tar.gz
-  archive_size: 34073710
-  archive_sha256: c62d04843a680f7a666a355dd93edea0f5a9c94b450faf78623d485fdd1d0785
+  archive_url: https://github.com/Nathanw1014/strix-halo-llamacpp/releases/download/v0.7.0/strix-halo-llamacpp-vulkan-portable.tar.gz
+  archive_size: 34110570
+  archive_sha256: b523a7cce26509f747923fd13844d7a0d248cf417750d7c880286110d4abff68
   manifest_name: MANIFEST.txt
-  manifest_url: https://github.com/Nathanw1014/strix-halo-llamacpp/releases/download/v0.6.6/MANIFEST.txt
-  manifest_size: 478
-  manifest_sha256: e42ed67d9a10179ff0d7541403802afdabcf6560b6472278af62bfef5efa0393
+  manifest_url: https://github.com/Nathanw1014/strix-halo-llamacpp/releases/download/v0.7.0/MANIFEST.txt
+  manifest_size: 475
+  manifest_sha256: 6aa5592e8899b0bf94d2f6548ee71fb78377941941acef9fd0867280d62f8a08
   launcher_sha256: 203684bb16b00b50e1744cafad5457289675fbe2619258651d22a201ec74dc54
-  server_sha256: 749c26627da50bad55b733f32ebc9f4d64965ee2932418b7b30921a0d90b1975
-  build_info: b10569-7b6c6133
-  patch:
-    name: 0001-vulkan-lightning-indexer-small-cm-4-15.patch
-    sha256: fdc4a52cdea142f9c73700fdbdb78cba41e949a9ffb803213a64cbd2d953d92b
-    pull_request: https://github.com/Nathanw1014/llama.cpp/pull/6
-    environment: GGML_VK_LIGHTNING_INDEXER_SMALL_CM
-    batches: 4-15
-  overlay_name: vulkan-v066-lightning-indexer-small-cm-4-15.tar.gz
-  overlay_url: https://github.com/pepuscz/strix-halo-deepseek-v4-flash/releases/download/v1.2.0/vulkan-v066-lightning-indexer-small-cm-4-15.tar.gz
-  overlay_size: 17598572
-  overlay_sha256: 67ea853b58db7f4708a5bc7d9030b146102ebcd89b2830b1e2875a4c490f66f2
-  upstream_vulkan_backend_sha256: d19f69314830a6a755d1303edf189c9bddd3f699ee37c34216e184e3d139e9d8
-  vulkan_backend_sha256: 23daae832dbbe8cf391ed28e33b1be8c9073fd8e9a2870a71c8e35d80e6d43a4
+  server_sha256: ad03c1f52a9d2edb33dd372bf56d9643d11d3487c0885716f45ca6467967ea44
+  build_info: b10608-95c828ee
+  vulkan_backend_sha256: 859bbffa0caa9a3e9909ba4ca440bec8a66d8a8d4f42f50a730106f8086a4103
 
 deepseek_target:
   repository: unsloth/DeepSeek-V4-Flash-0731-GGUF
@@ -125,7 +114,7 @@ deepseek_service:
   microbatch: 1024
   sampling:
     temperature: 1.0
-    top_p: 1.0
+    top_p: 0.95
     top_k: 0
     min_p: 0.0
   cache_type_k: q8_0
@@ -164,8 +153,8 @@ deepseek_vulkan_environment:
   GGML_VK_MMID_BM64: "1"
   GGML_VK_MMID_WAVE32: "1"
   GGML_VK_MMID_F16B: "1"
+  GGML_VK_MMID_M128: "1"
   GGML_VK_FA_WAVE32: "1"
-  GGML_VK_LIGHTNING_INDEXER_SMALL_CM: "1"
 
 deepseek_vulkan_loader:
   package: libvulkan1

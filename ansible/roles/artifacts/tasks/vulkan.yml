@@ -25,18 +25,6 @@
   register: artifacts_manifest_fetch
   changed_when: "'downloaded' in artifacts_manifest_fetch.stdout or 'adopted' in artifacts_manifest_fetch.stdout"
 
-- name: Fetch or adopt the pinned Vulkan patch overlay
-  ansible.builtin.command:
-    argv:
-      - "{{ deepseek_paths.bin }}/fetch-verified-artifact"
-      - "{{ deepseek_runtime.overlay_url }}"
-      - "{{ deepseek_paths.downloads }}/{{ deepseek_runtime.overlay_name }}"
-      - "{{ deepseek_runtime.overlay_size }}"
-      - "{{ deepseek_runtime.overlay_sha256 }}"
-      - ""
-  register: artifacts_overlay_fetch
-  changed_when: "'downloaded' in artifacts_overlay_fetch.stdout or 'adopted' in artifacts_overlay_fetch.stdout"
-
 - name: Fetch or adopt the pinned Vulkan loader package
   ansible.builtin.command:
     argv:
@@ -79,8 +67,7 @@
       Select a new release_id; immutable releases are not overwritten.
   when:
     - artifacts_vulkan_backend_before.stat.exists
-    - artifacts_vulkan_backend_before.stat.checksum not in
-      [deepseek_runtime.upstream_vulkan_backend_sha256, deepseek_runtime.vulkan_backend_sha256]
+    - artifacts_vulkan_backend_before.stat.checksum != deepseek_runtime.vulkan_backend_sha256
 
 - name: Extract the verified portable runtime once
   ansible.builtin.unarchive:
@@ -91,18 +78,6 @@
     group: "{{ deepseek_service.group }}"
     creates: "{{ deepseek_paths.release }}/vulkan/_run"
   when: not artifacts_runtime_launcher_before.stat.exists
-
-- name: Apply the verified Vulkan patch overlay once
-  ansible.builtin.unarchive:
-    src: "{{ deepseek_paths.downloads }}/{{ deepseek_runtime.overlay_name }}"
-    dest: "{{ deepseek_paths.release }}"
-    remote_src: true
-    owner: root
-    group: "{{ deepseek_service.group }}"
-  when: >-
-    not artifacts_runtime_launcher_before.stat.exists or
-    not artifacts_vulkan_backend_before.stat.exists or
-    artifacts_vulkan_backend_before.stat.checksum != deepseek_runtime.vulkan_backend_sha256
 
 - name: Extract the pinned Vulkan loader
   ansible.builtin.command:
@@ -125,7 +100,7 @@
     - {name: runtime-manifest, path: "{{ deepseek_paths.downloads }}/{{ deepseek_runtime.manifest_name }}", sha256: "{{ deepseek_runtime.manifest_sha256 }}"}
     - {name: server-wrapper, path: "{{ deepseek_paths.release }}/vulkan/llama-server", sha256: "{{ deepseek_runtime.launcher_sha256 }}"}
     - {name: server, path: "{{ deepseek_paths.release }}/vulkan/bin/llama-server", sha256: "{{ deepseek_runtime.server_sha256 }}"}
-    - name: patched-vulkan-backend
+    - name: vulkan-backend
       path: "{{ deepseek_paths.release }}/vulkan/bin/libggml-vulkan.so.0.20.1"
       sha256: "{{ deepseek_runtime.vulkan_backend_sha256 }}"
     - name: vulkan-loader

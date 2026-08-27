@@ -4,14 +4,13 @@
 
 | Component | Pinned source |
 |---|---|
-| Runtime | [`Nathanw1014/strix-halo-llamacpp`](https://github.com/Nathanw1014/strix-halo-llamacpp), release `v0.6.6`, commit `7b6c61330edf370659f531932e0b91aca67ba055` |
-| Vulkan patch | [4–15 Lightning Indexer dispatch](../patches/0001-vulkan-lightning-indexer-small-cm-4-15.patch), proposed upstream as [`Nathanw1014/llama.cpp#6`](https://github.com/Nathanw1014/llama.cpp/pull/6) |
+| Runtime | [`Nathanw1014/strix-halo-llamacpp`](https://github.com/Nathanw1014/strix-halo-llamacpp), official release `v0.7.0`, commit `95c828eeb315a7ba6f50fcf632c29f8de2ec1a6e` |
 | Target | [`unsloth/DeepSeek-V4-Flash-0731-GGUF`](https://huggingface.co/unsloth/DeepSeek-V4-Flash-0731-GGUF), revision `fbbb5b93fb787c21338159b0af3318bb3f4d9768`, UD-IQ3_XXS |
 | Draft | [`alessandrobologna/DeepSeek-V4-Flash-DSpark-Drafter-GGUF`](https://huggingface.co/alessandrobologna/DeepSeek-V4-Flash-DSpark-Drafter-GGUF), revision `824190cb58c1469a603d9686107dd85ef11a5d51` |
 | Vulkan loader | Ubuntu `libvulkan1` `1.4.341.0-1`, extracted inside the immutable release |
 
-The exact upstream runtime archive, patch, rebuilt Vulkan backend overlay,
-launcher, executable, loader, and model identities are in
+The exact upstream runtime archive, manifest, launcher, executable, Vulkan
+backend, loader, and model identities are in
 [`vulkan-iq3xxs-512k.yml`](../ansible/releases/vulkan-iq3xxs-512k.yml).
 
 ## Lucebox ROCm ROCmFPX
@@ -38,6 +37,6 @@ and model identities are in
 | RyzenAdj | [`FlyGoat/RyzenAdj`](https://github.com/FlyGoat/RyzenAdj), commit `5775fc3e6dbb25c7030ee2d100a1bdd6e8bf2d0a` |
 | AXB35 driver | [`cmetz/ec-su_axb35-linux`](https://github.com/cmetz/ec-su_axb35-linux), commit `7a9f372edcaa99e562dece70204c4f609692a778` |
 
-This repository downloads models and upstream runtime archives from their
-publishers. Its release asset contains only the patched Vulkan backend overlay,
-the corresponding source license, and a build manifest.
+This repository downloads models and upstream runtime archives directly from
+their publishers. The default Vulkan system has no repository-owned binary
+overlay.

@@ -44,29 +44,29 @@
   <line class="grid" x1="92" y1="315.00" x2="745" y2="315.00"/>
   <line class="grid" x1="765" y1="315.00" x2="850" y2="315.00"/>
   <text class="tick" x="80" y="319.00" text-anchor="end">0</text>
-  <path class="default-line" d="M97.08 165.60 L101.57 157.83 L111.13 161.57 L130.26 162.91 L168.52 166.28 L241.29 172.32 L398.09 183.88 L500.12 189.37 L622.56 197.48 L704.19 202.15"/>
-  <circle class="default-mark" cx="97.08" cy="165.60" r="4.5"/>
-  <text class="value" x="97.08" y="153.60" text-anchor="start">246.07</text>
-  <circle class="default-mark" cx="101.57" cy="157.83" r="4.5"/>
-  <text class="value" x="101.57" y="181.83" text-anchor="start">258.87</text>
-  <circle class="default-mark" cx="111.13" cy="161.57" r="4.5"/>
-  <text class="value" x="127.13" y="133.57" text-anchor="start">252.71</text>
-  <circle class="default-mark" cx="130.26" cy="162.91" r="4.5"/>
-  <text class="value" x="130.26" y="204.91" text-anchor="start">250.50</text>
-  <circle class="default-mark" cx="168.52" cy="166.28" r="4.5"/>
-  <text class="value" x="174.52" y="156.28" text-anchor="start">244.95</text>
-  <circle class="default-mark" cx="241.29" cy="172.32" r="4.5"/>
-  <text class="value" x="248.29" y="190.32" text-anchor="start">235.00</text>
-  <circle class="default-mark" cx="398.09" cy="183.88" r="4.5"/>
-  <text class="value" x="405.09" y="175.88" text-anchor="start">215.96</text>
-  <circle class="default-mark" cx="500.12" cy="189.37" r="4.5"/>
-  <text class="value" x="507.12" y="207.37" text-anchor="start">206.92</text>
-  <circle class="default-mark" cx="622.56" cy="197.48" r="4.5"/>
-  <text class="value" x="629.56" y="189.48" text-anchor="start">193.56</text>
-  <circle class="default-mark" cx="704.19" cy="202.15" r="4.5"/>
-  <text class="value" x="711.19" y="220.15" text-anchor="start">185.88</text>
-  <circle class="default-mark" cx="807.50" cy="226.47" r="4.5"/>
-  <text class="value" x="800.50" y="218.47" text-anchor="end">145.81</text>
+  <path class="default-line" d="M97.08 166.11 L101.57 157.07 L111.13 160.74 L130.26 160.21 L168.52 162.86 L241.29 166.74 L398.09 177.29 L500.12 182.30 L622.56 189.54 L704.19 193.45"/>
+  <circle class="default-mark" cx="97.08" cy="166.11" r="4.5"/>
+  <text class="value" x="97.08" y="154.11" text-anchor="start">245.23</text>
+  <circle class="default-mark" cx="101.57" cy="157.07" r="4.5"/>
+  <text class="value" x="101.57" y="181.07" text-anchor="start">260.12</text>
+  <circle class="default-mark" cx="111.13" cy="160.74" r="4.5"/>
+  <text class="value" x="127.13" y="132.74" text-anchor="start">254.07</text>
+  <circle class="default-mark" cx="130.26" cy="160.21" r="4.5"/>
+  <text class="value" x="130.26" y="202.21" text-anchor="start">254.94</text>
+  <circle class="default-mark" cx="168.52" cy="162.86" r="4.5"/>
+  <text class="value" x="174.52" y="152.86" text-anchor="start">250.59</text>
+  <circle class="default-mark" cx="241.29" cy="166.74" r="4.5"/>
+  <text class="value" x="248.29" y="184.74" text-anchor="start">244.19</text>
+  <circle class="default-mark" cx="398.09" cy="177.29" r="4.5"/>
+  <text class="value" x="405.09" y="169.29" text-anchor="start">226.82</text>
+  <circle class="default-mark" cx="500.12" cy="182.30" r="4.5"/>
+  <text class="value" x="507.12" y="200.30" text-anchor="start">218.56</text>
+  <circle class="default-mark" cx="622.56" cy="189.54" r="4.5"/>
+  <text class="value" x="629.56" y="181.54" text-anchor="start">206.65</text>
+  <circle class="default-mark" cx="704.19" cy="193.45" r="4.5"/>
+  <text class="value" x="711.19" y="211.45" text-anchor="start">200.21</text>
+  <circle class="default-mark" cx="807.50" cy="215.90" r="4.5"/>
+  <text class="value" x="800.50" y="207.90" text-anchor="end">163.23</text>
   <rect class="reference-mark" x="393.09" y="228.80" width="10" height="10"/>
   <text class="value" x="407.09" y="237.80" text-anchor="start">133.74</text>
   <text class="panel-title" x="92" y="365">Generation (tok/s)</text>
@@ -81,29 +81,29 @@
   <line class="grid" x1="92" y1="590.00" x2="745" y2="590.00"/>
   <line class="grid" x1="765" y1="590.00" x2="850" y2="590.00"/>
   <text class="tick" x="80" y="594.00" text-anchor="end">0</text>
-  <path class="default-line" d="M97.08 440.60 L101.57 443.61 L111.13 449.12 L130.26 439.32 L168.52 444.90 L241.29 452.18 L398.09 466.85 L500.12 474.90 L622.56 482.00 L704.19 487.19"/>
-  <circle class="default-mark" cx="97.08" cy="440.60" r="4.5"/>
-  <text class="value" x="97.08" y="428.60" text-anchor="start">39.55</text>
-  <circle class="default-mark" cx="101.57" cy="443.61" r="4.5"/>
-  <text class="value" x="101.57" y="467.61" text-anchor="start">38.75</text>
-  <circle class="default-mark" cx="111.13" cy="449.12" r="4.5"/>
-  <text class="value" x="127.13" y="421.12" text-anchor="start">37.29</text>
-  <circle class="default-mark" cx="130.26" cy="439.32" r="4.5"/>
-  <text class="value" x="130.26" y="481.32" text-anchor="start">39.89</text>
-  <circle class="default-mark" cx="168.52" cy="444.90" r="4.5"/>
-  <text class="value" x="174.52" y="434.90" text-anchor="start">38.41</text>
-  <circle class="default-mark" cx="241.29" cy="452.18" r="4.5"/>
-  <text class="value" x="248.29" y="470.18" text-anchor="start">36.48</text>
-  <circle class="default-mark" cx="398.09" cy="466.85" r="4.5"/>
-  <text class="value" x="405.09" y="458.85" text-anchor="start">32.60</text>
-  <circle class="default-mark" cx="500.12" cy="474.90" r="4.5"/>
-  <text class="value" x="507.12" y="492.90" text-anchor="start">30.47</text>
-  <circle class="default-mark" cx="622.56" cy="482.00" r="4.5"/>
-  <text class="value" x="629.56" y="474.00" text-anchor="start">28.59</text>
-  <circle class="default-mark" cx="704.19" cy="487.19" r="4.5"/>
-  <text class="value" x="711.19" y="505.19" text-anchor="start">27.21</text>
-  <circle class="default-mark" cx="807.50" cy="514.41" r="4.5"/>
-  <text class="value" x="800.50" y="506.41" text-anchor="end">20.01</text>
+  <path class="default-line" d="M97.08 438.75 L101.57 442.75 L111.13 447.58 L130.26 438.53 L168.52 440.85 L241.29 446.81 L398.09 455.03 L500.12 461.10 L622.56 466.22 L704.19 469.98"/>
+  <circle class="default-mark" cx="97.08" cy="438.75" r="4.5"/>
+  <text class="value" x="97.08" y="426.75" text-anchor="start">40.04</text>
+  <circle class="default-mark" cx="101.57" cy="442.75" r="4.5"/>
+  <text class="value" x="101.57" y="466.75" text-anchor="start">38.98</text>
+  <circle class="default-mark" cx="111.13" cy="447.58" r="4.5"/>
+  <text class="value" x="127.13" y="419.58" text-anchor="start">37.70</text>
+  <circle class="default-mark" cx="130.26" cy="438.53" r="4.5"/>
+  <text class="value" x="130.26" y="480.53" text-anchor="start">40.09</text>
+  <circle class="default-mark" cx="168.52" cy="440.85" r="4.5"/>
+  <text class="value" x="174.52" y="430.85" text-anchor="start">39.48</text>
+  <circle class="default-mark" cx="241.29" cy="446.81" r="4.5"/>
+  <text class="value" x="248.29" y="464.81" text-anchor="start">37.90</text>
+  <circle class="default-mark" cx="398.09" cy="455.03" r="4.5"/>
+  <text class="value" x="405.09" y="447.03" text-anchor="start">35.73</text>
+  <circle class="default-mark" cx="500.12" cy="461.10" r="4.5"/>
+  <text class="value" x="507.12" y="479.10" text-anchor="start">34.12</text>
+  <circle class="default-mark" cx="622.56" cy="466.22" r="4.5"/>
+  <text class="value" x="629.56" y="458.22" text-anchor="start">32.77</text>
+  <circle class="default-mark" cx="704.19" cy="469.98" r="4.5"/>
+  <text class="value" x="711.19" y="487.98" text-anchor="start">31.77</text>
+  <circle class="default-mark" cx="807.50" cy="495.48" r="4.5"/>
+  <text class="value" x="800.50" y="487.48" text-anchor="end">25.02</text>
   <rect class="reference-mark" x="393.09" y="523.80" width="10" height="10"/>
   <text class="value" x="407.09" y="532.80" text-anchor="start">16.20</text>
   <line class="axis" x1="92" y1="610" x2="745" y2="610"/>

@@ -1,6 +1,6 @@
 {
-  "schema": 7,
-  "published_at": "2026-08-25",
+  "schema": 8,
+  "published_at": "2026-08-27",
   "default_system": "vulkan-iq3xxs",
   "hardware": {
     "system": "BOSGAME M5 / Sixunited AXB35-02",
@@ -28,20 +28,6 @@
         "BOSGAME_DELTA": "saffron comet",
         "BOSGAME_ECHO": "tundra violin"
       }
-    },
-    "generation_2k": {
-      "definition": "generated-token throughput after a deterministic approximately 2,000-token prompt",
-      "instruction": "This is a deterministic throughput test. After reading the padding, output consecutive positive integers from 1 through 100000, one per line, with no commentary. Do not stop before reaching 100000; the endpoint will stop generation.\n\nPadding:\n",
-      "padding_unit": " x",
-      "prompt_sha256": "3ed38be9c93333e209a66ada0b10efbde517b06f9a6b6d727b0e216b0c890463",
-      "requested_input_tokens": 2048,
-      "requested_output_tokens": 510,
-      "temperature": 0,
-      "top_k": 1,
-      "top_p": 1,
-      "ignore_eos": true,
-      "thinking": false,
-      "warmups": 1
     },
     "quality": {
       "source_repository": "https://github.com/Luce-Org/lucebox",
@@ -77,15 +63,11 @@
       "name": "Strix Halo llama.cpp Vulkan IQ3_XXS",
       "manifest": "ansible/releases/vulkan-iq3xxs-512k.yml",
       "runtime": {
-        "release": "v0.6.6",
-        "source_commit": "7b6c61330edf370659f531932e0b91aca67ba055",
-        "build": "b10569-7b6c6133",
-        "patch": {
-          "file": "patches/0001-vulkan-lightning-indexer-small-cm-4-15.patch",
-          "sha256": "fdc4a52cdea142f9c73700fdbdb78cba41e949a9ffb803213a64cbd2d953d92b",
-          "environment": "GGML_VK_LIGHTNING_INDEXER_SMALL_CM=1",
-          "dispatch_batches": "4-15"
-        }
+        "release": "v0.7.0",
+        "source_commit": "95c828eeb315a7ba6f50fcf632c29f8de2ec1a6e",
+        "build": "b10608-95c828ee",
+        "local_source_patches": 0,
+        "indexer_routing": "official-default"
       },
       "power_watts": {"stapm": 120, "fast": 120, "slow": 120},
       "cpu": {"governor": "performance", "minimum_khz": 2000000, "boost": false},
@@ -97,17 +79,10 @@
       "deep_retrieval": {
         "allocation_tokens": 131072,
         "needle_passes": 5,
-        "prefill_tokens_per_second": 215.95572624132706,
-        "decode_tokens_per_second": 32.598007560261955,
+        "prefill_tokens_per_second": 226.81913230225476,
+        "decode_tokens_per_second": 35.72862885281252,
         "draft_acceptance_rate": 1.0,
         "oom_events": 0
-      },
-      "generation_2k": {
-        "actual_input_tokens": 2040,
-        "runs": 1,
-        "prefill_tokens_per_second": 32.06618460502477,
-        "generated_tokens_per_second": 40.79075074134585,
-        "acceptance_rate": 1.0
       },
       "quality": {
         "coding": 10,
@@ -121,8 +96,8 @@
           "allocation_tokens": 131072,
           "actual_input_tokens": 2040,
           "prompt_sha256": "43c4f2c4f02b5cd72255992888d11e76d31d3bcb15aeb8188b59cb97aab6ab2b",
-          "prefill_tokens_per_second": 246.0739741791201,
-          "decode_tokens_per_second": 39.5483676536404,
+          "prefill_tokens_per_second": 245.22670427450578,
+          "decode_tokens_per_second": 40.03748319312612,
           "needle_passes": 5
         },
         {
@@ -130,8 +105,8 @@
           "allocation_tokens": 131072,
           "actual_input_tokens": 3840,
           "prompt_sha256": "0138aecad1e2535387f5279f59f6218520bb4bbe73d144e2953e303bd9afa5a0",
-          "prefill_tokens_per_second": 258.8744905683731,
-          "decode_tokens_per_second": 38.750201439539225,
+          "prefill_tokens_per_second": 260.12138049397186,
+          "decode_tokens_per_second": 38.97921479774737,
           "needle_passes": 5
         },
         {
@@ -139,8 +114,8 @@
           "allocation_tokens": 131072,
           "actual_input_tokens": 7680,
           "prompt_sha256": "7e0dc9335f919a541ecfb424d57bc9b1ef5c3b990b8b600087a3fe7ffa16c3ed",
-          "prefill_tokens_per_second": 252.70627692777873,
-          "decode_tokens_per_second": 37.29210242960407,
+          "prefill_tokens_per_second": 254.07023493755526,
+          "decode_tokens_per_second": 37.699401199890815,
           "needle_passes": 5
         },
         {
@@ -148,8 +123,8 @@
           "allocation_tokens": 131072,
           "actual_input_tokens": 15359,
           "prompt_sha256": "e8054cf1e41b9d503f4fec0bbdba3a40c864c23d7c782526d6def07a4844a386",
-          "prefill_tokens_per_second": 250.5007650393506,
-          "decode_tokens_per_second": 39.8860903907444,
+          "prefill_tokens_per_second": 254.94375343899767,
+          "decode_tokens_per_second": 40.09454675978784,
           "needle_passes": 5
         },
         {
@@ -157,8 +132,8 @@
           "allocation_tokens": 131072,
           "actual_input_tokens": 30720,
           "prompt_sha256": "870891577591a004311ca66d539beafd9ba2af319c04e61b8c3dc1331a17b1a2",
-          "prefill_tokens_per_second": 244.94799934176606,
-          "decode_tokens_per_second": 38.40882598241242,
+          "prefill_tokens_per_second": 250.5884648370669,
+          "decode_tokens_per_second": 39.48028899571545,
           "needle_passes": 5
         },
         {
@@ -166,8 +141,8 @@
           "allocation_tokens": 131072,
           "actual_input_tokens": 59933,
           "prompt_sha256": "106bb660430f97f3ca13aa51b43664fef77cbd3cf910b0d08dbcb204f0e82cc1",
-          "prefill_tokens_per_second": 234.99717999855105,
-          "decode_tokens_per_second": 36.48119902156501,
+          "prefill_tokens_per_second": 244.1880500024342,
+          "decode_tokens_per_second": 37.90194048339847,
           "needle_passes": 5
         },
         {
@@ -175,8 +150,8 @@
           "allocation_tokens": 131072,
           "actual_input_tokens": 122879,
           "prompt_sha256": "f5d337a32fbf5e29f150974500a8d49cff172c2d03c125a243f6c990e1dbd7a3",
-          "prefill_tokens_per_second": 215.95572624132706,
-          "decode_tokens_per_second": 32.598007560261955,
+          "prefill_tokens_per_second": 226.81913230225476,
+          "decode_tokens_per_second": 35.72862885281252,
           "needle_passes": 5
         },
         {
@@ -184,8 +159,8 @@
           "allocation_tokens": 262144,
           "actual_input_tokens": 163840,
           "prompt_sha256": "2df7bd978960015d35c9e4efe5025aabf9e8e13954ef6ab7bf94b2d06950fa3b",
-          "prefill_tokens_per_second": 206.92447260917555,
-          "decode_tokens_per_second": 30.468603261374717,
+          "prefill_tokens_per_second": 218.55936230823872,
+          "decode_tokens_per_second": 34.121673568746964,
           "needle_passes": 5
         },
         {
@@ -193,8 +168,8 @@
           "allocation_tokens": 262144,
           "actual_input_tokens": 212992,
           "prompt_sha256": "2c012ddee01827965c890f3c5a57d219f5c429c41bb2609bbf3859146deb5147",
-          "prefill_tokens_per_second": 193.5603329998912,
-          "decode_tokens_per_second": 28.588343772300718,
+          "prefill_tokens_per_second": 206.64686081649828,
+          "decode_tokens_per_second": 32.766391802263534,
           "needle_passes": 5
         },
         {
@@ -202,8 +177,8 @@
           "allocation_tokens": 262144,
           "actual_input_tokens": 245760,
           "prompt_sha256": "a014dfcb38f2cc4a2ba34c0bb6d357afa3ed706b807dca7e1386a37d9886639d",
-          "prefill_tokens_per_second": 185.87871154041468,
-          "decode_tokens_per_second": 27.21461514400321,
+          "prefill_tokens_per_second": 200.20523822977776,
+          "decode_tokens_per_second": 31.769062241625033,
           "needle_passes": 5
         },
         {
@@ -211,23 +186,33 @@
           "allocation_tokens": 524288,
           "actual_input_tokens": 491520,
           "prompt_sha256": "c0d21b6084d82783f2f427d48081845b5002f907882dab9b9a35d3c8d86bb5e2",
-          "prefill_tokens_per_second": 145.80848601846648,
-          "decode_tokens_per_second": 20.00789517895474,
+          "prefill_tokens_per_second": 163.226058099713,
+          "decode_tokens_per_second": 25.020661903738763,
           "needle_passes": 5,
-          "draft_acceptance_rate": 1.0,
+          "draft_acceptance_rate": 0.9807692307692307,
           "oom_events": 0
         }
       ],
-      "patch_qualification": {
-        "kernel_correctness_cases": 600,
-        "kernel_correctness_passes": 600,
+      "release_qualification": {
+        "context_scaling_points": 11,
+        "retrieval_passes": 55,
+        "retrieval_total": 55,
+        "geomean_prefill_ratio_to_v0_6_6": 1.040976096845224,
+        "geomean_decode_ratio_to_v0_6_6": 1.077358500410782,
+        "prefill_ratio_to_v0_6_6_at_491520": 1.1194551329408948,
+        "decode_ratio_to_v0_6_6_at_491520": 1.2505394335560438,
+        "speculative_decode_ratio_to_no_spec_at_491520": 2.105818733644728,
         "quality_passes": 30,
         "quality_total": 30,
         "held_out_exact_matches": 12,
         "held_out_total": 12,
         "maximum_reasoning_operational_successes": 15,
         "maximum_reasoning_runs": 15,
-        "maximum_reasoning_truncations": 0
+        "maximum_reasoning_truncations": 0,
+        "cache_hits": 5,
+        "cache_eligible_requests": 5,
+        "responses_namespace_passed": true,
+        "live_exa_passed": true
       },
       "fan_control": {
         "strategy": "GPU-demand-based",
@@ -260,13 +245,6 @@
         "needle_passes": 5,
         "prefill_tokens_per_second": 133.7426769084554,
         "decode_tokens_per_second": 16.2
-      },
-      "generation_2k": {
-        "actual_input_tokens": 2048,
-        "runs": 3,
-        "prefill_tokens_per_second_median": 247.28923663937795,
-        "generated_tokens_per_second_median": 30.6,
-        "acceptance_rate_median": 1.0
       },
       "quality": {"coding": 10, "gsm8k": 10, "math": 10, "total": 30},
       "context_scaling": [

@@ -4,7 +4,7 @@
 
 | Layer | Strix Halo llama.cpp Vulkan IQ3_XXS | Lucebox ROCm ROCmFPX |
 |---|---|---|
-| Runtime | `strix-halo-llamacpp` v0.6.6 portable release, commit `7b6c61330edf370659f531932e0b91aca67ba055`, plus the [4–15 Lightning Indexer dispatch patch](../patches/0001-vulkan-lightning-indexer-small-cm-4-15.patch) | Lucebox commit `f686c447f067a04ea100a996e4c826e8cc4decc1` plus [four patches](#lucebox-source-modifications) |
+| Runtime | Official `strix-halo-llamacpp` v0.7.0 portable release, commit `95c828eeb315a7ba6f50fcf632c29f8de2ec1a6e`, without local source patches | Lucebox commit `f686c447f067a04ea100a996e4c826e8cc4decc1` plus [four patches](#lucebox-source-modifications) |
 | GPU backend | Bundled Mesa RADV/Vulkan | Ubuntu ROCm 7.1, HIP `gfx1151`, rocWMMA `rocm-7.1.1` |
 | Target | Unsloth UD-IQ3_XXS, four GGUF files, 104.21 GB | ROCmFPX MIX, one GGUF file, 98.29 GB |
 | Draft | DSpark Q2_K/Q8_0, 6.98 GB | DSpark Q4RMFP4 dense-F16, 10.65 GB |
@@ -18,14 +18,13 @@
 The target model verifies final output in both systems; the draft model only
 proposes tokens.
 
-## Runtime modification status
+## Runtime status
 
-The Strix Halo release keeps the v0.6.6 executable, launcher, bundled RADV
-driver, and runtime libraries. A pinned overlay replaces only
-`libggml-vulkan.so.0.20.1` with a clean rebuild from the same source commit and
-the five-line 4–15 dispatch patch. The environment switch remains explicit, so
-the upstream scalar dispatch is used if `GGML_VK_LIGHTNING_INDEXER_SMALL_CM`
-is not enabled.
+The Strix Halo system uses the official v0.7.0 archive as published: launcher,
+server, Vulkan backend, bundled RADV driver, and runtime libraries are pinned by
+SHA-256. No local Vulkan overlay or Lightning Indexer routing override is
+applied. The release keeps the qualified upstream tuning environment, including
+`GGML_VK_MMID_M128=1`.
 
 ### Lucebox source modifications
 
