@@ -4,7 +4,7 @@
 
 | Layer | Strix Halo llama.cpp Vulkan IQ3_XXS | Lucebox ROCm ROCmFPX |
 |---|---|---|
-| Runtime | Official `strix-halo-llamacpp` v0.7.0 portable release, commit `95c828eeb315a7ba6f50fcf632c29f8de2ec1a6e`, without local source patches | Unmodified Lucebox commit `2f136181b0b387592e413a81dedc0cd79991e128` from [PR 667](https://github.com/Luce-Org/lucebox/pull/667) |
+| Runtime | Official `strix-halo-llamacpp` v0.7.0 portable release, commit `95c828eeb315a7ba6f50fcf632c29f8de2ec1a6e`, without local source patches | Unmodified Lucebox commit `5eb4fbe95e13944ad964bd7e42980bca518e3d5c` from [PR 667](https://github.com/Luce-Org/lucebox/pull/667) |
 | GPU backend | Bundled Mesa RADV/Vulkan | Ubuntu ROCm 7.1, HIP `gfx1151`, rocWMMA `rocm-7.1.1` |
 | Target | Unsloth UD-IQ3_XXS, four GGUF files, 104.21 GB | ROCmFPX MIX, one GGUF file, 98.29 GB |
 | Draft | DSpark Q2_K/Q8_0, 6.98 GB | DSpark Q4RMFP4 dense-F16, 10.65 GB |
@@ -28,12 +28,12 @@ applied. The release keeps the qualified upstream tuning environment, including
 
 ### Lucebox runtime
 
-The pinned clean source includes gfx1151 Q4 MMVF projection, ROCmFP2/3 MoE
-kernels, incremental speculative-verification masks, adaptive speculative
-width, and hierarchical top-512 selection. The production profile explicitly
-enables block-radix top-k selection; direct-visible attention and fused MoE
-combine remain disabled. Server, feature-gate, ROCmFPX numerical,
-grouped-dispatch, top-k, and MoE-combine tests run during the build.
+The pinned clean source includes gfx1151 split-KV indexed MLA, Q4 MMVF
+projection, ROCmFP2/3 Wave32 kernels, four-row ROCmFP2 activation reuse, sparse
+verifier attention, incremental speculative-verification masks, and exact
+block-radix top-k selection. Fixed speculative width Q=4 is the default;
+adaptive width is opt-in. Server, feature-gate, DeepSeek 4, ROCmFPX numerical,
+grouped-dispatch, and top-k tests run during the build.
 
 ## Shared host layer
 

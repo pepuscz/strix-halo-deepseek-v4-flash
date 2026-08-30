@@ -16,7 +16,7 @@ target, a DSpark Q2_K/Q8_0 draft, q8_0 K/V, and one 524,288-token slot. Deploy
 ### Alternative: Lucebox ROCm ROCmFPX
 
 The leading alternative builds unmodified
-[`Luce-Org/lucebox`](https://github.com/Luce-Org/lucebox) commit `2f13618` from
+[`Luce-Org/lucebox`](https://github.com/Luce-Org/lucebox) commit `5eb4fbe` from
 [PR 667](https://github.com/Luce-Org/lucebox/pull/667), with a ROCmFPX MIX
 target, a DSpark Q4RMFP4 draft, q4_0 K/V, and one 131,072-token slot. Deploy
 [`rocm-rocmfpx-128k.yml`](ansible/releases/rocm-rocmfpx-128k.yml); the enabled
@@ -31,13 +31,12 @@ different ROCm execution path.
 | System | 122,879-token input processing | Generation | Quality |
 |---|---:|---:|---:|
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 226.82 tok/s | 35.73 tok/s | 30/30 |
-| **Lucebox ROCm ROCmFPX** | 145.68 tok/s | 26.50 tok/s | 29/30 |
+| **Lucebox ROCm ROCmFPX** | 142.82 tok/s | 29.60 tok/s | 29/30 |
 
 Every published retrieval point recovered all five keys byte-for-byte. The
-quality difference is one MATH-style response that exhausted its 2,048-token
-completion limit before producing the answer.
+quality difference is one MATH-style answer mismatch (`998` instead of `997`).
 
-![Cold-retrieval input-processing and generation throughput for Strix Halo llama.cpp Vulkan IQ3_XXS on a linear prompt-length axis through 256K, with the 491,520-token measurement isolated after an explicit axis break and the Lucebox ROCm ROCmFPX 122,879-token result](docs/benchmark.svg)
+![Cold-retrieval input-processing and generation throughput for Strix Halo llama.cpp Vulkan IQ3_XXS and Lucebox ROCm ROCmFPX on a linear prompt-length axis through 256K, with the 491,520-token Vulkan measurement isolated after an explicit axis break](docs/benchmark.svg)
 
 See [BENCHMARKS.md](docs/BENCHMARKS.md) for the complete results, protocols,
 and reproducibility data.

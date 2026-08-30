@@ -16,7 +16,7 @@ disabled.
 | System | 122,879-token input | 122,879-token generation | Quality |
 |---|---:|---:|---:|
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 226.82 tok/s | 35.73 tok/s | 30/30 |
-| **Lucebox ROCm ROCmFPX** | 145.68 tok/s | 26.50 tok/s | 29/30 |
+| **Lucebox ROCm ROCmFPX** | 142.82 tok/s | 29.60 tok/s | 29/30 |
 
 The default leads generation, long-prompt input processing, and the published
 quality set. Both systems recover all five retrieval keys.
@@ -39,7 +39,9 @@ cold five-key retrieval workload.
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 262,144 | 212,992 | 206.65 tok/s | 32.77 tok/s |
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 262,144 | 245,760 | 200.21 tok/s | 31.77 tok/s |
 | **Strix Halo llama.cpp Vulkan IQ3_XXS** | 524,288 | 491,520 | 163.23 tok/s | 25.02 tok/s |
-| **Lucebox ROCm ROCmFPX** | 131,072 | 122,879 | 145.68 tok/s | 26.50 tok/s |
+| **Lucebox ROCm ROCmFPX** | 131,072 | 7,680 | 213.91 tok/s | 36.90 tok/s |
+| **Lucebox ROCm ROCmFPX** | 131,072 | 30,720 | 201.68 tok/s | 32.00 tok/s |
+| **Lucebox ROCm ROCmFPX** | 131,072 | 122,879 | 142.82 tok/s | 29.60 tok/s |
 
 Every retrieval row recovered 5/5 keys byte-for-byte.
 
@@ -62,10 +64,10 @@ prefixes. Streaming, non-streaming, namespace, JSON-normalization, and live Exa
 contracts passed. At 491,520 tokens, speculative decoding was 2.11× the matched
 no-spec generation rate.
 
-Lucebox commit `2f13618` passed its pinned build and kernel tests, 5/5 exact
-retrieval, 12/12 Hermes tool-result cases, and the memory and thermal checks.
-It scored 29/30 because `math_10` reached its 2,048-token completion limit
-without emitting the expected final answer.
+Lucebox commit `5eb4fbe` passed its pinned build and kernel tests, 15/15 exact
+retrieval checks across 7,680, 30,720, and 122,879 input tokens, 12/12 Hermes
+tool-result cases, and the memory and safety checks. It scored 29/30 because
+`math_10` returned `998`; the expected answer is `997`.
 
 ## Quality detail
 

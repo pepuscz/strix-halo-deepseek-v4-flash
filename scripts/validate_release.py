@@ -135,8 +135,8 @@ def validate_manifest(path: Path, root: Path) -> dict:
             rocm.get("qualified_rocwmma_path"),
         )
         if qualified_paths != (
-            "/opt/m5/src/lucebox-047-pr667",
-            "/opt/m5/src/lucebox-047-pr667/server/build-qualified",
+            "/opt/m5/src/lucebox-050-pr667-5eb4fbe",
+            "/opt/m5/src/lucebox-050-pr667-5eb4fbe/server/build-qualified",
             "/opt/m5/src/rocWMMA-rocm-7.1.1-public-v2",
         ):
             fail("ROCm absolute build paths drifted from the qualified ELF inputs")
